@@ -24,6 +24,10 @@ const geistMono = localFont({
   variable: "--font-geist-mono",
 });
 
+// The company name is admin-editable and read from the database, so pages must
+// render at request time (the Docker build has no database to prerender from).
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata(): Promise<Metadata> {
   return {
     title: `${await getCompanyName()} — Recrutement`,
