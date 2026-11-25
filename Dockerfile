@@ -54,8 +54,8 @@ COPY --from=builder --chown=nextjs:nodejs /app/prisma.config.ts ./prisma.config.
 COPY --from=builder --chown=nextjs:nodejs /app/scripts         ./scripts
 
 # Persistent data directories — mount as Docker volumes
-RUN mkdir -p /data public/uploads \
- && chown nextjs:nodejs /data public/uploads
+RUN mkdir -p /data private/uploads \
+ && chown nextjs:nodejs /data private/uploads
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh \
