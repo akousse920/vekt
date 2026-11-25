@@ -10,4 +10,4 @@ export async function getCompanyName(): Promise<string> {
 export function getCompanyInitials(name: string): string {
   return name.trim().split(/\s+/).slice(0, 2).map((part) => part[0]?.toLocaleUpperCase("fr") ?? "").join("");
 }
-export const PRIVACY_POLICY_VERSION = "2026-03-13";
+export const PRIVACY_POLICY_VERSION = "2026-11-25";
