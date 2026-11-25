@@ -22,17 +22,17 @@ export function AiDisclosure({ compact = false, aiEnabled = true }: { compact?: 
         <p className="font-medium text-foreground">
           {aiEnabled
             ? "Une IA aide à analyser cette candidature."
-            : "Vos réponses sont comparées aux critères de l’offre."}
+            : "Votre candidature est examinée par notre équipe."}
         </p>
         {!compact && (
           <p className="mt-1">
             {aiEnabled
               ? "Le CV est comparé aux critères de l’offre. Les informations d’identité sont retirées avant l’analyse. Une personne prend la décision."
-              : "Si elles y correspondent, votre candidature est transmise directement au recruteur ; sinon, un membre de l’équipe l’examine avant toute décision. Votre CV n’est pas analysé par une IA."}
+              : "Vos réponses aux questions nous aident à orienter votre dossier vers la bonne personne. Votre CV n’est pas analysé par une IA."}
           </p>
         )}
         <p className="mt-1">
-          Vous pouvez demander à tout moment comment votre candidature a été examinée. Plus d’informations dans la{" "}
+          Une question sur le traitement de votre candidature ? Consultez notre{" "}
           <Link
             href="/privacy"
             target="_blank"
