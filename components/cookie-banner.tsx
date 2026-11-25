@@ -23,7 +23,7 @@ export default function CookieBanner() {
     <div
       role="dialog"
       aria-live="polite"
-      aria-label="Cookie notice"
+      aria-label="Information sur les cookies"
       className="fixed bottom-0 left-0 right-0 z-50 border-t bg-card/95 backdrop-blur-sm shadow-lg"
     >
       <div className="mx-auto flex max-w-5xl flex-col gap-4 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
@@ -32,18 +32,18 @@ export default function CookieBanner() {
           <CookieIcon weight="duotone" className="size-5 text-primary mt-0.5 shrink-0" />
           <div className="flex flex-col gap-1 min-w-0">
             <p className="text-sm font-medium text-foreground">
-              This site uses strictly necessary cookies
+              Ce site utilise uniquement les cookies nécessaires
             </p>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              A session cookie is required for login to function. No tracking
-              or advertising cookies are used. See our{" "}
+              Un cookie de session permet la connexion. Aucun cookie publicitaire
+              ou de suivi n’est utilisé. Consultez notre{" "}
               <Link
                 href="/privacy"
                 className="underline underline-offset-3 hover:text-foreground transition-colors"
               >
-                Privacy Policy
+                politique de confidentialité
               </Link>{" "}
-              for details.
+              pour en savoir plus.
             </p>
           </div>
         </div>
@@ -51,7 +51,7 @@ export default function CookieBanner() {
         {/* Action */}
         <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
           <Button size="sm" onClick={dismiss}>
-            OK, got it
+            J’ai compris
           </Button>
         </div>
       </div>

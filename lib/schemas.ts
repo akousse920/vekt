@@ -20,14 +20,15 @@ export const jobSchema = z.object({
   location: z.string().optional(),
   customPrompt: z.string().optional(),
   threshold: z.number().int().min(0).max(100).optional(),
+  notifyOnApplication: z.boolean().optional(),
 });
 
 export const candidateAnswersSchema = z
   .array(
-    z.object({
-      questionId: z.string().cuid(),
-      optionIds: z.array(z.string().cuid()).min(1).max(10),
-    }),
+    z.union([
+      z.object({ questionId: z.string().cuid(), optionIds: z.array(z.string().cuid()).min(1).max(10), text: z.never().optional() }),
+      z.object({ questionId: z.string().cuid(), text: z.string().trim().min(1).max(2000), optionIds: z.never().optional() }),
+    ]),
   )
   .max(20);
 

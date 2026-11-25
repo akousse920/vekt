@@ -16,11 +16,14 @@ model Job {
   customPrompt        String?
   threshold           Int                 @default(75)
   isActive            Boolean             @default(true)
+  notifyOnApplication Boolean             @default(true)
   createdAt           DateTime            @default(now())
   updatedAt           DateTime            @updatedAt
   candidates          Candidate[]
   views               JobView[]
   screeningQuestions  ScreeningQuestion[]
+  screeningRules      ScreeningRule[]
+  rubricCriteria      RubricCriterion[]
   createdById         String?
   createdBy           User?               @relation(fields: [createdById], references: [id], onDelete: SetNull)
 }
@@ -34,6 +37,32 @@ model ScreeningQuestion {
   order   Int               @default(0)
   options ScreeningOption[]
   answers CandidateAnswer[]
+  textAnswers CandidateTextAnswer[]
+  rules   ScreeningRule[]
+}
+
+model ScreeningRule {
+  id         String            @id @default(cuid())
+  jobId      String
+  job        Job               @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  questionId String
+  question   ScreeningQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  operator   ScreeningOperator
+  value      String
+  mandatory  Boolean           @default(true)
+  createdAt  DateTime          @default(now())
+}
+
+model RubricCriterion {
+  id        String   @id @default(cuid())
+  jobId     String
+  job       Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  label     String
+  weight    Int
+  required  Boolean  @default(false)
+  order     Int      @default(0)
+
+  @@index([jobId])
 }
 
 model ScreeningOption {
@@ -55,6 +84,17 @@ model CandidateAnswer {
   option      ScreeningOption   @relation(fields: [optionId], references: [id], onDelete: Cascade)
 
   @@unique([candidateId, questionId, optionId])
+}
+
+model CandidateTextAnswer {
+  id          String            @id @default(cuid())
+  candidateId String
+  candidate   Candidate         @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  questionId  String
+  question    ScreeningQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  text        String
+
+  @@unique([candidateId, questionId])
 }
 
 model JobView {
@@ -83,6 +123,20 @@ model Candidate {
   emailOptOut          Boolean         @default(false)
   emailLogs            EmailLog[]
   answers              CandidateAnswer[]
+  textAnswers          CandidateTextAnswer[]
+  decisionReasons      DecisionReason[]
+}
+
+model DecisionReason {
+  id          String    @id @default(cuid())
+  candidateId String
+  candidate   Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  stage       String
+  ruleId      String?
+  detail      String
+  createdAt   DateTime  @default(now())
+
+  @@index([candidateId])
 }
 
 /// Record of a single AI evaluation.
@@ -107,6 +161,10 @@ model Evaluation {
   evaluatorVersion String   @default("")
   /// JSON object of identifier redaction counts, e.g. {"email":1,"name":3}
   redactions       String   @default("{}")
+  /// JSON snapshot of the per-job weighted rubric in force at evaluation time.
+  rubricSnapshot   String   @default("[]")
+  /// JSON array of criterion scores and evidence returned by the model.
+  rubricBreakdown  String   @default("[]")
   /// True if the deployer had AUTO_REJECT_BELOW_THRESHOLD enabled at the time
   autoDecision     Boolean  @default(false)
   createdAt        DateTime @default(now())
@@ -151,6 +209,15 @@ model EmailLog {
 enum QuestionType {
   SINGLE
   MULTIPLE
+  TEXT
+}
+
+enum ScreeningOperator {
+  EQUALS
+  NOT_EQUALS
+  IN
+  GTE
+  LTE
 }
 
 enum CandidateStatus {

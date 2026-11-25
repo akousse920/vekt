@@ -32,8 +32,8 @@ services:
       SEED_ADMIN_PASSWORD: "${SEED_ADMIN_PASSWORD:-}"
 
       # ── AI evaluation ───────────────────────────────────────────────────────
-      # Choices: mock (default) | openai | openrouter | ollama
-      AI_PROVIDER: "${AI_PROVIDER:-mock}"
+      # Choices: none (default) | mock (tests only) | openai | openrouter | ollama
+      AI_PROVIDER: "${AI_PROVIDER:-none}"
       OPENAI_API_KEY: "${OPENAI_API_KEY:-}"
       OPENROUTER_API_KEY: "${OPENROUTER_API_KEY:-}"
       OPENROUTER_MODEL: "${OPENROUTER_MODEL:-openai/gpt-4o-mini}"

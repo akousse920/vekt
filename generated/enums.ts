@@ -11,10 +11,22 @@
 
 export const QuestionType = {
   SINGLE: 'SINGLE',
-  MULTIPLE: 'MULTIPLE'
+  MULTIPLE: 'MULTIPLE',
+  TEXT: 'TEXT'
 } as const
 
 export type QuestionType = (typeof QuestionType)[keyof typeof QuestionType]
+
+
+export const ScreeningOperator = {
+  EQUALS: 'EQUALS',
+  NOT_EQUALS: 'NOT_EQUALS',
+  IN: 'IN',
+  GTE: 'GTE',
+  LTE: 'LTE'
+} as const
+
+export type ScreeningOperator = (typeof ScreeningOperator)[keyof typeof ScreeningOperator]
 
 
 export const CandidateStatus = {

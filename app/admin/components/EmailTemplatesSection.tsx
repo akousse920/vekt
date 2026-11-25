@@ -20,11 +20,11 @@ type Props = {
 };
 
 const EMAIL_TYPES = [
-  { key: "APPLIED", label: "Application Received", description: "Sent immediately when a candidate submits their application." },
-  { key: "SHORTLISTED", label: "Application Shortlisted", description: "Sent when the AI scores a candidate above the job threshold." },
-  { key: "REJECTED", label: "Application Rejected", description: "Sent when a recruiter rejects a candidate — or automatically on a below-threshold score, if AUTO_REJECT_BELOW_THRESHOLD is enabled." },
-  { key: "ACCEPTED", label: "Application Accepted", description: "Sent when a recruiter manually accepts a candidate." },
-  { key: "DATA_RETENTION_WARNING", label: "Data Retention Warning", description: "Sent 7 days before a candidate's data is deleted (GDPR). Always sent regardless of opt-out." },
+  { key: "APPLIED", label: "Candidature reçue", description: "Envoyé après le dépôt d’une candidature." },
+  { key: "SHORTLISTED", label: "Candidature transmise", description: "Envoyé lorsqu’un dossier est transmis au recruteur." },
+  { key: "REJECTED", label: "Candidature refusée", description: "Envoyé après une décision de refus." },
+  { key: "ACCEPTED", label: "Candidature acceptée", description: "Envoyé après une décision d’acceptation." },
+  { key: "DATA_RETENTION_WARNING", label: "Fin de conservation des données", description: "Envoyé avant la suppression prévue des données du candidat." },
 ] as const;
 
 const TEMPLATE_VARS = "{{candidateName}}, {{jobTitle}}, {{companyName}}, {{statusPageUrl}}, {{retentionDate}}";
@@ -100,26 +100,26 @@ export default function EmailTemplatesSection({ templates, setTemplates, setting
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-xs text-muted-foreground -mt-2">
-        Customise the emails sent to candidates at each stage. Supported variables: <code className="bg-muted px-1 py-0.5 rounded text-[11px]">{TEMPLATE_VARS}</code>
+      <p className="-mt-2 text-sm text-muted-foreground">
+        Personnalisez les e-mails envoyés aux candidats. Variables disponibles : <code className="rounded bg-muted px-1 py-0.5 text-sm">{TEMPLATE_VARS}</code>
       </p>
 
-      <Card>
+      <Card className="border-[#d8e0e8] bg-white shadow-sm">
         <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-medium">Status email delay</CardTitle>
-          <CardDescription className="text-xs">
-            Status-change emails (e.g. shortlisted, rejected) are held for this many hours before sending. Set to <strong>0</strong> to send immediately.
+          <CardTitle className="text-lg font-semibold">Délai d’envoi</CardTitle>
+          <CardDescription className="text-sm">
+            Les e-mails de changement de statut sont différés du nombre d’heures indiqué. Choisissez <strong>0</strong> pour un envoi immédiat.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSaveEmailDelay} className="flex items-end gap-3">
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="email-delay-hours" className="text-xs">Delay (hours)</Label>
-              <Input id="email-delay-hours" type="number" min={0} max={168} required value={emailDelayHours} onChange={(e) => setEmailDelayHours(e.target.value)} className="h-8 w-28 text-sm" />
+              <Label htmlFor="email-delay-hours" className="text-xs">Délai (heures)</Label>
+              <Input id="email-delay-hours" type="number" min={0} max={168} required value={emailDelayHours} onChange={(e) => setEmailDelayHours(e.target.value)} className="h-11 w-32 bg-white" />
             </div>
-            <Button type="submit" size="sm" disabled={isSavingEmailDelay}>
+            <Button type="submit" disabled={isSavingEmailDelay} className="brand-cta h-11 rounded-xl px-5 font-semibold">
               {isSavingEmailDelay && <CircleNotchIcon className="size-4 animate-spin mr-1" />}
-              Save
+              Enregistrer
             </Button>
           </form>
         </CardContent>
@@ -127,17 +127,17 @@ export default function EmailTemplatesSection({ templates, setTemplates, setting
 
       <div className="grid grid-cols-1 gap-2">
         {EMAIL_TYPES.map(({ key, label, description }) => (
-          <Card key={key} className={`cursor-pointer transition-colors ${activeTemplate === key ? "border-primary" : "hover:border-muted-foreground/40"}`} onClick={() => openTemplate(key)}>
+          <Card key={key} className={`cursor-pointer bg-white transition-colors ${activeTemplate === key ? "border-[#e6ba7c]" : "border-[#d8e0e8] hover:border-[#e6ba7c]"}`} onClick={() => openTemplate(key)}>
             <CardHeader className="py-3 px-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="text-sm font-medium">{label}</CardTitle>
-                  <CardDescription className="text-xs mt-0.5">{description}</CardDescription>
+                  <CardTitle className="text-lg font-semibold">{label}</CardTitle>
+                  <CardDescription className="mt-0.5 text-sm">{description}</CardDescription>
                 </div>
                 {templates[key]?.subject ? (
-                  <Badge variant="secondary" className="text-xs shrink-0 ml-4">Configured</Badge>
+                  <Badge variant="secondary" className="ml-4 shrink-0 text-xs">Configuré</Badge>
                 ) : (
-                  <Badge variant="outline" className="text-xs shrink-0 ml-4 text-muted-foreground">Not set</Badge>
+                  <Badge variant="outline" className="ml-4 shrink-0 text-xs text-muted-foreground">À configurer</Badge>
                 )}
               </div>
             </CardHeader>
@@ -146,37 +146,37 @@ export default function EmailTemplatesSection({ templates, setTemplates, setting
               <CardContent className="px-4 pb-4 border-t pt-4" onClick={(e) => e.stopPropagation()}>
                 <form onSubmit={handleSaveTemplate} className="flex flex-col gap-3">
                   <div className="flex flex-col gap-1.5">
-                    <Label htmlFor={`subject-${key}`} className="text-xs">Subject</Label>
-                    <Input id={`subject-${key}`} required value={editSubject} onChange={(e) => setEditSubject(e.target.value)} placeholder="e.g. Application Received – {{jobTitle}}" className="h-8 text-sm" />
+                    <Label htmlFor={`subject-${key}`} className="text-xs">Objet</Label>
+                    <Input id={`subject-${key}`} required value={editSubject} onChange={(e) => setEditSubject(e.target.value)} placeholder="Ex. Votre candidature pour {{jobTitle}}" className="h-11 bg-white" />
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <Label htmlFor={`body-${key}`} className="text-xs">Body (HTML)</Label>
-                    <Textarea id={`body-${key}`} required value={editBody} onChange={(e) => setEditBody(e.target.value)} placeholder="<p>Hi {{candidateName}}, ...</p>" className="text-xs font-mono min-h-40 resize-y" />
+                    <Label htmlFor={`body-${key}`} className="text-xs">Contenu (HTML)</Label>
+                    <Textarea id={`body-${key}`} required value={editBody} onChange={(e) => setEditBody(e.target.value)} placeholder="<p>Bonjour {{candidateName}}, ...</p>" className="min-h-40 resize-y bg-white font-mono text-sm" />
                   </div>
                   <div className="flex justify-between gap-2">
-                    <Button type="button" size="sm" variant="outline" onClick={() => setShowPreview(true)} disabled={!editBody}>
+                    <Button type="button" variant="outline" className="h-11 rounded-xl" onClick={() => setShowPreview(true)} disabled={!editBody}>
                       <EyeIcon className="size-4 mr-1" />
-                      Preview
+                      Aperçu
                     </Button>
                     <div className="flex gap-2">
-                      <Button type="button" size="sm" variant="ghost" onClick={() => setActiveTemplate(null)}>Cancel</Button>
-                      <Button type="submit" size="sm" disabled={isSavingTemplate}>
+                      <Button type="button" variant="ghost" className="h-11" onClick={() => setActiveTemplate(null)}>Annuler</Button>
+                      <Button type="submit" disabled={isSavingTemplate} className="brand-cta h-11 rounded-xl px-5 font-semibold">
                         {isSavingTemplate && <CircleNotchIcon className="size-4 animate-spin mr-1" />}
-                        Save Template
+                        Enregistrer le modèle
                       </Button>
                     </div>
                   </div>
                 </form>
 
                 <Dialog open={showPreview} onOpenChange={setShowPreview}>
-                  <DialogContent className="max-w-2xl w-full">
+                  <DialogContent className="w-full bg-white sm:max-w-2xl">
                     <DialogHeader>
-                      <DialogTitle className="text-sm font-medium">Preview — {interpolatePreview(editSubject || "(no subject)")}</DialogTitle>
+                      <DialogTitle className="text-lg font-semibold">Aperçu — {interpolatePreview(editSubject || "(sans objet)")}</DialogTitle>
                     </DialogHeader>
                     <div className="rounded-md border overflow-hidden bg-white">
                       <iframe srcDoc={interpolatePreview(editBody)} title="Email preview" className="w-full min-h-[480px] border-0" sandbox="allow-same-origin" />
                     </div>
-                    <p className="text-[11px] text-muted-foreground">Rendered with sample data: {Object.entries(SAMPLE_VARS).map(([k, v]) => `{{${k}}} = "${v}"`).join(" · ")}</p>
+                    <p className="text-xs text-muted-foreground">Données d’exemple : {Object.entries(SAMPLE_VARS).map(([k, v]) => `{{${k}}} = "${v}"`).join(" · ")}</p>
                   </DialogContent>
                 </Dialog>
               </CardContent>

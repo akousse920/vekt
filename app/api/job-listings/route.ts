@@ -67,6 +67,7 @@ export async function GET(req: NextRequest) {
         customPrompt: true,
         threshold: true,
         isActive: true,
+        notifyOnApplication: true,
         createdAt: true,
         _count: { select: { candidates: true } },
       },

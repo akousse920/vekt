@@ -1,12 +1,46 @@
 import { CandidateStatus, EmailType } from "@/generated/client";
 import { evaluateCandidate } from "@/lib/ai";
 import { sendCandidateEmail } from "@/lib/email";
+import { sendRecruiterApplicationEmail } from "@/lib/recruiter-application-email";
+import { evaluationEmailTypeFor, readAutoRejectSetting } from "@/lib/evaluation-policy";
 import { inngest } from "@/lib/inngest";
 import logger from "@/lib/logger";
 import { prisma } from "@/lib/prisma";
 import { decideStatus, meetsThreshold } from "@/lib/scoring";
+import { assessCandidateScreening, type ScreeningReason } from "@/lib/screening";
 import fs from "fs/promises";
 import path from "path";
+
+async function markEvaluationForHumanReview(candidateId: string): Promise<void> {
+  await prisma.$transaction([
+    prisma.candidate.update({ where: { id: candidateId }, data: { status: CandidateStatus.NEEDS_REVIEW } }),
+    prisma.decisionReason.create({
+      data: {
+        candidateId,
+        stage: "AI_ERROR",
+        detail: "Évaluation IA indisponible ou inexploitable ; revue humaine requise.",
+      },
+    }),
+  ]);
+}
+
+function noAiMode(): boolean {
+  return (process.env.AI_PROVIDER ?? "none").toLowerCase() === "none";
+}
+
+async function routeWithoutAi(candidateId: string, screening: { needsReview: boolean; reasons: ScreeningReason[] }): Promise<void> {
+  const status = screening.needsReview ? CandidateStatus.NEEDS_REVIEW : CandidateStatus.SHORTLISTED;
+  const reasons = [
+    ...screening.reasons.map((reason) => ({ candidateId, ...reason })),
+    ...(screening.needsReview
+      ? [{ candidateId, stage: "HUMAN_REVIEW", ruleId: null, detail: "Un critère de présélection nécessite une vérification humaine avant transmission." }]
+      : []),
+  ];
+  await prisma.$transaction(async (tx) => {
+    await tx.candidate.update({ where: { id: candidateId }, data: { status } });
+    if (reasons.length > 0) await tx.decisionReason.createMany({ data: reasons });
+  });
+}
 
 /** Inngest function: durable AI evaluation pipeline */
 export const analyzeCandidate = inngest.createFunction(
@@ -32,6 +66,14 @@ export const analyzeCandidate = inngest.createFunction(
       }
     });
 
+    await step.run("send-recruiter-application-email", async () => {
+      try {
+        await sendRecruiterApplicationEmail(candidateId);
+      } catch (error) {
+        logger.warn({ candidateId, step: "send-recruiter-application-email", error }, "Pipeline: recruiter email failed — continuing evaluation");
+      }
+    });
+
     // Mark as ANALYZING
     await step.run("mark-analyzing", async () => {
       try {
@@ -50,7 +92,7 @@ export const analyzeCandidate = inngest.createFunction(
       try {
         return await prisma.candidate.findUniqueOrThrow({
           where: { id: candidateId },
-          include: { job: true },
+          include: { job: { include: { rubricCriteria: { orderBy: { order: "asc" } } } } },
         });
       } catch (error) {
         logger.error({ candidateId, step: "fetch-candidate", error }, "Pipeline: step failed");
@@ -58,47 +100,53 @@ export const analyzeCandidate = inngest.createFunction(
       }
     });
 
+    const aiDisabled = noAiMode();
+    const screening = await step.run("assess-screening", () =>
+      assessCandidateScreening(candidateId, candidate.jobId, candidate.resumeText, { requireResumeText: !aiDisabled }),
+    );
+
+    if (aiDisabled) {
+      await step.run("route-without-ai", () => routeWithoutAi(candidateId, screening));
+      return;
+    }
+
     // Run AI evaluation
     const evaluated = await step.run("ai-evaluate", async () => {
       try {
         const job = candidate.job;
-        const { result, promptSnapshot, provenance } = await evaluateCandidate({
+        const { result, promptSnapshot, provenance, rubricBreakdown, rubricReviewReasons } = await evaluateCandidate({
           jobTitle: job?.title ?? "General Position",
           jobDescription: job?.description ?? "",
           customPrompt: job?.customPrompt ?? null,
           resumeText: candidate.resumeText,
+          // Used locally to remove the name from CV text before the provider call.
           candidateName: candidate.name,
+          rubric: job?.rubricCriteria ?? [],
         });
-        return { result, promptSnapshot, provenance };
+        return { result, promptSnapshot, provenance, rubricBreakdown, rubricReviewReasons };
       } catch (error) {
-        logger.error({ candidateId, step: "ai-evaluate", error }, "Pipeline: step failed");
-        throw error;
+        logger.error({ candidateId, step: "ai-evaluate", error }, "Pipeline: evaluation requires human review");
+        return { failed: true as const };
       }
     });
 
+    if ("failed" in evaluated) {
+      await step.run("mark-evaluation-for-review", () => markEvaluationForHumanReview(candidateId));
+      return;
+    }
+
     // Does this deployer allow rejections with no human in the loop?
     // Default is false — see lib/scoring.ts and docs/compliance/human-oversight.md.
-    const autoRejectEnabled = await step.run("read-auto-reject-setting", async () => {
-      try {
-        const setting = await prisma.setting.findUnique({
-          where: { key: "AUTO_REJECT_BELOW_THRESHOLD" },
-        });
-        return setting?.value === "true";
-      } catch (error) {
-        logger.warn(
-          { candidateId, step: "read-auto-reject-setting", error },
-          "Pipeline: could not read auto-reject setting, defaulting to human review",
-        );
-        return false;
-      }
-    });
+    const autoRejectEnabled = await step.run("read-auto-reject-setting", readAutoRejectSetting);
 
     // Save evaluation & update status
     await step.run("save-evaluation", async () => {
       try {
-        const { result, promptSnapshot, provenance } = evaluated;
+        const { result, promptSnapshot, provenance, rubricBreakdown, rubricReviewReasons } = evaluated;
         const threshold = candidate.job?.threshold ?? 75;
-        const status = decideStatus(result.score, threshold, autoRejectEnabled);
+        const status = screening.needsReview || rubricReviewReasons.length > 0 || provenance.provider === "mock"
+          ? CandidateStatus.NEEDS_REVIEW
+          : decideStatus(result.score, threshold, autoRejectEnabled);
 
         await prisma.$transaction([
           prisma.evaluation.create({
@@ -114,12 +162,22 @@ export const analyzeCandidate = inngest.createFunction(
               promptHash: provenance.promptHash,
               evaluatorVersion: provenance.evaluatorVersion,
               redactions: JSON.stringify(provenance.redactions),
-              autoDecision: autoRejectEnabled,
+              rubricSnapshot: JSON.stringify(candidate.job?.rubricCriteria ?? []),
+              rubricBreakdown: JSON.stringify(rubricBreakdown),
+              autoDecision: status === CandidateStatus.REJECTED,
             },
           }),
           prisma.candidate.update({
             where: { id: candidateId },
             data: { status },
+          }),
+          prisma.decisionReason.createMany({
+            data: [
+              ...screening.reasons.map((reason) => ({ candidateId, ...reason })),
+              ...rubricReviewReasons.map((detail) => ({ candidateId, stage: "RUBRIC", ruleId: null, detail })),
+              ...(provenance.provider === "mock" ? [{ candidateId, stage: "MOCK_PROVIDER", ruleId: null, detail: "Fournisseur mock : score fictif, décision humaine requise." }] : []),
+              { candidateId, stage: "AI_SCORE", ruleId: null, detail: `Score ${result.score}/100 ; seuil ${threshold}/100.` },
+            ],
           }),
         ]);
       } catch (error) {
@@ -150,11 +208,11 @@ export const analyzeCandidate = inngest.createFunction(
     // has explicitly enabled AUTO_REJECT_BELOW_THRESHOLD. Otherwise the
     // candidate sits in NEEDS_REVIEW and the recruiter's decision sends the
     // email — a human is always in the loop before anyone is told "no".
-    const evaluationEmailType = shortlisted
-      ? EmailType.SHORTLISTED
-      : autoRejectEnabled
-        ? EmailType.REJECTED
-        : null;
+    const evaluationEmailType = !screening.needsReview && evaluated.rubricReviewReasons.length === 0 && evaluated.provenance.provider !== "mock" ? evaluationEmailTypeFor(
+      evaluated.result.score,
+      candidate.job?.threshold ?? 75,
+      autoRejectEnabled,
+    ) : null;
 
     if (evaluationEmailType) {
       try {
@@ -177,8 +235,8 @@ export const analyzeCandidate = inngest.createFunction(
           model: evaluated.provenance.model,
           promptHash: evaluated.provenance.promptHash,
           evaluatorVersion: evaluated.provenance.evaluatorVersion,
-          autoDecision: autoRejectEnabled,
-          awaitingHumanReview: !shortlisted && !autoRejectEnabled,
+          autoDecision: !screening.needsReview && evaluated.rubricReviewReasons.length === 0 && evaluated.provenance.provider !== "mock" && !shortlisted && autoRejectEnabled,
+          awaitingHumanReview: screening.needsReview || evaluated.rubricReviewReasons.length > 0 || evaluated.provenance.provider === "mock" || (!shortlisted && !autoRejectEnabled),
         },
         "Pipeline: analyzeCandidate completed",
       );
@@ -332,6 +390,9 @@ export async function runEvaluationPipelineDirect(candidateId: string): Promise<
   sendCandidateEmail({ candidateId, type: EmailType.APPLIED }).catch((err) =>
     logger.warn({ candidateId, err }, "Pipeline: applied email failed"),
   );
+  sendRecruiterApplicationEmail(candidateId).catch((err) =>
+    logger.warn({ candidateId, err }, "Pipeline: recruiter email failed"),
+  );
 
   try {
     await prisma.candidate.update({
@@ -341,20 +402,40 @@ export async function runEvaluationPipelineDirect(candidateId: string): Promise<
 
     const candidate = await prisma.candidate.findUniqueOrThrow({
       where: { id: candidateId },
-      include: { job: true },
+      include: { job: { include: { rubricCriteria: { orderBy: { order: "asc" } } } } },
     });
 
-    const { result, promptSnapshot } = await evaluateCandidate({
-      jobTitle: candidate.job?.title ?? "General Position",
-      jobDescription: candidate.job?.description ?? "",
-      customPrompt: candidate.job?.customPrompt ?? null,
-      resumeText: candidate.resumeText,
-    });
+    const aiDisabled = noAiMode();
+    const screening = await assessCandidateScreening(candidateId, candidate.jobId, candidate.resumeText, { requireResumeText: !aiDisabled });
+
+    if (aiDisabled) {
+      await routeWithoutAi(candidateId, screening);
+      logger.info({ candidateId, needsReview: screening.needsReview }, "Pipeline: rules-only routing complete");
+      return;
+    }
+
+    let evaluated;
+    try {
+      evaluated = await evaluateCandidate({
+        jobTitle: candidate.job?.title ?? "General Position",
+        jobDescription: candidate.job?.description ?? "",
+        customPrompt: candidate.job?.customPrompt ?? null,
+        resumeText: candidate.resumeText,
+        candidateName: candidate.name,
+        rubric: candidate.job?.rubricCriteria ?? [],
+      });
+    } catch (error) {
+      logger.error({ candidateId, error }, "Pipeline: evaluation requires human review");
+      await markEvaluationForHumanReview(candidateId);
+      return;
+    }
+    const { result, promptSnapshot, provenance, rubricBreakdown, rubricReviewReasons } = evaluated;
 
     const threshold = candidate.job?.threshold ?? 75;
-    const status = meetsThreshold(result.score, threshold)
-      ? CandidateStatus.SHORTLISTED
-      : CandidateStatus.REJECTED;
+    const autoRejectEnabled = await readAutoRejectSetting();
+    const status = screening.needsReview || rubricReviewReasons.length > 0 || provenance.provider === "mock"
+      ? CandidateStatus.NEEDS_REVIEW
+      : decideStatus(result.score, threshold, autoRejectEnabled);
 
     await prisma.$transaction([
       prisma.evaluation.create({
@@ -365,21 +446,41 @@ export async function runEvaluationPipelineDirect(candidateId: string): Promise<
           pros: JSON.stringify(result.pros),
           cons: JSON.stringify(result.cons),
           promptSnapshot,
+          provider: provenance.provider,
+          model: provenance.model,
+          promptHash: provenance.promptHash,
+          evaluatorVersion: provenance.evaluatorVersion,
+          redactions: JSON.stringify(provenance.redactions),
+          rubricSnapshot: JSON.stringify(candidate.job?.rubricCriteria ?? []),
+          rubricBreakdown: JSON.stringify(rubricBreakdown),
+          autoDecision: status === CandidateStatus.REJECTED,
         },
       }),
       prisma.candidate.update({
         where: { id: candidateId },
         data: { status },
       }),
+      prisma.decisionReason.createMany({
+        data: [
+          ...screening.reasons.map((reason) => ({ candidateId, ...reason })),
+          ...rubricReviewReasons.map((detail) => ({ candidateId, stage: "RUBRIC", ruleId: null, detail })),
+          ...(provenance.provider === "mock" ? [{ candidateId, stage: "MOCK_PROVIDER", ruleId: null, detail: "Fournisseur mock : score fictif, décision humaine requise." }] : []),
+          { candidateId, stage: "AI_SCORE", ruleId: null, detail: `Score ${result.score}/100 ; seuil ${threshold}/100.` },
+        ],
+      }),
     ]);
 
     logger.info({ candidateId, score: result.score, status }, "Pipeline: direct evaluation complete");
 
     // Send SHORTLISTED or REJECTED notification email (best effort)
-    const emailType = status === CandidateStatus.SHORTLISTED ? EmailType.SHORTLISTED : EmailType.REJECTED;
-    sendCandidateEmail({ candidateId, type: emailType }).catch((err) =>
-      logger.warn({ candidateId, emailType, err }, "Pipeline: evaluation email failed"),
-    );
+    const emailType = !screening.needsReview && rubricReviewReasons.length === 0 && provenance.provider !== "mock"
+      ? evaluationEmailTypeFor(result.score, threshold, autoRejectEnabled)
+      : null;
+    if (emailType) {
+      sendCandidateEmail({ candidateId, type: emailType }).catch((err) =>
+        logger.warn({ candidateId, emailType, err }, "Pipeline: evaluation email failed"),
+      );
+    }
   } catch (error) {
     logger.error({ candidateId, error }, "Pipeline: direct evaluation failed");
     throw error;

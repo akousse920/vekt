@@ -17,22 +17,22 @@ export default async function SiteHeader({ backHref, backLabel }: Props) {
   const role = (session?.user as { role?: string } | undefined)?.role;
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-md">
-      <div className="mx-auto flex h-14 max-w-5xl items-center justify-between gap-4 px-6">
+    <header className="sticky top-0 z-50 border-b border-[#d9e5f2] bg-white/95 backdrop-blur-md">
+      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-5 sm:px-8">
 
         {/* Left: back link + logo + nav */}
         <div className="flex items-center gap-1 min-w-0">
           {backHref && (
             <Button asChild variant="ghost" size="sm" className="-ml-2 shrink-0 text-muted-foreground hover:text-foreground">
-              <Link href={backHref}>← {backLabel ?? "Back"}</Link>
+              <Link href={backHref}>← {backLabel ?? "Retour"}</Link>
             </Button>
           )}
 
           <Link
             href="/"
-            className="flex items-center  rounded-md gap-2 py-1 text-sm font-semibold text-foreground hover:text-primary transition-colors shrink-0"
+            className="flex items-center rounded-md gap-2 py-1 text-base font-bold text-[#205398] hover:text-primary transition-colors shrink-0"
           >
-            <div className="flex size-6 items-center justify-center rounded-md bg-primary">
+            <div className="flex size-9 items-center justify-center rounded-xl bg-primary">
               <Image src="/logo.png" alt="Logo" width={24} height={24} className="shrink-0" />
             </div>
             <span className="tracking-tight">{COMPANY_NAME}</span>
@@ -43,7 +43,7 @@ export default async function SiteHeader({ backHref, backLabel }: Props) {
               <span className="mx-1 hidden sm:block text-border select-none">|</span>
               <Link href="/recruiter">
                 <Button size="sm" variant="ghost" className="hidden sm:flex text-muted-foreground hover:text-foreground h-8 px-3 text-xs font-medium">
-                  Recruiter
+                  Offres et candidatures
                 </Button>
               </Link>
             </>
@@ -51,7 +51,7 @@ export default async function SiteHeader({ backHref, backLabel }: Props) {
           {role === "ADMIN" && (
             <Link href="/admin">
               <Button size="sm" variant="ghost" className="hidden sm:flex text-muted-foreground hover:text-foreground h-8 px-3 text-xs font-medium">
-                Admin
+                Administration
               </Button>
             </Link>
           )}
@@ -71,7 +71,7 @@ export default async function SiteHeader({ backHref, backLabel }: Props) {
         ) : (
           <nav className="flex items-center gap-1 shrink-0">
             <Button asChild size="sm" className="hidden sm:flex h-8 text-xs font-medium rounded-full px-4">
-              <Link href="/login">Recruiter Login</Link>
+              <Link href="/login">Espace recruteur</Link>
             </Button>
             <MobileMenu email={email} role={role} />
           </nav>

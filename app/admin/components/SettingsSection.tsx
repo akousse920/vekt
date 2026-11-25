@@ -33,7 +33,7 @@ export default function SettingsSection({ settings, setSettings, flash }: Props)
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        flash(data.error ?? "Failed to save settings", "err");
+        flash(data.error ?? "Impossible d’enregistrer les réglages.", "err");
         return;
       }
       const data = await res.json();
@@ -42,23 +42,23 @@ export default function SettingsSection({ settings, setSettings, flash }: Props)
         RETENTION_DAYS: String(data.RETENTION_DAYS),
         AUTO_REJECT_BELOW_THRESHOLD: String(data.AUTO_REJECT_BELOW_THRESHOLD ?? autoReject),
       }));
-      flash("Settings saved", "ok");
+      flash("Réglages enregistrés", "ok");
     });
   }
 
   return (
-    <Card>
+    <Card className="border-[#d8e0e8] bg-white shadow-sm">
       <CardHeader className="pb-3">
         <CardDescription className="text-xs">
-          Candidate records older than <strong>RETENTION_DAYS</strong> will be eligible for automated data scrubbing. This value is stored in the database and can be changed at any time.
+          Les dossiers au-delà de la durée définie peuvent être supprimés lors du nettoyage des données. Ce réglage peut être modifié à tout moment.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSaveSettings} className="flex flex-col gap-4">
           <div className="flex items-end gap-3">
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="retention-days" className="text-xs">Retention period (days)</Label>
-              <Input id="retention-days" type="number" min={1} max={3650} required value={retentionDays} onChange={(e) => setRetentionDays(e.target.value)} className="h-8 w-28 text-sm" />
+              <Label htmlFor="retention-days" className="text-xs">Durée de conservation (jours)</Label>
+              <Input id="retention-days" type="number" min={1} max={3650} required value={retentionDays} onChange={(e) => setRetentionDays(e.target.value)} className="h-11 w-32 bg-white" />
             </div>
           </div>
 
@@ -72,21 +72,19 @@ export default function SettingsSection({ settings, setSettings, flash }: Props)
                 className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer accent-primary"
               />
               <Label htmlFor="auto-reject" className="text-xs font-medium cursor-pointer">
-                Reject below-threshold candidates automatically
+                Refuser automatiquement les candidatures sous le seuil
               </Label>
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              Off by default. While off, candidates scoring below the job threshold
-              are marked <strong>Needs review</strong> and no rejection email is
-              sent until a recruiter decides. Turning this on means a person can be
-              rejected by automated processing alone — check your legal basis
-              (GDPR Art. 22) before enabling it.
+              Désactivé par défaut. Tant que ce réglage est désactivé, les dossiers sous le seuil
+              passent en revue humaine et aucun e-mail de refus n’est envoyé avant une décision.
+              Son activation permet un refus par traitement automatique seul.
             </p>
           </div>
 
-          <Button type="submit" size="sm" className="self-start" disabled={isSavingSettings}>
+          <Button type="submit" className="brand-cta h-11 self-start rounded-xl px-5 font-semibold" disabled={isSavingSettings}>
             {isSavingSettings && <CircleNotchIcon className="size-4 animate-spin mr-1" />}
-            Save
+            Enregistrer
           </Button>
         </form>
       </CardContent>

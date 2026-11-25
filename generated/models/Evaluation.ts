@@ -50,6 +50,8 @@ export type EvaluationMinAggregateOutputType = {
   promptHash: string | null
   evaluatorVersion: string | null
   redactions: string | null
+  rubricSnapshot: string | null
+  rubricBreakdown: string | null
   autoDecision: boolean | null
   createdAt: Date | null
   candidateId: string | null
@@ -67,6 +69,8 @@ export type EvaluationMaxAggregateOutputType = {
   promptHash: string | null
   evaluatorVersion: string | null
   redactions: string | null
+  rubricSnapshot: string | null
+  rubricBreakdown: string | null
   autoDecision: boolean | null
   createdAt: Date | null
   candidateId: string | null
@@ -84,6 +88,8 @@ export type EvaluationCountAggregateOutputType = {
   promptHash: number
   evaluatorVersion: number
   redactions: number
+  rubricSnapshot: number
+  rubricBreakdown: number
   autoDecision: number
   createdAt: number
   candidateId: number
@@ -111,6 +117,8 @@ export type EvaluationMinAggregateInputType = {
   promptHash?: true
   evaluatorVersion?: true
   redactions?: true
+  rubricSnapshot?: true
+  rubricBreakdown?: true
   autoDecision?: true
   createdAt?: true
   candidateId?: true
@@ -128,6 +136,8 @@ export type EvaluationMaxAggregateInputType = {
   promptHash?: true
   evaluatorVersion?: true
   redactions?: true
+  rubricSnapshot?: true
+  rubricBreakdown?: true
   autoDecision?: true
   createdAt?: true
   candidateId?: true
@@ -145,6 +155,8 @@ export type EvaluationCountAggregateInputType = {
   promptHash?: true
   evaluatorVersion?: true
   redactions?: true
+  rubricSnapshot?: true
+  rubricBreakdown?: true
   autoDecision?: true
   createdAt?: true
   candidateId?: true
@@ -249,6 +261,8 @@ export type EvaluationGroupByOutputType = {
   promptHash: string
   evaluatorVersion: string
   redactions: string
+  rubricSnapshot: string
+  rubricBreakdown: string
   autoDecision: boolean
   createdAt: Date
   candidateId: string
@@ -289,6 +303,8 @@ export type EvaluationWhereInput = {
   promptHash?: Prisma.StringFilter<"Evaluation"> | string
   evaluatorVersion?: Prisma.StringFilter<"Evaluation"> | string
   redactions?: Prisma.StringFilter<"Evaluation"> | string
+  rubricSnapshot?: Prisma.StringFilter<"Evaluation"> | string
+  rubricBreakdown?: Prisma.StringFilter<"Evaluation"> | string
   autoDecision?: Prisma.BoolFilter<"Evaluation"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Evaluation"> | Date | string
   candidateId?: Prisma.StringFilter<"Evaluation"> | string
@@ -307,6 +323,8 @@ export type EvaluationOrderByWithRelationInput = {
   promptHash?: Prisma.SortOrder
   evaluatorVersion?: Prisma.SortOrder
   redactions?: Prisma.SortOrder
+  rubricSnapshot?: Prisma.SortOrder
+  rubricBreakdown?: Prisma.SortOrder
   autoDecision?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   candidateId?: Prisma.SortOrder
@@ -329,6 +347,8 @@ export type EvaluationWhereUniqueInput = Prisma.AtLeast<{
   promptHash?: Prisma.StringFilter<"Evaluation"> | string
   evaluatorVersion?: Prisma.StringFilter<"Evaluation"> | string
   redactions?: Prisma.StringFilter<"Evaluation"> | string
+  rubricSnapshot?: Prisma.StringFilter<"Evaluation"> | string
+  rubricBreakdown?: Prisma.StringFilter<"Evaluation"> | string
   autoDecision?: Prisma.BoolFilter<"Evaluation"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Evaluation"> | Date | string
   candidate?: Prisma.XOR<Prisma.CandidateScalarRelationFilter, Prisma.CandidateWhereInput>
@@ -346,6 +366,8 @@ export type EvaluationOrderByWithAggregationInput = {
   promptHash?: Prisma.SortOrder
   evaluatorVersion?: Prisma.SortOrder
   redactions?: Prisma.SortOrder
+  rubricSnapshot?: Prisma.SortOrder
+  rubricBreakdown?: Prisma.SortOrder
   autoDecision?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   candidateId?: Prisma.SortOrder
@@ -371,6 +393,8 @@ export type EvaluationScalarWhereWithAggregatesInput = {
   promptHash?: Prisma.StringWithAggregatesFilter<"Evaluation"> | string
   evaluatorVersion?: Prisma.StringWithAggregatesFilter<"Evaluation"> | string
   redactions?: Prisma.StringWithAggregatesFilter<"Evaluation"> | string
+  rubricSnapshot?: Prisma.StringWithAggregatesFilter<"Evaluation"> | string
+  rubricBreakdown?: Prisma.StringWithAggregatesFilter<"Evaluation"> | string
   autoDecision?: Prisma.BoolWithAggregatesFilter<"Evaluation"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Evaluation"> | Date | string
   candidateId?: Prisma.StringWithAggregatesFilter<"Evaluation"> | string
@@ -388,6 +412,8 @@ export type EvaluationCreateInput = {
   promptHash?: string
   evaluatorVersion?: string
   redactions?: string
+  rubricSnapshot?: string
+  rubricBreakdown?: string
   autoDecision?: boolean
   createdAt?: Date | string
   candidate: Prisma.CandidateCreateNestedOneWithoutEvaluationInput
@@ -405,6 +431,8 @@ export type EvaluationUncheckedCreateInput = {
   promptHash?: string
   evaluatorVersion?: string
   redactions?: string
+  rubricSnapshot?: string
+  rubricBreakdown?: string
   autoDecision?: boolean
   createdAt?: Date | string
   candidateId: string
@@ -422,6 +450,8 @@ export type EvaluationUpdateInput = {
   promptHash?: Prisma.StringFieldUpdateOperationsInput | string
   evaluatorVersion?: Prisma.StringFieldUpdateOperationsInput | string
   redactions?: Prisma.StringFieldUpdateOperationsInput | string
+  rubricSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  rubricBreakdown?: Prisma.StringFieldUpdateOperationsInput | string
   autoDecision?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   candidate?: Prisma.CandidateUpdateOneRequiredWithoutEvaluationNestedInput
@@ -439,6 +469,8 @@ export type EvaluationUncheckedUpdateInput = {
   promptHash?: Prisma.StringFieldUpdateOperationsInput | string
   evaluatorVersion?: Prisma.StringFieldUpdateOperationsInput | string
   redactions?: Prisma.StringFieldUpdateOperationsInput | string
+  rubricSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  rubricBreakdown?: Prisma.StringFieldUpdateOperationsInput | string
   autoDecision?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   candidateId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -456,6 +488,8 @@ export type EvaluationCreateManyInput = {
   promptHash?: string
   evaluatorVersion?: string
   redactions?: string
+  rubricSnapshot?: string
+  rubricBreakdown?: string
   autoDecision?: boolean
   createdAt?: Date | string
   candidateId: string
@@ -473,6 +507,8 @@ export type EvaluationUpdateManyMutationInput = {
   promptHash?: Prisma.StringFieldUpdateOperationsInput | string
   evaluatorVersion?: Prisma.StringFieldUpdateOperationsInput | string
   redactions?: Prisma.StringFieldUpdateOperationsInput | string
+  rubricSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  rubricBreakdown?: Prisma.StringFieldUpdateOperationsInput | string
   autoDecision?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -489,6 +525,8 @@ export type EvaluationUncheckedUpdateManyInput = {
   promptHash?: Prisma.StringFieldUpdateOperationsInput | string
   evaluatorVersion?: Prisma.StringFieldUpdateOperationsInput | string
   redactions?: Prisma.StringFieldUpdateOperationsInput | string
+  rubricSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  rubricBreakdown?: Prisma.StringFieldUpdateOperationsInput | string
   autoDecision?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   candidateId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -511,6 +549,8 @@ export type EvaluationCountOrderByAggregateInput = {
   promptHash?: Prisma.SortOrder
   evaluatorVersion?: Prisma.SortOrder
   redactions?: Prisma.SortOrder
+  rubricSnapshot?: Prisma.SortOrder
+  rubricBreakdown?: Prisma.SortOrder
   autoDecision?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   candidateId?: Prisma.SortOrder
@@ -532,6 +572,8 @@ export type EvaluationMaxOrderByAggregateInput = {
   promptHash?: Prisma.SortOrder
   evaluatorVersion?: Prisma.SortOrder
   redactions?: Prisma.SortOrder
+  rubricSnapshot?: Prisma.SortOrder
+  rubricBreakdown?: Prisma.SortOrder
   autoDecision?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   candidateId?: Prisma.SortOrder
@@ -549,6 +591,8 @@ export type EvaluationMinOrderByAggregateInput = {
   promptHash?: Prisma.SortOrder
   evaluatorVersion?: Prisma.SortOrder
   redactions?: Prisma.SortOrder
+  rubricSnapshot?: Prisma.SortOrder
+  rubricBreakdown?: Prisma.SortOrder
   autoDecision?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   candidateId?: Prisma.SortOrder
@@ -602,6 +646,8 @@ export type EvaluationCreateWithoutCandidateInput = {
   promptHash?: string
   evaluatorVersion?: string
   redactions?: string
+  rubricSnapshot?: string
+  rubricBreakdown?: string
   autoDecision?: boolean
   createdAt?: Date | string
 }
@@ -618,6 +664,8 @@ export type EvaluationUncheckedCreateWithoutCandidateInput = {
   promptHash?: string
   evaluatorVersion?: string
   redactions?: string
+  rubricSnapshot?: string
+  rubricBreakdown?: string
   autoDecision?: boolean
   createdAt?: Date | string
 }
@@ -650,6 +698,8 @@ export type EvaluationUpdateWithoutCandidateInput = {
   promptHash?: Prisma.StringFieldUpdateOperationsInput | string
   evaluatorVersion?: Prisma.StringFieldUpdateOperationsInput | string
   redactions?: Prisma.StringFieldUpdateOperationsInput | string
+  rubricSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  rubricBreakdown?: Prisma.StringFieldUpdateOperationsInput | string
   autoDecision?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -666,6 +716,8 @@ export type EvaluationUncheckedUpdateWithoutCandidateInput = {
   promptHash?: Prisma.StringFieldUpdateOperationsInput | string
   evaluatorVersion?: Prisma.StringFieldUpdateOperationsInput | string
   redactions?: Prisma.StringFieldUpdateOperationsInput | string
+  rubricSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  rubricBreakdown?: Prisma.StringFieldUpdateOperationsInput | string
   autoDecision?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -684,6 +736,8 @@ export type EvaluationSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   promptHash?: boolean
   evaluatorVersion?: boolean
   redactions?: boolean
+  rubricSnapshot?: boolean
+  rubricBreakdown?: boolean
   autoDecision?: boolean
   createdAt?: boolean
   candidateId?: boolean
@@ -702,6 +756,8 @@ export type EvaluationSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   promptHash?: boolean
   evaluatorVersion?: boolean
   redactions?: boolean
+  rubricSnapshot?: boolean
+  rubricBreakdown?: boolean
   autoDecision?: boolean
   createdAt?: boolean
   candidateId?: boolean
@@ -720,6 +776,8 @@ export type EvaluationSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   promptHash?: boolean
   evaluatorVersion?: boolean
   redactions?: boolean
+  rubricSnapshot?: boolean
+  rubricBreakdown?: boolean
   autoDecision?: boolean
   createdAt?: boolean
   candidateId?: boolean
@@ -738,12 +796,14 @@ export type EvaluationSelectScalar = {
   promptHash?: boolean
   evaluatorVersion?: boolean
   redactions?: boolean
+  rubricSnapshot?: boolean
+  rubricBreakdown?: boolean
   autoDecision?: boolean
   createdAt?: boolean
   candidateId?: boolean
 }
 
-export type EvaluationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "score" | "reasoning" | "pros" | "cons" | "promptSnapshot" | "provider" | "model" | "promptHash" | "evaluatorVersion" | "redactions" | "autoDecision" | "createdAt" | "candidateId", ExtArgs["result"]["evaluation"]>
+export type EvaluationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "score" | "reasoning" | "pros" | "cons" | "promptSnapshot" | "provider" | "model" | "promptHash" | "evaluatorVersion" | "redactions" | "rubricSnapshot" | "rubricBreakdown" | "autoDecision" | "createdAt" | "candidateId", ExtArgs["result"]["evaluation"]>
 export type EvaluationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   candidate?: boolean | Prisma.CandidateDefaultArgs<ExtArgs>
 }
@@ -786,6 +846,14 @@ export type $EvaluationPayload<ExtArgs extends runtime.Types.Extensions.Internal
      * JSON object of identifier redaction counts, e.g. {"email":1,"name":3}
      */
     redactions: string
+    /**
+     * JSON snapshot of the per-job weighted rubric in force at evaluation time.
+     */
+    rubricSnapshot: string
+    /**
+     * JSON array of criterion scores and evidence returned by the model.
+     */
+    rubricBreakdown: string
     /**
      * True if the deployer had AUTO_REJECT_BELOW_THRESHOLD enabled at the time
      */
@@ -1227,6 +1295,8 @@ export interface EvaluationFieldRefs {
   readonly promptHash: Prisma.FieldRef<"Evaluation", 'String'>
   readonly evaluatorVersion: Prisma.FieldRef<"Evaluation", 'String'>
   readonly redactions: Prisma.FieldRef<"Evaluation", 'String'>
+  readonly rubricSnapshot: Prisma.FieldRef<"Evaluation", 'String'>
+  readonly rubricBreakdown: Prisma.FieldRef<"Evaluation", 'String'>
   readonly autoDecision: Prisma.FieldRef<"Evaluation", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Evaluation", 'DateTime'>
   readonly candidateId: Prisma.FieldRef<"Evaluation", 'String'>

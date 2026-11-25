@@ -20,12 +20,12 @@ import { toast } from "sonner";
 type CandidateStatus = "APPLIED" | "ANALYZING" | "SHORTLISTED" | "NEEDS_REVIEW" | "ACCEPTED" | "REJECTED";
 
 const STATUS_META: Record<CandidateStatus, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
-  APPLIED: { label: "Applied", variant: "outline" },
-  ANALYZING: { label: "Analyzing", variant: "secondary" },
-  SHORTLISTED: { label: "Shortlisted", variant: "default" },
-  NEEDS_REVIEW: { label: "Needs review", variant: "secondary" },
-  ACCEPTED: { label: "Accepted", variant: "default" },
-  REJECTED: { label: "Rejected", variant: "destructive" },
+  APPLIED: { label: "Reçue", variant: "outline" },
+  ANALYZING: { label: "En cours", variant: "secondary" },
+  SHORTLISTED: { label: "Transmise", variant: "default" },
+  NEEDS_REVIEW: { label: "À examiner", variant: "secondary" },
+  ACCEPTED: { label: "Acceptée", variant: "default" },
+  REJECTED: { label: "Refusée", variant: "destructive" },
 };
 
 export default function ReviewButton({
@@ -38,21 +38,23 @@ export default function ReviewButton({
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const router = useRouter();
+  const processing = currentStatus === "APPLIED" || currentStatus === "ANALYZING";
 
   async function decide(decision: "ACCEPT" | "SHORTLIST" | "REJECT") {
     try {
       setLoading(true);
-      await fetch(`/api/recruiter/review/${candidateId}`, {
+      const response = await fetch(`/api/recruiter/review/${candidateId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ decision }),
       });
+      if (!response.ok) throw new Error(`Review request failed: ${response.status}`);
       setOpen(false);
       router.refresh();
-      toast.success(`Candidate ${decision === "ACCEPT" ? "accepted" : decision === "REJECT" ? "rejected" : "shortlisted"} successfully.`);
+      toast.success(decision === "ACCEPT" ? "Candidature acceptée." : decision === "REJECT" ? "Candidature refusée." : "Profil transmis au recruteur.");
     } catch(err)  {
       logger.error({ candidateId, decision, err }, "Failed to update candidate status");
-      toast.error("Failed to update candidate status. Please try again.");
+      toast.error("Décision impossible à enregistrer. Réessayez.");
     } finally {
       setLoading(false);
     }
@@ -61,23 +63,23 @@ export default function ReviewButton({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm" disabled={loading}>
+        <Button size="sm" disabled={loading || processing}>
           {loading ? (
             <SpinnerGapIcon data-icon="inline-start" className="animate-spin" />
           ) : null}
-          Review
+          {processing ? "Traitement en cours" : "Décider"}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-base">Review Application</DialogTitle>
+          <DialogTitle className="text-base">Décision sur la candidature</DialogTitle>
           <DialogDescription>
-            Select a new status for this candidate.
+            Consultez le CV et les réponses avant de choisir une décision.
           </DialogDescription>
         </DialogHeader>
 
         <div className="rounded-lg flex justify-between items-center border bg-muted/30 p-3">
-          <p className="text-xs text-muted-foreground mb-1">Current status</p>
+          <p className="text-xs text-muted-foreground mb-1">Statut actuel</p>
           <Badge variant={STATUS_META[currentStatus].variant} className="text-xs">
             {STATUS_META[currentStatus].label}
           </Badge>
@@ -85,7 +87,7 @@ export default function ReviewButton({
 
         <DialogFooter className="gap-2 sm:justify-end">
           <Button variant="outline" onClick={() => setOpen(false)}>
-            Cancel
+            Annuler
           </Button>
           {currentStatus !== "REJECTED" && (
             <Button
@@ -93,7 +95,7 @@ export default function ReviewButton({
               className="bg-destructive/10 text-destructive hover:bg-destructive/20"
             >
               <XCircleIcon data-icon="inline-start" />
-              Reject
+              Refuser
             </Button>
           )}
           {currentStatus !== "SHORTLISTED" && (
@@ -101,13 +103,13 @@ export default function ReviewButton({
               onClick={() => decide("SHORTLIST")}
               className="bg-blue-500/10 text-blue-700 hover:bg-blue-500/20"
             >
-              Shortlist
+              Transmettre
             </Button>
           )}
           {currentStatus !== "ACCEPTED" && (
             <Button onClick={() => decide("ACCEPT")}>
               <CheckCircleIcon data-icon="inline-start" />
-              Accept
+              Accepter
             </Button>
           )}
         </DialogFooter>

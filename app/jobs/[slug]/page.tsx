@@ -40,6 +40,7 @@ export default async function JobApplyPage({
     <ApplyForm
       job={{ ...job, description: sanitizeRichText(job.description) }}
       supportEmail={process.env.SUPPORT_EMAIL || "example-support@email.com"}
+      aiEnabled={["openai", "openrouter", "ollama"].includes((process.env.AI_PROVIDER ?? "none").toLowerCase())}
     />
   );
 }

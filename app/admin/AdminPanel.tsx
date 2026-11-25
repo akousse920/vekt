@@ -36,13 +36,13 @@ export default function AdminPanel({ currentUserId, initialUsers, initialSetting
 
   return (
     <div className="min-h-[89vh] bg-background">
-      <main className="mx-auto max-w-4xl p-6 flex flex-col gap-8">
+      <main className="mx-auto flex max-w-6xl flex-col gap-8 px-5 py-8 sm:px-8 sm:py-12">
         <div>
-          <h1 className="text-xl font-semibold flex items-center gap-2">
-            <GearIcon weight="duotone" className="size-5 text-primary" />
-            Admin Dashboard
+          <h1 className="flex items-center gap-3 text-3xl font-bold">
+            <GearIcon weight="duotone" className="size-7 text-primary" />
+            Administration
           </h1>
-          <p className="text-sm text-muted-foreground mt-1">Manage recruiter accounts, data retention, and monitor platform usage.</p>
+          <p className="mt-2 text-sm text-muted-foreground">Gérez les comptes recruteurs, la conservation des données et les réglages de la plateforme.</p>
         </div>
 
         {success && (
@@ -56,10 +56,10 @@ export default function AdminPanel({ currentUserId, initialUsers, initialSetting
           </Alert>
         )}
 
-        <div className="grid grid-cols-3 gap-4">
-          <StatCard icon={<BriefcaseIcon weight="duotone" className="size-5 text-primary" />} label="Active Jobs" value={stats.jobCount} />
-          <StatCard icon={<UsersIcon weight="duotone" className="size-5 text-primary" />} label="Candidates" value={stats.candidateCount} />
-          <StatCard icon={<ChartBarIcon weight="duotone" className="size-5 text-primary" />} label="Evaluations Run" value={stats.evaluationCount} />
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <StatCard icon={<BriefcaseIcon weight="duotone" className="size-6 text-primary" />} label="Offres" value={stats.jobCount} />
+          <StatCard icon={<UsersIcon weight="duotone" className="size-6 text-primary" />} label="Candidatures" value={stats.candidateCount} />
+          <StatCard icon={<ChartBarIcon weight="duotone" className="size-6 text-primary" />} label="Évaluations" value={stats.evaluationCount} />
         </div>
 
         <Separator />
@@ -67,7 +67,7 @@ export default function AdminPanel({ currentUserId, initialUsers, initialSetting
         <section className="flex flex-col gap-4">
           <div className="flex items-center gap-2">
             <UserCircleIcon weight="duotone" className="size-5 text-primary" />
-            <h2 className="text-base font-semibold">User Accounts</h2>
+            <h2 className="text-xl font-semibold">Comptes utilisateurs</h2>
           </div>
 
           <UsersSection users={users} setUsers={setUsers} currentUserId={currentUserId} flash={flash} />
@@ -80,7 +80,7 @@ export default function AdminPanel({ currentUserId, initialUsers, initialSetting
         <section className="flex flex-col gap-4">
           <div className="flex items-center gap-2">
             <ClipboardTextIcon weight="duotone" className="size-5 text-primary" />
-            <h2 className="text-base font-semibold">Data Retention</h2>
+            <h2 className="text-xl font-semibold">Conservation des données</h2>
           </div>
 
           <SettingsSection settings={settings} setSettings={setSettings} flash={flash} />
@@ -91,7 +91,7 @@ export default function AdminPanel({ currentUserId, initialUsers, initialSetting
         <section className="flex flex-col gap-4">
           <div className="flex items-center gap-2">
             <EnvelopeIcon weight="duotone" className="size-5 text-primary" />
-            <h2 className="text-base font-semibold">Email Templates</h2>
+            <h2 className="text-xl font-semibold">Modèles d’e-mails</h2>
           </div>
 
           <EmailTemplatesSection templates={templates} setTemplates={setTemplates} settings={settings} setSettings={setSettings} flash={flash} />

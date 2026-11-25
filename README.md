@@ -61,7 +61,7 @@ Use Vekt if you need:
 - **AI resume scoring** — pluggable provider: `mock` (default), OpenAI, OpenRouter, or local Ollama
 - **Durable evaluation pipeline** — powered by [Inngest](https://inngest.com) (self-hostable); falls back to direct in-process execution when Inngest is not configured
 - **Structured failure logging** — AI provider/API failures, JSON parsing errors, and pipeline step failures are logged with candidate/step/provider context for faster debugging
-- **Screening questions** — per-job `SINGLE` (radio) and `MULTIPLE` (checkbox) questions shown to candidates as a second apply-form step; answers stored and displayed alongside AI reasoning in the recruiter dashboard
+- **Screening questions** — per-job single choice, multiple choice, and free-text questions. Choice answers can be checked against configured rules; free-text answers are stored for human review and never receive an automatic rule.
 - **Delayed status emails** — status-change emails are held for a configurable delay (default 48 h); if a recruiter overrides the decision before the delay elapses the pending email is automatically cancelled and a new one is scheduled
 - **Admin-editable email templates** — all candidate email subjects and HTML bodies are stored in the database and editable from the Admin Dashboard; every sent email is logged with its Resend delivery ID
 - **Recruiter dashboard** — per-job applications view sorted by AI score; shortlist, accept, or reject candidates with AI reasoning and screening-question answers
@@ -83,9 +83,9 @@ Use Vekt if you need:
 ```
 Candidate submits application (name, email, PDF CV)
   └─ Step 1: name, email, PDF resume
-  └─ Step 2 (if job has screening questions): answer SINGLE/MULTIPLE choice questions
+  └─ Step 2 (if job has screening questions): answer choice and free-text questions
   └─ PDF stored in private/uploads/ (UUID filename, max 5 MB)
-  └─ Answers validated (IDOR-protected: all questionId/optionId must belong to the job)
+  └─ Answers validated (question and option IDs must belong to the job)
   └─ DB record created  →  status: APPLIED
 
 Inngest pipeline triggers (or direct fallback in dev)
@@ -199,7 +199,8 @@ Set `AI_PROVIDER` in `.env`:
 
 | Value | Description | Required env vars |
 |---|---|---|
-| `mock` (default) | Random deterministic scores — no external calls | — |
+| `none` (default) | Structured rules; eligible dossiers go directly to the recruiter, while blocking or ambiguous answers require human review; no AI call or score | — |
+| `mock` | Fake deterministic scores for development tests only; always routes to human review | — |
 | `openai` | GPT-4o via OpenAI API | `OPENAI_API_KEY` |
 | `openrouter` | Models via OpenRouter API | `OPENROUTER_API_KEY`, `OPENROUTER_MODEL` |
 | `ollama` | Local model via Ollama | `OLLAMA_BASE_URL`, `OLLAMA_MODEL` |
@@ -212,7 +213,7 @@ Inngest powers three background jobs:
 
 | Function | Trigger | Description |
 |---|---|---|
-| `analyze-candidate` | `vekt/candidate.created` event | AI evaluation pipeline |
+| `analyze-candidate` | `vekt/candidate.created` event | Structured rules and, when enabled, AI evaluation |
 | `send-delayed-status-email` | `vekt/candidate.status.email.scheduled` event | Sleeps for the configured delay, then sends the status email; cancelled automatically via `vekt/candidate.status.updated` if the status changes before the delay elapses |
 | `purge-expired-candidates` | Cron — daily 02:00 UTC | Deletes candidates + resume files past `RETENTION_DAYS` |
 
@@ -331,6 +332,8 @@ APPLIED → ANALYZING → SHORTLISTED  → ACCEPTED
 ```
 
 Status-change emails (`SHORTLISTED`, `REJECTED`, `ACCEPTED`) are queued and delivered after a configurable delay (default **48 hours**). If a recruiter changes the status before the delay elapses, the pending email is cancelled and a new delayed email is scheduled for the updated status. Set `STATUS_EMAIL_DELAY_HOURS` to `0` in the Admin Dashboard to send immediately.
+
+The owner of a job receives a French email when a new application is submitted. This alert is enabled by default for each job and can be turned off in **Modifier le poste**; applications remain available in the recruiter's job view. Jobs without an owner do not send a recruiter alert. Delivery requires `RESEND_API_KEY` and a valid `EMAIL_FROM` address.
 
 ---
 

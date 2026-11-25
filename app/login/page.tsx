@@ -42,13 +42,13 @@ export default function LoginPage() {
     if (result?.status === 429) {
       setState({
         status: "error",
-        message: "Too many login attempts. Please wait a few minutes and try again.",
+        message: "Trop de tentatives. Attendez quelques minutes avant de réessayer.",
       });
       return;
     }
 
     if (result?.error) {
-      setState({ status: "error", message: "Invalid email or password." });
+      setState({ status: "error", message: "Adresse email ou mot de passe incorrect." });
       return;
     }
 
@@ -57,45 +57,51 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-[89vh] flex-col bg-background">
-      <main className="flex flex-1 items-center justify-center p-8">
-        <div className="w-full max-w-sm">
-          <Card>
+    <div className="flex min-h-[82vh] flex-col bg-background">
+      <main className="flex flex-1 items-center justify-center px-5 py-12">
+        <div className="w-full max-w-md">
+          <div className="mb-7 text-center">
+            <p className="text-sm font-semibold uppercase tracking-wider text-primary">Espace privé</p>
+            <h1 className="mt-2 text-4xl font-bold">Bienvenue</h1>
+            <p className="mt-2 text-sm text-muted-foreground">Connectez-vous pour gérer vos offres et vos candidatures.</p>
+          </div>
+          <Card className="border-[#d8e0e8] bg-white p-2 shadow-lg shadow-slate-900/5">
             <CardHeader>
-              <CardTitle>Recruiter Login</CardTitle>
+              <CardTitle>Connexion</CardTitle>
               <CardDescription>
-                Please login to access the recruiter dashboard and manage your
-                job listings and candidates.
+                Saisissez vos identifiants pour accéder à votre espace.
               </CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email">Adresse email</Label>
                   <Input
                     id="email"
                     name="email"
                     type="email"
                     required
-                    placeholder="insert email here"
+                    placeholder="vous@exemple.com"
+                    className="h-12 bg-white"
                   />
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="password">Mot de passe</Label>
                   <Input
                     id="password"
                     name="password"
                     type="password"
                     required
-                    placeholder="insert password here"
+                    placeholder="Votre mot de passe"
+                    className="h-12 bg-white"
                   />
                 </div>
 
                 {state.status === "error" && (
                   <Alert variant="destructive">
                     <WarningCircleIcon />
-                    <AlertTitle>Login failed</AlertTitle>
+                    <AlertTitle>Connexion impossible</AlertTitle>
                     <AlertDescription>{state.message}</AlertDescription>
                   </Alert>
                 )}
@@ -103,7 +109,7 @@ export default function LoginPage() {
                 <Button
                   type="submit"
                   disabled={state.status === "loading"}
-                  className="w-full"
+                  className="brand-cta h-12 w-full rounded-xl font-semibold"
                 >
                   {state.status === "loading" && (
                     <SpinnerGapIcon
@@ -111,7 +117,7 @@ export default function LoginPage() {
                       className="animate-spin"
                     />
                   )}
-                  {state.status === "loading" ? "Signing in…" : "Sign In"}
+                  {state.status === "loading" ? "Connexion…" : "Se connecter"}
                 </Button>
               </form>
             </CardContent>

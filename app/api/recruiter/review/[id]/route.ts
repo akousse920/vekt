@@ -1,5 +1,6 @@
 import { CandidateStatus } from "@/generated/client";
 import { auth } from "@/lib/auth";
+import { recruiterVisibleCandidateWhere } from "@/lib/candidate-access";
 import { sendCandidateEmail } from "@/lib/email";
 import { inngest } from "@/lib/inngest";
 import logger from "@/lib/logger";
@@ -34,19 +35,19 @@ export async function PATCH(
     );
   }
 
-  const candidate = await prisma.candidate.findUnique({
-    where: { id },
+  const candidate = await prisma.candidate.findFirst({
+    where: recruiterVisibleCandidateWhere(currentUserId, isAdmin, { id }),
     select: {
       id: true,
+      status: true,
       job: { select: { createdById: true } },
     },
   });
   if (!candidate) {
     return NextResponse.json({ error: "Candidate not found" }, { status: 404 });
   }
-
-  if (!isAdmin && candidate.job?.createdById !== currentUserId) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  if (candidate.status === CandidateStatus.APPLIED || candidate.status === CandidateStatus.ANALYZING) {
+    return NextResponse.json({ error: "Application is still being processed" }, { status: 409 });
   }
 
   const newStatus =

@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth";
+import { recruiterVisibleCandidateWhere } from "@/lib/candidate-access";
 import { PRIVACY_POLICY_VERSION } from "@/lib/brand";
 import { inngest } from "@/lib/inngest";
 import logger from "@/lib/logger";
@@ -149,7 +150,7 @@ export async function POST(req: NextRequest) {
     // different job is silently rejected.
     const answersRaw = formData.get("answers") as string | null;
     if (answersRaw && jobId) {
-      if (answersRaw.length > 8_192) {
+      if (answersRaw.length > 50_000) {
         logger.warn({ candidateId: candidate.id }, "API: answers payload too large, skipping");
       } else {
         try {
@@ -182,12 +183,25 @@ export async function POST(req: NextRequest) {
             );
 
             const rows: { candidateId: string; questionId: string; optionId: string }[] = [];
+            const textRows: { candidateId: string; questionId: string; text: string }[] = [];
+            const seenQuestions = new Set<string>();
 
-            for (const { questionId, optionIds } of parsed.data) {
+            for (const answer of parsed.data) {
+              const { questionId } = answer;
+              if (seenQuestions.has(questionId)) continue;
+              seenQuestions.add(questionId);
               const validQuestion = validQuestionsById.get(questionId);
               if (!validQuestion) continue; // question not in this job — discard
 
-              const validOptionIds = [...new Set(optionIds)].filter((optionId) =>
+              if ("text" in answer) {
+                if (validQuestion.type === "TEXT" && answer.text) {
+                  textRows.push({ candidateId: candidate.id, questionId, text: answer.text });
+                }
+                continue;
+              }
+              if (validQuestion.type === "TEXT") continue;
+
+              const validOptionIds = [...new Set(answer.optionIds)].filter((optionId) =>
                 validQuestion.validOptionIds.has(optionId),
               );
 
@@ -202,9 +216,10 @@ export async function POST(req: NextRequest) {
               }
             }
 
-            if (rows.length > 0) {
-              await prisma.candidateAnswer.createMany({ data: rows });
-            }
+            await prisma.$transaction(async (tx) => {
+              if (rows.length > 0) await tx.candidateAnswer.createMany({ data: rows });
+              if (textRows.length > 0) await tx.candidateTextAnswer.createMany({ data: textRows });
+            });
           }
         } catch {
           logger.warn({ candidateId: candidate.id }, "API: failed to process screening answers");
@@ -248,9 +263,7 @@ export async function GET() {
   }
 
   const candidates = await prisma.candidate.findMany({
-    where: !isAdmin && currentUserId
-      ? { job: { is: { createdById: currentUserId } } }
-      : undefined,
+    where: recruiterVisibleCandidateWhere(currentUserId, isAdmin),
     orderBy: { appliedAt: "desc" },
     select: {
       id: true,

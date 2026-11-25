@@ -23,14 +23,14 @@ export default function JobSearchInput({ defaultValue }: { defaultValue: string 
   }
 
   return (
-    <div className="relative w-full max-w-sm">
+    <div className="relative w-full">
       <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
       <Input
-        className="pl-9"
-        placeholder="Search positions…"
+        className="h-11 rounded-xl bg-white pl-10"
+        placeholder="Métier, mot-clé ou ville…"
         value={value}
         onChange={(e) => handleChange(e.target.value)}
-        aria-label="Search positions"
+        aria-label="Rechercher une offre"
       />
     </div>
   );

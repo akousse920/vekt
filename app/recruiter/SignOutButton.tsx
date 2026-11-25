@@ -12,7 +12,7 @@ export default function SignOutButton() {
       onClick={() => signOut({ callbackUrl: "/" })}
     >
       <SignOutIcon data-icon="inline-start" />
-      Sign out
+      Se déconnecter
     </Button>
   );
 }

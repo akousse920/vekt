@@ -11,7 +11,7 @@ import Link from "next/link";
  * Deployers: keep the four facts below. What the system does, that a human
  * decides, what data it sees, and how to ask for a human explanation.
  */
-export function AiDisclosure({ compact = false }: { compact?: boolean }) {
+export function AiDisclosure({ compact = false, aiEnabled = true }: { compact?: boolean; aiEnabled?: boolean }) {
   return (
     <div className="flex items-start gap-3 rounded-lg border border-dashed bg-muted/30 p-4">
       <span
@@ -20,26 +20,25 @@ export function AiDisclosure({ compact = false }: { compact?: boolean }) {
       />
       <div className="text-xs text-muted-foreground leading-relaxed">
         <p className="font-medium text-foreground">
-          This application is assessed with the help of an AI system.
+          {aiEnabled
+            ? "Une IA aide à analyser cette candidature."
+            : "Vos réponses sont vérifiées selon les critères de l’offre, puis une personne examine votre candidature."}
         </p>
         {!compact && (
           <p className="mt-1">
-            Your CV is scored automatically against the requirements in this job
-            posting to help a recruiter prioritise applications. Direct
-            identifiers such as your name, email address and phone number are
-            removed before the text is assessed. A person reviews the result and
-            makes the decision.
+            {aiEnabled
+              ? "Le CV est comparé aux critères de l’offre. Les informations d’identité sont retirées avant l’analyse. Une personne prend la décision."
+              : "Votre CV n’est pas noté par une IA. Si les critères de présélection sont satisfaits, votre candidature est transmise au recruteur. Les réponses manquantes ou les critères bloquants sont vérifiés par une personne."}
           </p>
         )}
         <p className="mt-1">
-          You can ask for an explanation of the assessment or for a review by a
-          person at any time — see the{" "}
+          Vous pouvez demander des explications sur l’examen de votre candidature. Consultez la{" "}
           <Link
             href="/privacy"
             target="_blank"
             className="text-primary underline underline-offset-3 font-medium"
           >
-            Privacy Policy
+            politique de confidentialité
           </Link>
           .
         </p>

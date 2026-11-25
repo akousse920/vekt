@@ -1,5 +1,6 @@
 import { CandidateStatus } from "@/generated/client";
 import { auth } from "@/lib/auth";
+import { recruiterVisibleCandidateWhere } from "@/lib/candidate-access";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
@@ -17,10 +18,7 @@ export async function GET() {
   }
 
   const candidates = await prisma.candidate.findMany({
-    where: {
-      status: CandidateStatus.SHORTLISTED,
-      ...(!isAdmin && currentUserId ? { job: { is: { createdById: currentUserId } } } : {}),
-    },
+    where: recruiterVisibleCandidateWhere(currentUserId, isAdmin, { status: CandidateStatus.SHORTLISTED }),
     orderBy: [{ evaluation: { score: "desc" } }, { appliedAt: "asc" }],
     select: {
       id: true,

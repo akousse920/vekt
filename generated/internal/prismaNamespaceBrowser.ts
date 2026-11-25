@@ -53,10 +53,14 @@ export const AnyNull = runtime.AnyNull
 export const ModelName = {
   Job: 'Job',
   ScreeningQuestion: 'ScreeningQuestion',
+  ScreeningRule: 'ScreeningRule',
+  RubricCriterion: 'RubricCriterion',
   ScreeningOption: 'ScreeningOption',
   CandidateAnswer: 'CandidateAnswer',
+  CandidateTextAnswer: 'CandidateTextAnswer',
   JobView: 'JobView',
   Candidate: 'Candidate',
+  DecisionReason: 'DecisionReason',
   Evaluation: 'Evaluation',
   User: 'User',
   Setting: 'Setting',
@@ -86,6 +90,7 @@ export const JobScalarFieldEnum = {
   customPrompt: 'customPrompt',
   threshold: 'threshold',
   isActive: 'isActive',
+  notifyOnApplication: 'notifyOnApplication',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   createdById: 'createdById'
@@ -103,6 +108,31 @@ export const ScreeningQuestionScalarFieldEnum = {
 } as const
 
 export type ScreeningQuestionScalarFieldEnum = (typeof ScreeningQuestionScalarFieldEnum)[keyof typeof ScreeningQuestionScalarFieldEnum]
+
+
+export const ScreeningRuleScalarFieldEnum = {
+  id: 'id',
+  jobId: 'jobId',
+  questionId: 'questionId',
+  operator: 'operator',
+  value: 'value',
+  mandatory: 'mandatory',
+  createdAt: 'createdAt'
+} as const
+
+export type ScreeningRuleScalarFieldEnum = (typeof ScreeningRuleScalarFieldEnum)[keyof typeof ScreeningRuleScalarFieldEnum]
+
+
+export const RubricCriterionScalarFieldEnum = {
+  id: 'id',
+  jobId: 'jobId',
+  label: 'label',
+  weight: 'weight',
+  required: 'required',
+  order: 'order'
+} as const
+
+export type RubricCriterionScalarFieldEnum = (typeof RubricCriterionScalarFieldEnum)[keyof typeof RubricCriterionScalarFieldEnum]
 
 
 export const ScreeningOptionScalarFieldEnum = {
@@ -123,6 +153,16 @@ export const CandidateAnswerScalarFieldEnum = {
 } as const
 
 export type CandidateAnswerScalarFieldEnum = (typeof CandidateAnswerScalarFieldEnum)[keyof typeof CandidateAnswerScalarFieldEnum]
+
+
+export const CandidateTextAnswerScalarFieldEnum = {
+  id: 'id',
+  candidateId: 'candidateId',
+  questionId: 'questionId',
+  text: 'text'
+} as const
+
+export type CandidateTextAnswerScalarFieldEnum = (typeof CandidateTextAnswerScalarFieldEnum)[keyof typeof CandidateTextAnswerScalarFieldEnum]
 
 
 export const JobViewScalarFieldEnum = {
@@ -154,6 +194,18 @@ export const CandidateScalarFieldEnum = {
 export type CandidateScalarFieldEnum = (typeof CandidateScalarFieldEnum)[keyof typeof CandidateScalarFieldEnum]
 
 
+export const DecisionReasonScalarFieldEnum = {
+  id: 'id',
+  candidateId: 'candidateId',
+  stage: 'stage',
+  ruleId: 'ruleId',
+  detail: 'detail',
+  createdAt: 'createdAt'
+} as const
+
+export type DecisionReasonScalarFieldEnum = (typeof DecisionReasonScalarFieldEnum)[keyof typeof DecisionReasonScalarFieldEnum]
+
+
 export const EvaluationScalarFieldEnum = {
   id: 'id',
   score: 'score',
@@ -166,6 +218,8 @@ export const EvaluationScalarFieldEnum = {
   promptHash: 'promptHash',
   evaluatorVersion: 'evaluatorVersion',
   redactions: 'redactions',
+  rubricSnapshot: 'rubricSnapshot',
+  rubricBreakdown: 'rubricBreakdown',
   autoDecision: 'autoDecision',
   createdAt: 'createdAt',
   candidateId: 'candidateId'

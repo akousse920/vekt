@@ -1,12 +1,14 @@
 import { createHash } from "crypto";
 import logger from "@/lib/logger";
 import { redactIdentity } from "@/lib/redact";
+import { RubricCriterionInput, RubricScoreInput, scoreWeightedRubric } from "@/lib/rubric";
 
 export interface EvaluationResult {
   score: number;
   reasoning: string;
   pros: string[];
   cons: string[];
+  criteria?: RubricScoreInput[];
 }
 
 /**
@@ -34,7 +36,9 @@ export interface EvaluationProvenance {
  * behaviour changes. Evaluations produced by different versions are not
  * comparable and must not be ranked against each other.
  */
-export const EVALUATOR_VERSION = "2026.09.1";
+export const EVALUATOR_VERSION = "2026.11.4";
+
+const AI_REQUEST_TIMEOUT_MS = 120_000;
 
 const SYSTEM_PROMPT = `You are an expert recruitment screening AI called Vekt. 
 Your job is to evaluate a candidate's resume against a specific job description and custom weighting criteria.
@@ -45,7 +49,8 @@ The JSON must have exactly these fields:
   "reasoning": "<exactly 2 sentences justifying the score>",
   "pros": ["<bullet 1>", "<bullet 2>", ...],
   "cons": ["<bullet 1>", "<bullet 2>", ...]
-}`;
+}
+When a weighted rubric is provided, also include "criteria": an array with exactly one object per criterion, each containing "criterionId", "score" (0-100), and "evidence" (a short CV-based explanation). Never infer missing evidence from identity or protected attributes. The application calculates the final weighted score from those criterion scores.`;
 
 function truncateForLog(value: string, max = 600): string {
   if (value.length <= max) return value;
@@ -57,6 +62,7 @@ function buildPrompt(
   jobDescription: string,
   customPrompt: string | null,
   resumeText: string,
+  rubric: RubricCriterionInput[],
 ): string {
   const parts: string[] = [
     `## Job Title\n${jobTitle}`,
@@ -64,6 +70,9 @@ function buildPrompt(
   ];
   if (customPrompt) {
     parts.push(`## Weighting & Evaluation Criteria (IMPORTANT — follow strictly)\n${customPrompt}`);
+  }
+  if (rubric.length > 0) {
+    parts.push(`## Weighted Skill Rubric\nScore each criterion separately from 0 to 100 using only evidence in the CV. Return every criterionId exactly once in the criteria array. Required criteria with weak evidence need a low score. Do not calculate the final weighted score yourself.\n${JSON.stringify(rubric.map(({ id, label, weight, required }) => ({ criterionId: id, label, weight, required })))}`);
   }
   parts.push(`## Candidate Resume\n${resumeText}`);
   return parts.join("\n\n");
@@ -83,6 +92,7 @@ async function evaluateWithOpenAI(
 
   const res = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
+    signal: AbortSignal.timeout(AI_REQUEST_TIMEOUT_MS),
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${apiKey}`,
@@ -145,6 +155,7 @@ async function evaluateWithOpenRouter(
 
   const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
+    signal: AbortSignal.timeout(AI_REQUEST_TIMEOUT_MS),
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${apiKey}`,
@@ -209,11 +220,13 @@ async function evaluateWithOllama(
 
   const res = await fetch(`${baseUrl}/api/chat`, {
     method: "POST",
+    signal: AbortSignal.timeout(AI_REQUEST_TIMEOUT_MS),
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       model: ollamaModel,
       format: "json",
       stream: false,
+      think: process.env.OLLAMA_THINK === "true",
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
         { role: "user", content: prompt },
@@ -262,12 +275,16 @@ export async function evaluateCandidate(params: {
   resumeText: string;
   /** Used to redact the candidate's own name from the text sent to the model. */
   candidateName?: string;
+  rubric?: RubricCriterionInput[];
 }): Promise<{
   result: EvaluationResult;
   promptSnapshot: string;
   provenance: EvaluationProvenance;
+  rubricBreakdown: RubricScoreInput[];
+  rubricReviewReasons: string[];
 }> {
-  const provider = (process.env.AI_PROVIDER ?? "mock").toLowerCase();
+  const provider = (process.env.AI_PROVIDER ?? "none").toLowerCase();
+  if (provider === "none") throw new Error("AI evaluation is disabled; use the rules-only routing pipeline");
   logger.info({ provider }, "AI: selected evaluation provider");
 
   // Strip direct identifiers before anything reaches the provider.
@@ -278,6 +295,7 @@ export async function evaluateCandidate(params: {
     params.jobDescription,
     params.customPrompt,
     redacted.text,
+    params.rubric ?? [],
   );
   const promptSnapshot = `${SYSTEM_PROMPT}\n\n---\n\n${prompt}`;
   const promptHash = createHash("sha256").update(promptSnapshot).digest("hex");
@@ -305,6 +323,13 @@ export async function evaluateCandidate(params: {
         reasoning: `Mock evaluation for the ${params.jobTitle} role. This score is generated deterministically from the prompt and carries no assessment of the candidate.`,
         pros: ["Mock provider — no assessment performed"],
         cons: ["Mock provider — no assessment performed"],
+        ...(params.rubric?.length ? {
+          criteria: params.rubric.map((criterion) => ({
+            criterionId: criterion.id,
+            score: 40 + (parseInt(createHash("sha256").update(`${promptHash}:${criterion.id}`).digest("hex").slice(0, 8), 16) % 61),
+            evidence: "Score fictif du fournisseur mock ; aucune évaluation réelle.",
+          })),
+        } : {}),
       };
     }
   } catch (error) {
@@ -324,6 +349,7 @@ export async function evaluateCandidate(params: {
   // Validate required fields
   if (
     typeof result.score !== "number" ||
+    !Number.isFinite(result.score) ||
     typeof result.reasoning !== "string" ||
     !Array.isArray(result.pros) ||
     !Array.isArray(result.cons)
@@ -335,8 +361,17 @@ export async function evaluateCandidate(params: {
     throw new Error(`AI returned malformed evaluation: ${JSON.stringify(result)}`);
   }
 
-  // Clamp score
-  result.score = Math.max(0, Math.min(100, Math.round(result.score)));
+  let rubricBreakdown: RubricScoreInput[] = [];
+  let rubricReviewReasons: string[] = [];
+  if (params.rubric?.length) {
+    const weighted = scoreWeightedRubric(params.rubric, result.criteria);
+    result.score = weighted.score;
+    rubricBreakdown = weighted.breakdown;
+    rubricReviewReasons = weighted.reviewReasons;
+  } else {
+    // Preserve the legacy score for jobs without a configured rubric.
+    result.score = Math.max(0, Math.min(100, Math.round(result.score)));
+  }
 
   const provenance: EvaluationProvenance = {
     provider,
@@ -351,5 +386,5 @@ export async function evaluateCandidate(params: {
     "AI: evaluation completed",
   );
 
-  return { result, promptSnapshot, provenance };
+  return { result, promptSnapshot, provenance, rubricBreakdown, rubricReviewReasons };
 }

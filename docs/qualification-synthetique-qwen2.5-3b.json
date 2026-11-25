@@ -1,0 +1,114 @@
+{
+  "generatedAt": "2026-11-23T10:41:54.261Z",
+  "provider": "ollama",
+  "model": "qwen2.5:3b",
+  "fixtureCount": 3,
+  "falseNegativeCount": 1,
+  "falsePositiveCount": 0,
+  "caveat": "Trois profils fictifs ne suffisent pas à estimer les performances réelles du filtre.",
+  "results": [
+    {
+      "file": "pertinent.pdf",
+      "humanLabel": "PERTINENT",
+      "status": "NEEDS_REVIEW",
+      "score": 34,
+      "model": "qwen2.5:3b",
+      "rubricBreakdown": [
+        {
+          "criterionId": "cmwt4ve870001jes9c7wgavbb",
+          "score": 85,
+          "evidence": "6 ans d'expérience en développement backend Node.js et TypeScript"
+        },
+        {
+          "criterionId": "cmwt4ve870002jes9ohhbqow2",
+          "score": 0,
+          "evidence": "Aucune détails sur la conception d'API de production"
+        },
+        {
+          "criterionId": "cmwt4ve870003jes9m9npdy7w",
+          "score": 0,
+          "evidence": "Pas de mention de PostgreSQL"
+        },
+        {
+          "criterionId": "cmwt4ve870004jes9urwy3l8v",
+          "score": 0,
+          "evidence": "Pas de mention de Docker et déploiement"
+        }
+      ],
+      "reasons": [
+        {
+          "stage": "RUBRIC",
+          "detail": "Compétence obligatoire à revoir : Conception d'API de production (0/100)."
+        },
+        {
+          "stage": "AI_SCORE",
+          "detail": "Score 34/100 ; seuil 75/100."
+        }
+      ],
+      "extractedCharacters": 481
+    },
+    {
+      "file": "moyen.pdf",
+      "humanLabel": "A_REVOIR",
+      "status": "NEEDS_REVIEW",
+      "score": 0,
+      "model": "qwen2.5:3b",
+      "rubricBreakdown": [
+        {
+          "criterionId": "cmwt4ve870001jes9c7wgavbb",
+          "score": 0,
+          "evidence": "No experience with TypeScript or Node.js backend"
+        },
+        {
+          "criterionId": "cmwt4ve870002jes9ohhbqow2",
+          "score": 0,
+          "evidence": "No experience with API design"
+        },
+        {
+          "criterionId": "cmwt4ve870003jes9m9npdy7w",
+          "score": 0,
+          "evidence": "No experience with PostgreSQL"
+        },
+        {
+          "criterionId": "cmwt4ve870004jes9urwy3l8v",
+          "score": 0,
+          "evidence": "No experience with Docker or deployment"
+        }
+      ],
+      "reasons": [
+        {
+          "stage": "SCREENING",
+          "detail": "Critère non satisfait : Combien d'années d'expérience professionnelle avez-vous ? (GTE 3)"
+        },
+        {
+          "stage": "RUBRIC",
+          "detail": "Compétence obligatoire à revoir : TypeScript et Node.js backend (0/100)."
+        },
+        {
+          "stage": "RUBRIC",
+          "detail": "Compétence obligatoire à revoir : Conception d'API de production (0/100)."
+        },
+        {
+          "stage": "AI_SCORE",
+          "detail": "Score 0/100 ; seuil 75/100."
+        }
+      ],
+      "extractedCharacters": 466
+    },
+    {
+      "file": "hors_sujet.pdf",
+      "humanLabel": "HORS_SUJET",
+      "status": "NEEDS_REVIEW",
+      "score": null,
+      "model": null,
+      "rubricBreakdown": [],
+      "reasons": [
+        {
+          "stage": "AI_ERROR",
+          "detail": "Évaluation IA indisponible ou inexploitable ; revue humaine requise."
+        }
+      ],
+      "extractedCharacters": 394
+    }
+  ]
+}

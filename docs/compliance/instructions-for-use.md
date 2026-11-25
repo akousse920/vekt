@@ -41,7 +41,7 @@ will produce different numbers for the same CV.
 
 | Setting | Default | What it means |
 | --- | --- | --- |
-| `AI_PROVIDER` | `mock` | `mock` produces a deterministic pseudo-score from the prompt hash and assesses nothing. Never leave it on in production and never treat its output as an evaluation. |
+| `AI_PROVIDER` | `none` | `none` applies structured rules and sends dossiers without blocking or ambiguous answers directly to the recruiter, without an AI score. Other dossiers wait for human review. `mock` produces a deterministic pseudo-score for tests only; never treat its output as an evaluation. |
 | `AUTO_REJECT_BELOW_THRESHOLD` | `false` | See [`human-oversight.md`](./human-oversight.md). |
 | Job `threshold` | 75 | The cut-off is a policy choice with disparate-impact consequences. Write down why you picked it. |
 | Job `customPrompt` | none | Free-text weighting criteria injected into the prompt. This is the highest-risk field in the product: it is where a deployer can, accidentally or otherwise, instruct the model to weigh a proxy for a protected characteristic. Review it like you would review a job advert. |

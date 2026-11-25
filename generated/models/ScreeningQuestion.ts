@@ -219,6 +219,8 @@ export type ScreeningQuestionWhereInput = {
   job?: Prisma.XOR<Prisma.JobScalarRelationFilter, Prisma.JobWhereInput>
   options?: Prisma.ScreeningOptionListRelationFilter
   answers?: Prisma.CandidateAnswerListRelationFilter
+  textAnswers?: Prisma.CandidateTextAnswerListRelationFilter
+  rules?: Prisma.ScreeningRuleListRelationFilter
 }
 
 export type ScreeningQuestionOrderByWithRelationInput = {
@@ -230,6 +232,8 @@ export type ScreeningQuestionOrderByWithRelationInput = {
   job?: Prisma.JobOrderByWithRelationInput
   options?: Prisma.ScreeningOptionOrderByRelationAggregateInput
   answers?: Prisma.CandidateAnswerOrderByRelationAggregateInput
+  textAnswers?: Prisma.CandidateTextAnswerOrderByRelationAggregateInput
+  rules?: Prisma.ScreeningRuleOrderByRelationAggregateInput
 }
 
 export type ScreeningQuestionWhereUniqueInput = Prisma.AtLeast<{
@@ -244,6 +248,8 @@ export type ScreeningQuestionWhereUniqueInput = Prisma.AtLeast<{
   job?: Prisma.XOR<Prisma.JobScalarRelationFilter, Prisma.JobWhereInput>
   options?: Prisma.ScreeningOptionListRelationFilter
   answers?: Prisma.CandidateAnswerListRelationFilter
+  textAnswers?: Prisma.CandidateTextAnswerListRelationFilter
+  rules?: Prisma.ScreeningRuleListRelationFilter
 }, "id">
 
 export type ScreeningQuestionOrderByWithAggregationInput = {
@@ -278,6 +284,8 @@ export type ScreeningQuestionCreateInput = {
   job: Prisma.JobCreateNestedOneWithoutScreeningQuestionsInput
   options?: Prisma.ScreeningOptionCreateNestedManyWithoutQuestionInput
   answers?: Prisma.CandidateAnswerCreateNestedManyWithoutQuestionInput
+  textAnswers?: Prisma.CandidateTextAnswerCreateNestedManyWithoutQuestionInput
+  rules?: Prisma.ScreeningRuleCreateNestedManyWithoutQuestionInput
 }
 
 export type ScreeningQuestionUncheckedCreateInput = {
@@ -288,6 +296,8 @@ export type ScreeningQuestionUncheckedCreateInput = {
   order?: number
   options?: Prisma.ScreeningOptionUncheckedCreateNestedManyWithoutQuestionInput
   answers?: Prisma.CandidateAnswerUncheckedCreateNestedManyWithoutQuestionInput
+  textAnswers?: Prisma.CandidateTextAnswerUncheckedCreateNestedManyWithoutQuestionInput
+  rules?: Prisma.ScreeningRuleUncheckedCreateNestedManyWithoutQuestionInput
 }
 
 export type ScreeningQuestionUpdateInput = {
@@ -298,6 +308,8 @@ export type ScreeningQuestionUpdateInput = {
   job?: Prisma.JobUpdateOneRequiredWithoutScreeningQuestionsNestedInput
   options?: Prisma.ScreeningOptionUpdateManyWithoutQuestionNestedInput
   answers?: Prisma.CandidateAnswerUpdateManyWithoutQuestionNestedInput
+  textAnswers?: Prisma.CandidateTextAnswerUpdateManyWithoutQuestionNestedInput
+  rules?: Prisma.ScreeningRuleUpdateManyWithoutQuestionNestedInput
 }
 
 export type ScreeningQuestionUncheckedUpdateInput = {
@@ -308,6 +320,8 @@ export type ScreeningQuestionUncheckedUpdateInput = {
   order?: Prisma.IntFieldUpdateOperationsInput | number
   options?: Prisma.ScreeningOptionUncheckedUpdateManyWithoutQuestionNestedInput
   answers?: Prisma.CandidateAnswerUncheckedUpdateManyWithoutQuestionNestedInput
+  textAnswers?: Prisma.CandidateTextAnswerUncheckedUpdateManyWithoutQuestionNestedInput
+  rules?: Prisma.ScreeningRuleUncheckedUpdateManyWithoutQuestionNestedInput
 }
 
 export type ScreeningQuestionCreateManyInput = {
@@ -426,6 +440,20 @@ export type EnumQuestionTypeFieldUpdateOperationsInput = {
   set?: $Enums.QuestionType
 }
 
+export type ScreeningQuestionCreateNestedOneWithoutRulesInput = {
+  create?: Prisma.XOR<Prisma.ScreeningQuestionCreateWithoutRulesInput, Prisma.ScreeningQuestionUncheckedCreateWithoutRulesInput>
+  connectOrCreate?: Prisma.ScreeningQuestionCreateOrConnectWithoutRulesInput
+  connect?: Prisma.ScreeningQuestionWhereUniqueInput
+}
+
+export type ScreeningQuestionUpdateOneRequiredWithoutRulesNestedInput = {
+  create?: Prisma.XOR<Prisma.ScreeningQuestionCreateWithoutRulesInput, Prisma.ScreeningQuestionUncheckedCreateWithoutRulesInput>
+  connectOrCreate?: Prisma.ScreeningQuestionCreateOrConnectWithoutRulesInput
+  upsert?: Prisma.ScreeningQuestionUpsertWithoutRulesInput
+  connect?: Prisma.ScreeningQuestionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ScreeningQuestionUpdateToOneWithWhereWithoutRulesInput, Prisma.ScreeningQuestionUpdateWithoutRulesInput>, Prisma.ScreeningQuestionUncheckedUpdateWithoutRulesInput>
+}
+
 export type ScreeningQuestionCreateNestedOneWithoutOptionsInput = {
   create?: Prisma.XOR<Prisma.ScreeningQuestionCreateWithoutOptionsInput, Prisma.ScreeningQuestionUncheckedCreateWithoutOptionsInput>
   connectOrCreate?: Prisma.ScreeningQuestionCreateOrConnectWithoutOptionsInput
@@ -454,6 +482,20 @@ export type ScreeningQuestionUpdateOneRequiredWithoutAnswersNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ScreeningQuestionUpdateToOneWithWhereWithoutAnswersInput, Prisma.ScreeningQuestionUpdateWithoutAnswersInput>, Prisma.ScreeningQuestionUncheckedUpdateWithoutAnswersInput>
 }
 
+export type ScreeningQuestionCreateNestedOneWithoutTextAnswersInput = {
+  create?: Prisma.XOR<Prisma.ScreeningQuestionCreateWithoutTextAnswersInput, Prisma.ScreeningQuestionUncheckedCreateWithoutTextAnswersInput>
+  connectOrCreate?: Prisma.ScreeningQuestionCreateOrConnectWithoutTextAnswersInput
+  connect?: Prisma.ScreeningQuestionWhereUniqueInput
+}
+
+export type ScreeningQuestionUpdateOneRequiredWithoutTextAnswersNestedInput = {
+  create?: Prisma.XOR<Prisma.ScreeningQuestionCreateWithoutTextAnswersInput, Prisma.ScreeningQuestionUncheckedCreateWithoutTextAnswersInput>
+  connectOrCreate?: Prisma.ScreeningQuestionCreateOrConnectWithoutTextAnswersInput
+  upsert?: Prisma.ScreeningQuestionUpsertWithoutTextAnswersInput
+  connect?: Prisma.ScreeningQuestionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ScreeningQuestionUpdateToOneWithWhereWithoutTextAnswersInput, Prisma.ScreeningQuestionUpdateWithoutTextAnswersInput>, Prisma.ScreeningQuestionUncheckedUpdateWithoutTextAnswersInput>
+}
+
 export type ScreeningQuestionCreateWithoutJobInput = {
   id?: string
   text: string
@@ -461,6 +503,8 @@ export type ScreeningQuestionCreateWithoutJobInput = {
   order?: number
   options?: Prisma.ScreeningOptionCreateNestedManyWithoutQuestionInput
   answers?: Prisma.CandidateAnswerCreateNestedManyWithoutQuestionInput
+  textAnswers?: Prisma.CandidateTextAnswerCreateNestedManyWithoutQuestionInput
+  rules?: Prisma.ScreeningRuleCreateNestedManyWithoutQuestionInput
 }
 
 export type ScreeningQuestionUncheckedCreateWithoutJobInput = {
@@ -470,6 +514,8 @@ export type ScreeningQuestionUncheckedCreateWithoutJobInput = {
   order?: number
   options?: Prisma.ScreeningOptionUncheckedCreateNestedManyWithoutQuestionInput
   answers?: Prisma.CandidateAnswerUncheckedCreateNestedManyWithoutQuestionInput
+  textAnswers?: Prisma.CandidateTextAnswerUncheckedCreateNestedManyWithoutQuestionInput
+  rules?: Prisma.ScreeningRuleUncheckedCreateNestedManyWithoutQuestionInput
 }
 
 export type ScreeningQuestionCreateOrConnectWithoutJobInput = {
@@ -508,6 +554,66 @@ export type ScreeningQuestionScalarWhereInput = {
   order?: Prisma.IntFilter<"ScreeningQuestion"> | number
 }
 
+export type ScreeningQuestionCreateWithoutRulesInput = {
+  id?: string
+  text: string
+  type?: $Enums.QuestionType
+  order?: number
+  job: Prisma.JobCreateNestedOneWithoutScreeningQuestionsInput
+  options?: Prisma.ScreeningOptionCreateNestedManyWithoutQuestionInput
+  answers?: Prisma.CandidateAnswerCreateNestedManyWithoutQuestionInput
+  textAnswers?: Prisma.CandidateTextAnswerCreateNestedManyWithoutQuestionInput
+}
+
+export type ScreeningQuestionUncheckedCreateWithoutRulesInput = {
+  id?: string
+  jobId: string
+  text: string
+  type?: $Enums.QuestionType
+  order?: number
+  options?: Prisma.ScreeningOptionUncheckedCreateNestedManyWithoutQuestionInput
+  answers?: Prisma.CandidateAnswerUncheckedCreateNestedManyWithoutQuestionInput
+  textAnswers?: Prisma.CandidateTextAnswerUncheckedCreateNestedManyWithoutQuestionInput
+}
+
+export type ScreeningQuestionCreateOrConnectWithoutRulesInput = {
+  where: Prisma.ScreeningQuestionWhereUniqueInput
+  create: Prisma.XOR<Prisma.ScreeningQuestionCreateWithoutRulesInput, Prisma.ScreeningQuestionUncheckedCreateWithoutRulesInput>
+}
+
+export type ScreeningQuestionUpsertWithoutRulesInput = {
+  update: Prisma.XOR<Prisma.ScreeningQuestionUpdateWithoutRulesInput, Prisma.ScreeningQuestionUncheckedUpdateWithoutRulesInput>
+  create: Prisma.XOR<Prisma.ScreeningQuestionCreateWithoutRulesInput, Prisma.ScreeningQuestionUncheckedCreateWithoutRulesInput>
+  where?: Prisma.ScreeningQuestionWhereInput
+}
+
+export type ScreeningQuestionUpdateToOneWithWhereWithoutRulesInput = {
+  where?: Prisma.ScreeningQuestionWhereInput
+  data: Prisma.XOR<Prisma.ScreeningQuestionUpdateWithoutRulesInput, Prisma.ScreeningQuestionUncheckedUpdateWithoutRulesInput>
+}
+
+export type ScreeningQuestionUpdateWithoutRulesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  text?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
+  order?: Prisma.IntFieldUpdateOperationsInput | number
+  job?: Prisma.JobUpdateOneRequiredWithoutScreeningQuestionsNestedInput
+  options?: Prisma.ScreeningOptionUpdateManyWithoutQuestionNestedInput
+  answers?: Prisma.CandidateAnswerUpdateManyWithoutQuestionNestedInput
+  textAnswers?: Prisma.CandidateTextAnswerUpdateManyWithoutQuestionNestedInput
+}
+
+export type ScreeningQuestionUncheckedUpdateWithoutRulesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  jobId?: Prisma.StringFieldUpdateOperationsInput | string
+  text?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
+  order?: Prisma.IntFieldUpdateOperationsInput | number
+  options?: Prisma.ScreeningOptionUncheckedUpdateManyWithoutQuestionNestedInput
+  answers?: Prisma.CandidateAnswerUncheckedUpdateManyWithoutQuestionNestedInput
+  textAnswers?: Prisma.CandidateTextAnswerUncheckedUpdateManyWithoutQuestionNestedInput
+}
+
 export type ScreeningQuestionCreateWithoutOptionsInput = {
   id?: string
   text: string
@@ -515,6 +621,8 @@ export type ScreeningQuestionCreateWithoutOptionsInput = {
   order?: number
   job: Prisma.JobCreateNestedOneWithoutScreeningQuestionsInput
   answers?: Prisma.CandidateAnswerCreateNestedManyWithoutQuestionInput
+  textAnswers?: Prisma.CandidateTextAnswerCreateNestedManyWithoutQuestionInput
+  rules?: Prisma.ScreeningRuleCreateNestedManyWithoutQuestionInput
 }
 
 export type ScreeningQuestionUncheckedCreateWithoutOptionsInput = {
@@ -524,6 +632,8 @@ export type ScreeningQuestionUncheckedCreateWithoutOptionsInput = {
   type?: $Enums.QuestionType
   order?: number
   answers?: Prisma.CandidateAnswerUncheckedCreateNestedManyWithoutQuestionInput
+  textAnswers?: Prisma.CandidateTextAnswerUncheckedCreateNestedManyWithoutQuestionInput
+  rules?: Prisma.ScreeningRuleUncheckedCreateNestedManyWithoutQuestionInput
 }
 
 export type ScreeningQuestionCreateOrConnectWithoutOptionsInput = {
@@ -549,6 +659,8 @@ export type ScreeningQuestionUpdateWithoutOptionsInput = {
   order?: Prisma.IntFieldUpdateOperationsInput | number
   job?: Prisma.JobUpdateOneRequiredWithoutScreeningQuestionsNestedInput
   answers?: Prisma.CandidateAnswerUpdateManyWithoutQuestionNestedInput
+  textAnswers?: Prisma.CandidateTextAnswerUpdateManyWithoutQuestionNestedInput
+  rules?: Prisma.ScreeningRuleUpdateManyWithoutQuestionNestedInput
 }
 
 export type ScreeningQuestionUncheckedUpdateWithoutOptionsInput = {
@@ -558,6 +670,8 @@ export type ScreeningQuestionUncheckedUpdateWithoutOptionsInput = {
   type?: Prisma.EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
   order?: Prisma.IntFieldUpdateOperationsInput | number
   answers?: Prisma.CandidateAnswerUncheckedUpdateManyWithoutQuestionNestedInput
+  textAnswers?: Prisma.CandidateTextAnswerUncheckedUpdateManyWithoutQuestionNestedInput
+  rules?: Prisma.ScreeningRuleUncheckedUpdateManyWithoutQuestionNestedInput
 }
 
 export type ScreeningQuestionCreateWithoutAnswersInput = {
@@ -567,6 +681,8 @@ export type ScreeningQuestionCreateWithoutAnswersInput = {
   order?: number
   job: Prisma.JobCreateNestedOneWithoutScreeningQuestionsInput
   options?: Prisma.ScreeningOptionCreateNestedManyWithoutQuestionInput
+  textAnswers?: Prisma.CandidateTextAnswerCreateNestedManyWithoutQuestionInput
+  rules?: Prisma.ScreeningRuleCreateNestedManyWithoutQuestionInput
 }
 
 export type ScreeningQuestionUncheckedCreateWithoutAnswersInput = {
@@ -576,6 +692,8 @@ export type ScreeningQuestionUncheckedCreateWithoutAnswersInput = {
   type?: $Enums.QuestionType
   order?: number
   options?: Prisma.ScreeningOptionUncheckedCreateNestedManyWithoutQuestionInput
+  textAnswers?: Prisma.CandidateTextAnswerUncheckedCreateNestedManyWithoutQuestionInput
+  rules?: Prisma.ScreeningRuleUncheckedCreateNestedManyWithoutQuestionInput
 }
 
 export type ScreeningQuestionCreateOrConnectWithoutAnswersInput = {
@@ -601,6 +719,8 @@ export type ScreeningQuestionUpdateWithoutAnswersInput = {
   order?: Prisma.IntFieldUpdateOperationsInput | number
   job?: Prisma.JobUpdateOneRequiredWithoutScreeningQuestionsNestedInput
   options?: Prisma.ScreeningOptionUpdateManyWithoutQuestionNestedInput
+  textAnswers?: Prisma.CandidateTextAnswerUpdateManyWithoutQuestionNestedInput
+  rules?: Prisma.ScreeningRuleUpdateManyWithoutQuestionNestedInput
 }
 
 export type ScreeningQuestionUncheckedUpdateWithoutAnswersInput = {
@@ -610,6 +730,68 @@ export type ScreeningQuestionUncheckedUpdateWithoutAnswersInput = {
   type?: Prisma.EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
   order?: Prisma.IntFieldUpdateOperationsInput | number
   options?: Prisma.ScreeningOptionUncheckedUpdateManyWithoutQuestionNestedInput
+  textAnswers?: Prisma.CandidateTextAnswerUncheckedUpdateManyWithoutQuestionNestedInput
+  rules?: Prisma.ScreeningRuleUncheckedUpdateManyWithoutQuestionNestedInput
+}
+
+export type ScreeningQuestionCreateWithoutTextAnswersInput = {
+  id?: string
+  text: string
+  type?: $Enums.QuestionType
+  order?: number
+  job: Prisma.JobCreateNestedOneWithoutScreeningQuestionsInput
+  options?: Prisma.ScreeningOptionCreateNestedManyWithoutQuestionInput
+  answers?: Prisma.CandidateAnswerCreateNestedManyWithoutQuestionInput
+  rules?: Prisma.ScreeningRuleCreateNestedManyWithoutQuestionInput
+}
+
+export type ScreeningQuestionUncheckedCreateWithoutTextAnswersInput = {
+  id?: string
+  jobId: string
+  text: string
+  type?: $Enums.QuestionType
+  order?: number
+  options?: Prisma.ScreeningOptionUncheckedCreateNestedManyWithoutQuestionInput
+  answers?: Prisma.CandidateAnswerUncheckedCreateNestedManyWithoutQuestionInput
+  rules?: Prisma.ScreeningRuleUncheckedCreateNestedManyWithoutQuestionInput
+}
+
+export type ScreeningQuestionCreateOrConnectWithoutTextAnswersInput = {
+  where: Prisma.ScreeningQuestionWhereUniqueInput
+  create: Prisma.XOR<Prisma.ScreeningQuestionCreateWithoutTextAnswersInput, Prisma.ScreeningQuestionUncheckedCreateWithoutTextAnswersInput>
+}
+
+export type ScreeningQuestionUpsertWithoutTextAnswersInput = {
+  update: Prisma.XOR<Prisma.ScreeningQuestionUpdateWithoutTextAnswersInput, Prisma.ScreeningQuestionUncheckedUpdateWithoutTextAnswersInput>
+  create: Prisma.XOR<Prisma.ScreeningQuestionCreateWithoutTextAnswersInput, Prisma.ScreeningQuestionUncheckedCreateWithoutTextAnswersInput>
+  where?: Prisma.ScreeningQuestionWhereInput
+}
+
+export type ScreeningQuestionUpdateToOneWithWhereWithoutTextAnswersInput = {
+  where?: Prisma.ScreeningQuestionWhereInput
+  data: Prisma.XOR<Prisma.ScreeningQuestionUpdateWithoutTextAnswersInput, Prisma.ScreeningQuestionUncheckedUpdateWithoutTextAnswersInput>
+}
+
+export type ScreeningQuestionUpdateWithoutTextAnswersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  text?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
+  order?: Prisma.IntFieldUpdateOperationsInput | number
+  job?: Prisma.JobUpdateOneRequiredWithoutScreeningQuestionsNestedInput
+  options?: Prisma.ScreeningOptionUpdateManyWithoutQuestionNestedInput
+  answers?: Prisma.CandidateAnswerUpdateManyWithoutQuestionNestedInput
+  rules?: Prisma.ScreeningRuleUpdateManyWithoutQuestionNestedInput
+}
+
+export type ScreeningQuestionUncheckedUpdateWithoutTextAnswersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  jobId?: Prisma.StringFieldUpdateOperationsInput | string
+  text?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
+  order?: Prisma.IntFieldUpdateOperationsInput | number
+  options?: Prisma.ScreeningOptionUncheckedUpdateManyWithoutQuestionNestedInput
+  answers?: Prisma.CandidateAnswerUncheckedUpdateManyWithoutQuestionNestedInput
+  rules?: Prisma.ScreeningRuleUncheckedUpdateManyWithoutQuestionNestedInput
 }
 
 export type ScreeningQuestionCreateManyJobInput = {
@@ -626,6 +808,8 @@ export type ScreeningQuestionUpdateWithoutJobInput = {
   order?: Prisma.IntFieldUpdateOperationsInput | number
   options?: Prisma.ScreeningOptionUpdateManyWithoutQuestionNestedInput
   answers?: Prisma.CandidateAnswerUpdateManyWithoutQuestionNestedInput
+  textAnswers?: Prisma.CandidateTextAnswerUpdateManyWithoutQuestionNestedInput
+  rules?: Prisma.ScreeningRuleUpdateManyWithoutQuestionNestedInput
 }
 
 export type ScreeningQuestionUncheckedUpdateWithoutJobInput = {
@@ -635,6 +819,8 @@ export type ScreeningQuestionUncheckedUpdateWithoutJobInput = {
   order?: Prisma.IntFieldUpdateOperationsInput | number
   options?: Prisma.ScreeningOptionUncheckedUpdateManyWithoutQuestionNestedInput
   answers?: Prisma.CandidateAnswerUncheckedUpdateManyWithoutQuestionNestedInput
+  textAnswers?: Prisma.CandidateTextAnswerUncheckedUpdateManyWithoutQuestionNestedInput
+  rules?: Prisma.ScreeningRuleUncheckedUpdateManyWithoutQuestionNestedInput
 }
 
 export type ScreeningQuestionUncheckedUpdateManyWithoutJobInput = {
@@ -652,11 +838,15 @@ export type ScreeningQuestionUncheckedUpdateManyWithoutJobInput = {
 export type ScreeningQuestionCountOutputType = {
   options: number
   answers: number
+  textAnswers: number
+  rules: number
 }
 
 export type ScreeningQuestionCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   options?: boolean | ScreeningQuestionCountOutputTypeCountOptionsArgs
   answers?: boolean | ScreeningQuestionCountOutputTypeCountAnswersArgs
+  textAnswers?: boolean | ScreeningQuestionCountOutputTypeCountTextAnswersArgs
+  rules?: boolean | ScreeningQuestionCountOutputTypeCountRulesArgs
 }
 
 /**
@@ -683,6 +873,20 @@ export type ScreeningQuestionCountOutputTypeCountAnswersArgs<ExtArgs extends run
   where?: Prisma.CandidateAnswerWhereInput
 }
 
+/**
+ * ScreeningQuestionCountOutputType without action
+ */
+export type ScreeningQuestionCountOutputTypeCountTextAnswersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CandidateTextAnswerWhereInput
+}
+
+/**
+ * ScreeningQuestionCountOutputType without action
+ */
+export type ScreeningQuestionCountOutputTypeCountRulesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ScreeningRuleWhereInput
+}
+
 
 export type ScreeningQuestionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -693,6 +897,8 @@ export type ScreeningQuestionSelect<ExtArgs extends runtime.Types.Extensions.Int
   job?: boolean | Prisma.JobDefaultArgs<ExtArgs>
   options?: boolean | Prisma.ScreeningQuestion$optionsArgs<ExtArgs>
   answers?: boolean | Prisma.ScreeningQuestion$answersArgs<ExtArgs>
+  textAnswers?: boolean | Prisma.ScreeningQuestion$textAnswersArgs<ExtArgs>
+  rules?: boolean | Prisma.ScreeningQuestion$rulesArgs<ExtArgs>
   _count?: boolean | Prisma.ScreeningQuestionCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["screeningQuestion"]>
 
@@ -727,6 +933,8 @@ export type ScreeningQuestionInclude<ExtArgs extends runtime.Types.Extensions.In
   job?: boolean | Prisma.JobDefaultArgs<ExtArgs>
   options?: boolean | Prisma.ScreeningQuestion$optionsArgs<ExtArgs>
   answers?: boolean | Prisma.ScreeningQuestion$answersArgs<ExtArgs>
+  textAnswers?: boolean | Prisma.ScreeningQuestion$textAnswersArgs<ExtArgs>
+  rules?: boolean | Prisma.ScreeningQuestion$rulesArgs<ExtArgs>
   _count?: boolean | Prisma.ScreeningQuestionCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ScreeningQuestionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -742,6 +950,8 @@ export type $ScreeningQuestionPayload<ExtArgs extends runtime.Types.Extensions.I
     job: Prisma.$JobPayload<ExtArgs>
     options: Prisma.$ScreeningOptionPayload<ExtArgs>[]
     answers: Prisma.$CandidateAnswerPayload<ExtArgs>[]
+    textAnswers: Prisma.$CandidateTextAnswerPayload<ExtArgs>[]
+    rules: Prisma.$ScreeningRulePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1146,6 +1356,8 @@ export interface Prisma__ScreeningQuestionClient<T, Null = never, ExtArgs extend
   job<T extends Prisma.JobDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.JobDefaultArgs<ExtArgs>>): Prisma.Prisma__JobClient<runtime.Types.Result.GetResult<Prisma.$JobPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   options<T extends Prisma.ScreeningQuestion$optionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ScreeningQuestion$optionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ScreeningOptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   answers<T extends Prisma.ScreeningQuestion$answersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ScreeningQuestion$answersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CandidateAnswerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  textAnswers<T extends Prisma.ScreeningQuestion$textAnswersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ScreeningQuestion$textAnswersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CandidateTextAnswerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  rules<T extends Prisma.ScreeningQuestion$rulesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ScreeningQuestion$rulesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ScreeningRulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1624,6 +1836,54 @@ export type ScreeningQuestion$answersArgs<ExtArgs extends runtime.Types.Extensio
   take?: number
   skip?: number
   distinct?: Prisma.CandidateAnswerScalarFieldEnum | Prisma.CandidateAnswerScalarFieldEnum[]
+}
+
+/**
+ * ScreeningQuestion.textAnswers
+ */
+export type ScreeningQuestion$textAnswersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CandidateTextAnswer
+   */
+  select?: Prisma.CandidateTextAnswerSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CandidateTextAnswer
+   */
+  omit?: Prisma.CandidateTextAnswerOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CandidateTextAnswerInclude<ExtArgs> | null
+  where?: Prisma.CandidateTextAnswerWhereInput
+  orderBy?: Prisma.CandidateTextAnswerOrderByWithRelationInput | Prisma.CandidateTextAnswerOrderByWithRelationInput[]
+  cursor?: Prisma.CandidateTextAnswerWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CandidateTextAnswerScalarFieldEnum | Prisma.CandidateTextAnswerScalarFieldEnum[]
+}
+
+/**
+ * ScreeningQuestion.rules
+ */
+export type ScreeningQuestion$rulesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ScreeningRule
+   */
+  select?: Prisma.ScreeningRuleSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ScreeningRule
+   */
+  omit?: Prisma.ScreeningRuleOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ScreeningRuleInclude<ExtArgs> | null
+  where?: Prisma.ScreeningRuleWhereInput
+  orderBy?: Prisma.ScreeningRuleOrderByWithRelationInput | Prisma.ScreeningRuleOrderByWithRelationInput[]
+  cursor?: Prisma.ScreeningRuleWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ScreeningRuleScalarFieldEnum | Prisma.ScreeningRuleScalarFieldEnum[]
 }
 
 /**

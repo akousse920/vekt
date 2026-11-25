@@ -25,8 +25,8 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: `${COMPANY_NAME} — Automated Recruitment`,
-  description: "Automated Recruitment Orchestration Engine",
+  title: `${COMPANY_NAME} — Recrutement`,
+  description: "Découvrez les offres et postulez simplement.",
 };
 
 export default function RootLayout({
@@ -35,9 +35,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn("font-sans", inter.variable)}>
+    <html lang="fr" className={cn("font-sans", inter.variable)}>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50 text-gray-900`}
+        className={`${geistSans.variable} ${geistMono.variable} readable-ui antialiased bg-background text-foreground`}
       >
         <AuthProvider>
           <SiteHeader />

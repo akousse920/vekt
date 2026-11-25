@@ -7,12 +7,12 @@ type Props = { icon: React.ReactNode; label: string; value: number };
 
 export default function StatCard({ icon, label, value }: Props) {
   return (
-    <Card>
-      <CardContent className="p-4 flex flex-wrap items-center gap-3">
+    <Card className="border-[#d8e0e8] bg-white shadow-sm">
+      <CardContent className="flex flex-wrap items-center gap-3 p-5">
         {icon}
         <div>
-          <p className="text-2xl font-bold leading-none">{value}</p>
-          <p className="text-xs text-muted-foreground mt-1">{label}</p>
+          <p className="text-3xl font-bold leading-none">{value}</p>
+          <p className="mt-1 text-sm text-muted-foreground">{label}</p>
         </div>
       </CardContent>
     </Card>

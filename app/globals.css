@@ -49,30 +49,30 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --background: #f7f8fa;
+  --foreground: #193653;
+  --card: #ffffff;
+  --card-foreground: #193653;
+  --popover: #ffffff;
+  --popover-foreground: #193653;
+  --primary: #2867b8;
+  --primary-foreground: #ffffff;
+  --secondary: #f0f3f6;
+  --secondary-foreground: #205398;
+  --muted: #f2f5f7;
+  --muted-foreground: #536b84;
+  --accent: #fff0db;
+  --accent-foreground: #874d15;
   --destructive: oklch(0.58 0.22 27);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --border: #d8e0e8;
+  --input: #c7d3df;
+  --ring: #f39a35;
   --chart-1: oklch(0.809 0.105 251.813);
   --chart-2: oklch(0.623 0.214 259.815);
   --chart-3: oklch(0.546 0.245 262.881);
   --chart-4: oklch(0.488 0.243 264.376);
   --chart-5: oklch(0.424 0.199 265.638);
-  --radius: 0.625rem;
+  --radius: 0.875rem;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
@@ -81,6 +81,20 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+}
+
+.brand-hero {
+  background: linear-gradient(125deg, #4088d7 0%, #2969bc 55%, #244e9e 100%);
+}
+
+.brand-cta {
+  background: #f39a35;
+  color: #17375f;
+  box-shadow: 0 10px 24px rgb(170 89 15 / 20%);
+}
+
+.brand-cta:hover {
+  background: #ffad49;
 }
 
 .dark {
@@ -127,4 +141,29 @@
   html {
     @apply font-sans;
   }
+}
+
+/* One readable type scale for the public, recruiter, and admin screens. */
+body.readable-ui .text-xs {
+  font-size: 0.875rem;
+  line-height: 1.4rem;
+}
+
+body.readable-ui .text-sm {
+  font-size: 1rem;
+  line-height: 1.55rem;
+}
+
+body.readable-ui :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, textarea) {
+  font-size: 1rem;
+  background-color: #fff;
+}
+
+body.readable-ui :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, textarea):focus-visible {
+  outline-color: #e8922c;
+}
+
+body.readable-ui .prose-sm {
+  font-size: 1rem;
+  line-height: 1.7;
 }

@@ -1,0 +1,9 @@
+{
+  "jobTitle": "Développeur backend TypeScript",
+  "humanLabels": {
+    "pertinent.pdf": "PERTINENT",
+    "moyen.pdf": "A_REVOIR",
+    "hors_sujet.pdf": "HORS_SUJET"
+  },
+  "note": "Étiquettes définies avant l'évaluation IA. Profils entièrement fictifs."
+}

@@ -23,23 +23,23 @@ export default function UsersSection({ users, setUsers, currentUserId, flash }: 
       const res = await fetch(`/api/admin/users/${id}`, { method: "DELETE" });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        flash(data.error ?? "Failed to delete user", "err");
+        flash(data.error ?? "Impossible de supprimer ce compte.", "err");
         return;
       }
       setUsers((prev) => prev.filter((u) => u.id !== id));
-      flash(`Deleted ${email}`, "ok");
+      flash(`Compte supprimé : ${email}`, "ok");
     });
   }
 
   return (
-    <Card>
+    <Card className="border-[#d8e0e8] bg-white shadow-sm">
       <CardContent className="p-0">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Email</TableHead>
-              <TableHead>Role</TableHead>
-              <TableHead>Created</TableHead>
+              <TableHead>Rôle</TableHead>
+              <TableHead>Créé le</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -49,14 +49,14 @@ export default function UsersSection({ users, setUsers, currentUserId, flash }: 
                 <TableCell className="font-medium">{u.email}</TableCell>
                 <TableCell>
                   <Badge variant={u.role === "ADMIN" ? "default" : "secondary"} className="text-xs">
-                    {u.role}
+                    {u.role === "ADMIN" ? "Administrateur" : "Recruteur"}
                   </Badge>
                 </TableCell>
                 <TableCell className="text-muted-foreground text-sm">{new Date(u.createdAt).toLocaleDateString()}</TableCell>
                 <TableCell className="text-right">
                   {u.id !== currentUserId && (
-                    <Button size="icon" variant="ghost" className="size-7 text-destructive hover:text-destructive" onClick={() => handleDelete(u.id, u.email)} disabled={isDeleting} aria-label={`Delete ${u.email}`}>
-                      <TrashIcon className="size-4" />
+                    <Button size="icon" variant="ghost" className="size-9 text-destructive hover:text-destructive" onClick={() => handleDelete(u.id, u.email)} disabled={isDeleting} aria-label={`Supprimer ${u.email}`}>
+                      <TrashIcon className="size-5" />
                     </Button>
                   )}
                 </TableCell>

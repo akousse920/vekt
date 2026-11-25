@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth";
+import { recruiterVisibleCandidateWhere } from "@/lib/candidate-access";
 import { prisma } from "@/lib/prisma";
 import { createReadStream } from "fs";
 import { stat } from "fs/promises";
@@ -32,10 +33,7 @@ export async function GET(
 
   const resumePath = `/api/uploads/${filename}`;
   const candidate = await prisma.candidate.findFirst({
-    where: {
-      resumePath,
-      ...(!isAdmin && currentUserId ? { job: { is: { createdById: currentUserId } } } : {}),
-    },
+    where: recruiterVisibleCandidateWhere(currentUserId, isAdmin, { resumePath }),
     select: { id: true },
   });
 

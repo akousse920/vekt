@@ -29,7 +29,7 @@ type ScreeningOption = { id: string; text: string };
 type ScreeningQuestion = {
   id: string;
   text: string;
-  type: "SINGLE" | "MULTIPLE";
+  type: "SINGLE" | "MULTIPLE" | "TEXT";
   options: ScreeningOption[];
 };
 
@@ -44,6 +44,7 @@ type Job = {
 type Props = {
   job?: Job | null;
   supportEmail: string;
+  aiEnabled: boolean;
 };
 
 type SubmissionState =
@@ -51,6 +52,14 @@ type SubmissionState =
   | { status: "loading" }
   | { status: "success"; statusPath: string }
   | { status: "error"; message: string };
+
+const MAX_RESUME_SIZE = 5 * 1024 * 1024;
+
+function resumeValidationError(file: File | null): string | null {
+  if (!file || file.type !== "application/pdf") return "Ajoutez votre CV au format PDF.";
+  if (file.size > MAX_RESUME_SIZE) return "Votre CV dépasse la limite de 5 Mo. Choisissez un fichier plus léger.";
+  return null;
+}
 
 function StepDot({ active, done }: { active?: boolean; done?: boolean }) {
   return (
@@ -67,16 +76,23 @@ function StepDot({ active, done }: { active?: boolean; done?: boolean }) {
   );
 }
 
-export default function ApplyForm({ job, supportEmail }: Props) {
+export default function ApplyForm({ job, supportEmail, aiEnabled }: Props) {
   const hasQuestions = (job?.screeningQuestions?.length ?? 0) > 0;
 
   const [step, setStep] = useState<"details" | "questions">("details");
   const [state, setState] = useState<SubmissionState>({ status: "idle" });
   const [consentPrivacy, setConsentPrivacy] = useState(false);
-  const [consentTerms, setConsentTerms] = useState(false);
+  const [selectedResumeName, setSelectedResumeName] = useState("");
+  const [resumeError, setResumeError] = useState<string | null>(null);
 
   // answers: questionId → Set of selected optionIds
   const [answers, setAnswers] = useState<Record<string, Set<string>>>({});
+  const [textAnswers, setTextAnswers] = useState<Record<string, string>>({});
+  const allQuestionsAnswered = !job || job.screeningQuestions.every((question) =>
+    question.type === "TEXT"
+      ? Boolean(textAnswers[question.id]?.trim())
+      : (answers[question.id]?.size ?? 0) > 0,
+  );
 
   // hold step-1 values so we can re-populate after going back
   const [detailsSnapshot, setDetailsSnapshot] = useState<{
@@ -112,27 +128,38 @@ export default function ApplyForm({ job, supportEmail }: Props) {
     // the previously captured snapshot so they don't have to re-upload.
     const resumeFile = fileInputRef.current?.files?.[0] ?? detailsSnapshot.resume;
 
-    if (!resumeFile || resumeFile.type !== "application/pdf") {
-      toast.error("Please upload a PDF resume.");
+    const fileError = resumeValidationError(resumeFile);
+    if (fileError) {
+      setResumeError(fileError);
       return;
     }
     if (name.length > 30 || email.length > 30) {
-      toast.error("Name and email must be under 30 characters.");
+      toast.error("Le nom et l’adresse email doivent contenir moins de 30 caractères.");
       return;
     }
 
     setDetailsSnapshot({ name, email, resume: resumeFile });
+    setResumeError(null);
+    setState({ status: "idle" });
     setStep("questions");
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setState({ status: "loading" });
-
+    if (!allQuestionsAnswered) {
+      toast.error("Répondez à toutes les questions avant de continuer.");
+      return;
+    }
     const formData = new FormData();
 
     if (hasQuestions) {
       // Values were captured in detailsSnapshot at step 1
+      const fileError = resumeValidationError(detailsSnapshot.resume);
+      if (fileError) {
+        setResumeError(fileError);
+        setStep("details");
+        return;
+      }
       formData.append("name", detailsSnapshot.name);
       formData.append("email", detailsSnapshot.email);
       if (detailsSnapshot.resume) {
@@ -142,16 +169,15 @@ export default function ApplyForm({ job, supportEmail }: Props) {
       // Single-step: read straight from the form
       const raw = new FormData(e.currentTarget);
       const resumeFile = raw.get("resume") as File | null;
-      if (!resumeFile || resumeFile.type !== "application/pdf") {
-        toast.error("Please upload a PDF resume.");
-        setState({ status: "idle" });
+      const fileError = resumeValidationError(resumeFile);
+      if (fileError || !resumeFile) {
+        setResumeError(fileError);
         return;
       }
       const name = raw.get("name") as string;
       const email = raw.get("email") as string;
       if (name.length > 30 || email.length > 30) {
-        toast.error("Name and email must be under 30 characters.");
-        setState({ status: "idle" });
+        toast.error("Le nom et l’adresse email doivent contenir moins de 30 caractères.");
         return;
       }
       formData.append("name", name);
@@ -165,13 +191,13 @@ export default function ApplyForm({ job, supportEmail }: Props) {
     formData.append("consentGiven", "true");
 
     if (hasQuestions) {
-      const answersPayload = Object.entries(answers).map(([qId, optSet]) => ({
-        questionId: qId,
-        optionIds: Array.from(optSet),
-      }));
+      const answersPayload = job!.screeningQuestions.map((question) => question.type === "TEXT"
+        ? { questionId: question.id, text: textAnswers[question.id].trim() }
+        : { questionId: question.id, optionIds: Array.from(answers[question.id] ?? []) });
       formData.append("answers", JSON.stringify(answersPayload));
     }
 
+    setState({ status: "loading" });
     try {
       const res = await fetch("/api/candidates", {
         method: "POST",
@@ -182,7 +208,7 @@ export default function ApplyForm({ job, supportEmail }: Props) {
       if (!res.ok) {
         setState({
           status: "error",
-          message: data.error ?? "Submission failed. Please try again.",
+          message: data.error ?? "Envoi impossible. Veuillez réessayer.",
         });
         return;
       }
@@ -190,62 +216,68 @@ export default function ApplyForm({ job, supportEmail }: Props) {
       setState({ status: "success", statusPath: data.statusPath });
       formRef.current?.reset();
     } catch {
-      setState({ status: "error", message: "Network error. Please try again." });
+      setState({ status: "error", message: "Connexion impossible. Veuillez réessayer." });
     }
   }
 
   return (
-    <div className="flex min-h-[89vh] flex-col bg-background">
+    <div className="flex min-h-[82vh] flex-col bg-background">
       <main className="flex-1">
-        {/* Layout: single col mobile, 2-col desktop when job present */}
+        {job && (
+          <div className="brand-hero text-white">
+            <div className="mx-auto max-w-[1480px] px-5 py-8 sm:px-8 sm:py-10 lg:px-10">
+              <Link href="/" className="text-sm text-white/80 hover:text-white">← Toutes les offres</Link>
+              <p className="mt-6 text-xs font-semibold uppercase tracking-[0.16em] text-[#ffd196]">Postuler à l’offre</p>
+              <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">{job.title}</h1>
+              <p className="mt-2 flex items-center gap-2 text-sm text-white/85"><MapPinIcon className="size-4" />{job.location || "Lieu à préciser"}</p>
+            </div>
+          </div>
+        )}
         <div
           className={
             job
-              ? "mx-auto grid max-w-5xl gap-8 p-6 md:grid-cols-[1fr_400px] md:items-start"
-              : "mx-auto flex max-w-md flex-col p-6"
+              ? "mx-auto grid max-w-[1480px] grid-cols-1 items-start gap-5 px-5 py-8 sm:px-8 sm:py-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-8 lg:px-10 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] xl:gap-10"
+              : "mx-auto flex max-w-2xl flex-col px-5 py-10"
           }
         >
-          {/* Left: job description */}
           {job && (
-            <div>
-              <div className="mb-3 flex items-center gap-2">
-                <BriefcaseIcon className="size-5 text-primary" weight="fill" />
-                <h1 className="text-xl font-semibold">{job.title}</h1>
-              </div>
-              {job.location && (
-                <div className="mb-4 flex items-center gap-1.5 text-sm text-muted-foreground">
-                  <MapPinIcon className="size-3.5 shrink-0" />
-                  {job.location}
-                </div>
-              )}
-              <div
-                className="prose prose-sm dark:prose-invert max-w-none text-foreground"
-                dangerouslySetInnerHTML={{ __html: job.description }}
-              />
-            </div>
+            <>
+              <details className="group rounded-2xl border border-[#d8e0e8] bg-white p-5 shadow-sm sm:p-6 lg:hidden">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 font-semibold text-primary">
+                  <span className="flex items-center gap-2"><BriefcaseIcon className="size-5" /> Voir la description du poste</span>
+                  <span className="text-sm group-open:rotate-180">⌄</span>
+                </summary>
+                <div className="prose prose-sm mt-5 max-w-none border-t pt-5 text-foreground" dangerouslySetInnerHTML={{ __html: job.description }} />
+              </details>
+              <aside aria-label="Description du poste" className="sticky top-6 hidden min-w-0 max-h-[calc(100vh-3rem)] overflow-y-auto rounded-2xl border border-[#d8e0e8] bg-white p-6 shadow-sm lg:block">
+                <h2 className="flex items-center gap-2 text-xl font-bold"><BriefcaseIcon className="size-5 text-primary" /> Le poste</h2>
+                <div className="prose prose-sm mt-5 max-w-none border-t pt-5 text-foreground" dangerouslySetInnerHTML={{ __html: job.description }} />
+              </aside>
+            </>
           )}
 
-          {/* Right: form */}
-          <div className="md:sticky md:top-20">
+          <div className="min-w-0">
             {state.status === "success" ? (
               /* ── Success state ── */
-              <Card>
+              <Card className="border-[#d8e0e8] bg-white shadow-lg shadow-slate-900/5">
                 <CardHeader>
                   <CheckCircleIcon className="size-8 text-primary" weight="fill" />
-                  <CardTitle>Application Submitted!</CardTitle>
+                  <CardTitle>Candidature envoyée</CardTitle>
                   <CardDescription>
-                    Your application is being evaluated by our AI engine.
+                    {aiEnabled
+                      ? "Votre candidature sera examinée avec une assistance IA, puis par une personne."
+                      : "Vos réponses sont vérifiées selon les critères de l’offre. Si aucun critère ne bloque votre dossier, il est transmis au recruteur."}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-col gap-3">
                   <p className="text-muted-foreground text-xs">
-                    Track your application status using your private status page:
+                    Conservez ce lien privé pour suivre votre candidature :
                   </p>
                   <Link
                     href={state.statusPath}
                     className="inline-flex items-center gap-1.5 text-xs font-medium text-primary underline underline-offset-3"
                   >
-                    View Status
+                    Suivre ma candidature
                   </Link>
                 </CardContent>
                 <CardFooter>
@@ -256,23 +288,27 @@ export default function ApplyForm({ job, supportEmail }: Props) {
                       setState({ status: "idle" });
                       setStep("details");
                       setAnswers({});
+                      setTextAnswers({});
                       setConsentPrivacy(false);
-                      setConsentTerms(false);
+                      setSelectedResumeName("");
                     }}
                   >
-                    Submit another application
+                    Envoyer une autre candidature
                   </Button>
                 </CardFooter>
               </Card>
             ) : step === "details" || !hasQuestions ? (
               /* ── Step 1: Details ── */
-              <Card>
+              <Card className="border-[#d8e0e8] bg-white shadow-lg shadow-slate-900/5">
                 <CardHeader>
-                  <CardTitle>Apply Now</CardTitle>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-primary">{hasQuestions ? "Étape 1 sur 2 · Profil et CV" : "Votre candidature"}</p>
+                  <CardTitle className="text-2xl">Postuler simplement</CardTitle>
                   <CardDescription>
                     {job
-                      ? `Applying for: ${job.title}`
-                      : "Submit your application and our AI engine will evaluate your profile."}
+                      ? "Renseignez vos coordonnées et ajoutez votre CV en PDF."
+                      : aiEnabled
+                        ? "Envoyez votre candidature pour une évaluation assistée."
+                        : "Envoyez votre candidature pour une revue humaine."}
                   </CardDescription>
                   {hasQuestions && (
                     <div className="flex items-center gap-2 pt-1">
@@ -289,33 +325,35 @@ export default function ApplyForm({ job, supportEmail }: Props) {
                     className="flex flex-col gap-4"
                   >
                     <div className="flex flex-col gap-2">
-                      <Label htmlFor="name">Full Name</Label>
+                      <Label htmlFor="name">Nom complet</Label>
                       <Input
                         id="name"
                         name="name"
                         type="text"
                         maxLength={30}
                         required
-                        placeholder="Jane Doe"
+                        placeholder="Votre nom et prénom"
+                        className="h-11"
                         defaultValue={detailsSnapshot.name}
                       />
                     </div>
 
                     <div className="flex flex-col gap-2">
-                      <Label htmlFor="email">Email Address</Label>
+                      <Label htmlFor="email">Adresse email</Label>
                       <Input
                         id="email"
                         name="email"
                         maxLength={30}
                         type="email"
                         required
-                        placeholder="jane@example.com"
+                        placeholder="vous@exemple.com"
+                        className="h-11"
                         defaultValue={detailsSnapshot.email}
                       />
                     </div>
 
-                    <div className="flex flex-col gap-2">
-                      <Label htmlFor="resume">Resume</Label>
+                    <div className="relative flex flex-col gap-2">
+                      <Label htmlFor="resume">CV au format PDF</Label>
                       <Input
                         ref={fileInputRef}
                         id="resume"
@@ -323,28 +361,31 @@ export default function ApplyForm({ job, supportEmail }: Props) {
                         type="file"
                         accept="application/pdf"
                         required={!detailsSnapshot.resume}
+                        onChange={(event) => {
+                          const file = event.target.files?.[0] ?? null;
+                          setSelectedResumeName(file?.name ?? "");
+                          setResumeError(file ? resumeValidationError(file) : null);
+                          setState({ status: "idle" });
+                        }}
+                        className="absolute left-0 top-0 !h-px !w-px overflow-hidden !p-0 opacity-0"
                       />
-                      {detailsSnapshot.resume ? (
-                        <p className="text-xs text-muted-foreground">
-                          Previously uploaded:{" "}
-                          <span className="font-medium">{detailsSnapshot.resume.name}</span>
-                          . Select a new file to replace it.
-                        </p>
-                      ) : (
-                        <p className="text-xs text-muted-foreground">PDF only</p>
-                      )}
+                      <label htmlFor="resume" className="flex min-h-12 cursor-pointer flex-wrap items-center gap-3 rounded-xl border border-dashed border-[#e6ba7c] bg-[#fff9ef] px-4 py-3 text-sm hover:border-[#d98625]">
+                        <span className="rounded-lg bg-white px-3 py-1.5 font-medium text-primary">Choisir un PDF</span>
+                        <span className="min-w-0 truncate text-muted-foreground">{selectedResumeName || detailsSnapshot.resume?.name || "Aucun fichier choisi"}</span>
+                      </label>
+                      <p className="text-xs text-muted-foreground">PDF uniquement, 5 Mo maximum.</p>
+                      {resumeError && <p role="alert" className="text-sm font-medium text-destructive">{resumeError}</p>}
                     </div>
 
                     {!hasQuestions && state.status === "error" && (
                       <Alert variant="destructive">
                         <WarningCircleIcon />
-                        <AlertTitle>Submission failed</AlertTitle>
+                        <AlertTitle>Envoi impossible</AlertTitle>
                         <AlertDescription>{state.message}</AlertDescription>
                       </Alert>
                     )}
 
-                    {/* EU AI Act Art. 50 disclosure — must be visible before submitting */}
-                    {!hasQuestions && <AiDisclosure />}
+                    {!hasQuestions && <AiDisclosure aiEnabled={aiEnabled} />}
 
                     {/* GDPR consent (single-step only) */}
                     {!hasQuestions && (
@@ -361,41 +402,18 @@ export default function ApplyForm({ job, supportEmail }: Props) {
                             htmlFor="consentPrivacy"
                             className="text-xs text-muted-foreground leading-relaxed cursor-pointer"
                           >
-                            I have read and agree to the{" "}
+                            J’ai lu et accepté la{" "}
                             <Link
                               href="/privacy"
                               target="_blank"
                               className="text-primary underline underline-offset-3 font-medium"
                             >
-                              Privacy Policy
+                              politique de confidentialité
                             </Link>{" "}
-                            and consent to my personal data being processed for
-                            recruitment purposes.
+                            et j’accepte le traitement de mes données pour cette candidature.
                           </label>
                         </div>
-                        <div className="flex items-start gap-3">
-                          <input
-                            type="checkbox"
-                            id="consentTerms"
-                            checked={consentTerms}
-                            onChange={(e) => setConsentTerms(e.target.checked)}
-                            className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer accent-primary"
-                          />
-                          <label
-                            htmlFor="consentTerms"
-                            className="text-xs text-muted-foreground leading-relaxed cursor-pointer"
-                          >
-                            I understand my data will be retained for up to 12
-                            months and I may contact{" "}
-                            <a
-                              href={`mailto:${supportEmail}`}
-                              className="text-primary underline underline-offset-3 font-medium"
-                            >
-                              {supportEmail}
-                            </a>{" "}
-                            to access, correct, or delete my data at any time.
-                          </label>
-                        </div>
+                        <p className="text-xs text-muted-foreground">Pour exercer vos droits sur vos données : <a href={`mailto:${supportEmail}`} className="font-medium text-primary underline">{supportEmail}</a>.</p>
                       </div>
                     )}
 
@@ -403,9 +421,9 @@ export default function ApplyForm({ job, supportEmail }: Props) {
                       type="submit"
                       disabled={
                         state.status === "loading" ||
-                        (!hasQuestions && (!consentPrivacy || !consentTerms))
+                        (!hasQuestions && !consentPrivacy)
                       }
-                      className="w-full"
+                      className="brand-cta h-12 w-full rounded-xl text-sm font-semibold"
                     >
                       {state.status === "loading" && !hasQuestions && (
                         <SpinnerGapIcon
@@ -414,10 +432,10 @@ export default function ApplyForm({ job, supportEmail }: Props) {
                         />
                       )}
                       {hasQuestions
-                        ? "Next →"
+                        ? "Continuer vers les questions →"
                         : state.status === "loading"
-                          ? "Submitting…"
-                          : "Submit Application"}
+                          ? "Envoi en cours…"
+                          : "Envoyer ma candidature"}
                     </Button>
                   </form>
                 </CardContent>
@@ -425,16 +443,14 @@ export default function ApplyForm({ job, supportEmail }: Props) {
             ) : (
               /* ── Step 2: Screening Questions ── */
               (() => {
-                const allAnswered =
-                  job!.screeningQuestions.every(
-                    (q) => (answers[q.id]?.size ?? 0) > 0,
-                  );
+                const allAnswered = allQuestionsAnswered;
                 return (
-              <Card>
+              <Card className="border-[#d8e0e8] bg-white shadow-lg shadow-slate-900/5">
                 <CardHeader>
-                  <CardTitle>One last step</CardTitle>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-primary">Étape 2 sur 2 · Questions</p>
+                  <CardTitle className="text-2xl">Quelques questions pour cette offre</CardTitle>
                   <CardDescription>
-                    Please answer the following questions for this role.
+                    Répondez à chaque question avant d’envoyer votre candidature.
                   </CardDescription>
                   <div className="flex items-center gap-2 pt-1">
                     <StepDot done />
@@ -449,18 +465,27 @@ export default function ApplyForm({ job, supportEmail }: Props) {
                     className="flex flex-col gap-6"
                   >
                     {job!.screeningQuestions.map((q) => (
-                      <div key={q.id} className="flex flex-col gap-3">
+                      <div key={q.id} className="flex flex-col gap-3 rounded-xl border border-[#d8e0e8] bg-white p-4 sm:p-5">
                         <div>
-                          <p className="text-sm font-medium leading-snug">
+                          <p className="text-base font-semibold leading-snug">
                             {q.text}
                           </p>
                           <p className="text-xs text-muted-foreground mt-0.5">
                             {q.type === "SINGLE"
-                              ? "Select one"
-                              : "Select all that apply"}
+                              ? "Choisissez une réponse"
+                              : q.type === "MULTIPLE" ? "Choisissez toutes les réponses utiles" : "Réponse libre · 2 000 caractères maximum"}
                           </p>
                         </div>
-                        <div className="flex flex-wrap gap-2">
+                        {q.type === "TEXT" ? (
+                          <textarea
+                            value={textAnswers[q.id] ?? ""}
+                            onChange={(event) => setTextAnswers((current) => ({ ...current, [q.id]: event.target.value }))}
+                            maxLength={2000}
+                            rows={4}
+                            aria-label={q.text}
+                            className="w-full rounded-xl border bg-white px-3 py-2 text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                          />
+                        ) : <div className="flex flex-wrap gap-2">
                           {q.options.map((opt) => {
                             const selected = answers[q.id]?.has(opt.id) ?? false;
                             return (
@@ -471,30 +496,29 @@ export default function ApplyForm({ job, supportEmail }: Props) {
                                 aria-pressed={selected}
                                 onClick={() => toggleOption(q, opt.id)}
                                 className={cn(
-                                  "h-auto whitespace-normal rounded-lg px-3.5 py-2 text-left text-sm font-medium transition-all",
+                                  "min-h-11 h-auto whitespace-normal rounded-xl px-4 py-2.5 text-left text-sm font-medium transition-all",
                                   selected
-                                    ? "border-primary bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground"
-                                    : "border-border bg-background text-foreground hover:border-foreground/40 hover:bg-background",
+                                    ? "border-[#df8c2d] bg-[#fff0d9] text-[#17375f] hover:bg-[#ffe4bd] hover:text-[#17375f]"
+                                    : "border-[#c7d3df] bg-white text-foreground hover:border-[#df8c2d] hover:bg-[#fff9ef]",
                                 )}
                               >
                                 {opt.text}
                               </Button>
                             );
                           })}
-                        </div>
+                        </div>}
                       </div>
                     ))}
 
                     {state.status === "error" && (
                       <Alert variant="destructive">
                         <WarningCircleIcon />
-                        <AlertTitle>Submission failed</AlertTitle>
+                        <AlertTitle>Envoi impossible</AlertTitle>
                         <AlertDescription>{state.message}</AlertDescription>
                       </Alert>
                     )}
 
-                    {/* EU AI Act Art. 50 disclosure — must be visible before submitting */}
-                    <AiDisclosure />
+                    <AiDisclosure aiEnabled={aiEnabled} />
 
                     {/* GDPR consent */}
                     <div className="flex flex-col gap-3 rounded-lg border bg-muted/40 p-4">
@@ -510,60 +534,36 @@ export default function ApplyForm({ job, supportEmail }: Props) {
                           htmlFor="consentPrivacy2"
                           className="text-xs text-muted-foreground leading-relaxed cursor-pointer"
                         >
-                          I have read and agree to the{" "}
+                          J’ai lu et accepté la{" "}
                           <Link
                             href="/privacy"
                             target="_blank"
                             className="text-primary underline underline-offset-3 font-medium"
                           >
-                            Privacy Policy
+                            politique de confidentialité
                           </Link>{" "}
-                          and consent to my personal data being processed for
-                          recruitment purposes.
+                          et j’accepte le traitement de mes données pour cette candidature.
                         </label>
                       </div>
-                      <div className="flex items-start gap-3">
-                        <input
-                          type="checkbox"
-                          id="consentTerms2"
-                          checked={consentTerms}
-                          onChange={(e) => setConsentTerms(e.target.checked)}
-                          className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer accent-primary"
-                        />
-                        <label
-                          htmlFor="consentTerms2"
-                          className="text-xs text-muted-foreground leading-relaxed cursor-pointer"
-                        >
-                          I understand my data will be retained for up to 12
-                          months and I may contact{" "}
-                          <a
-                            href={`mailto:${supportEmail}`}
-                            className="text-primary underline underline-offset-3 font-medium"
-                          >
-                            {supportEmail}
-                          </a>{" "}
-                          to access, correct, or delete my data at any time.
-                        </label>
-                      </div>
+                      <p className="text-xs text-muted-foreground">Pour exercer vos droits sur vos données : <a href={`mailto:${supportEmail}`} className="font-medium text-primary underline">{supportEmail}</a>.</p>
                     </div>
 
                     <div className="flex gap-2">
                       <Button
                         type="button"
                         variant="outline"
-                        className="flex-1"
+                        className="brand-cta h-11 flex-1 rounded-xl font-semibold"
                         onClick={() => setStep("details")}
                         disabled={state.status === "loading"}
                       >
-                        ← Back
+                        ← Retour
                       </Button>
                       <Button
                         type="submit"
-                        className="flex-1"
+                        className="h-11 flex-1 rounded-xl"
                         disabled={
                           state.status === "loading" ||
                           !consentPrivacy ||
-                          !consentTerms ||
                           !allAnswered
                         }
                       >
@@ -574,8 +574,8 @@ export default function ApplyForm({ job, supportEmail }: Props) {
                           />
                         )}
                         {state.status === "loading"
-                          ? "Submitting…"
-                          : "Submit Application"}
+                          ? "Envoi en cours…"
+                          : "Envoyer ma candidature"}
                       </Button>
                     </div>
                   </form>

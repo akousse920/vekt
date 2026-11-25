@@ -1,6 +1,7 @@
+import { CandidateStatus } from "@/generated/client";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { sanitizeRichText } from "@/lib/sanitize-html";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import JobListingsSection from "./JobListingsSection";
 
@@ -41,7 +42,7 @@ export default async function RecruiterPage({
       ...(!isAdmin && currentUserId ? { createdById: currentUserId } : {}),
   };
 
-  const [jobs, listingTotal] = await Promise.all([
+  const [jobs, listingTotal, reviewCount] = await Promise.all([
     prisma.job.findMany({
       where: listingWhere,
       orderBy: { createdAt: "desc" },
@@ -49,30 +50,38 @@ export default async function RecruiterPage({
       take: PAGE_SIZE,
       select: {
         id: true,
+        slug: true,
         title: true,
-        description: true,
         location: true,
-        customPrompt: true,
-        threshold: true,
         isActive: true,
-        createdAt: true,
-        _count: { select: { candidates: true, screeningQuestions: true } },
+        notifyOnApplication: true,
+        _count: {
+          select: {
+            candidates: true,
+            screeningQuestions: true,
+          },
+        },
       },
     }),
     prisma.job.count({ where: listingWhere }),
+    isAdmin ? prisma.candidate.count({ where: { status: CandidateStatus.NEEDS_REVIEW } }) : Promise.resolve(0),
   ]);
-  const safeJobs = jobs.map((job) => ({
-    ...job,
-    description: sanitizeRichText(job.description),
-  }));
-
   const listingTotalPages = Math.max(1, Math.ceil(listingTotal / PAGE_SIZE));
 
   return (
     <div className="min-h-[89vh] bg-background">
-      <main className="mx-auto max-w-4xl p-6">
+      <main className="mx-auto max-w-6xl px-5 py-8 sm:px-8">
+        {isAdmin && reviewCount > 0 && (
+          <Link href="/recruiter/all?status=review" className="mb-7 flex items-center justify-between gap-4 rounded-2xl border border-[#f6d3a6] bg-[#fff2e2] p-4 transition-colors hover:bg-[#ffe8ca]">
+            <div>
+              <p className="text-sm font-bold text-[#874d15]">Dossiers à examiner</p>
+              <p className="mt-1 text-sm text-[#734c26]">{reviewCount} {reviewCount === 1 ? "candidature attend" : "candidatures attendent"} une décision humaine.</p>
+            </div>
+            <span className="shrink-0 rounded-full bg-[#f39a35] px-4 py-2 text-sm font-semibold text-[#17375f]">Ouvrir →</span>
+          </Link>
+        )}
         <JobListingsSection
-          listings={safeJobs}
+          listings={jobs}
           total={listingTotal}
           page={listingPage}
           totalPages={listingTotalPages}

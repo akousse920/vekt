@@ -31,6 +31,13 @@ test("removes declared personal attributes", () => {
   assert.ok(text.includes("TypeScript"), "job-relevant content must survive");
 });
 
+test("removes French age and nationality fields", () => {
+  const { text } = redactIdentity("Date de naissance : 12/05/1990\nNationalité : béninoise\nCompétences : TypeScript");
+  assert.ok(!text.includes("12/05/1990"));
+  assert.ok(!text.includes("béninoise"));
+  assert.ok(text.includes("TypeScript"));
+});
+
 test("leaves job-relevant content untouched", () => {
   const cv = "Built a Next.js platform handling 10k applications per month.";
   const { text, counts } = redactIdentity(cv, "Jane Doe");

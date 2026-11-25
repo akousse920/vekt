@@ -163,6 +163,23 @@ export type EnumQuestionTypeWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumQuestionTypeFilter<$PrismaModel>
 }
 
+export type EnumScreeningOperatorFilter<$PrismaModel = never> = {
+  equals?: $Enums.ScreeningOperator | Prisma.EnumScreeningOperatorFieldRefInput<$PrismaModel>
+  in?: $Enums.ScreeningOperator[]
+  notIn?: $Enums.ScreeningOperator[]
+  not?: Prisma.NestedEnumScreeningOperatorFilter<$PrismaModel> | $Enums.ScreeningOperator
+}
+
+export type EnumScreeningOperatorWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ScreeningOperator | Prisma.EnumScreeningOperatorFieldRefInput<$PrismaModel>
+  in?: $Enums.ScreeningOperator[]
+  notIn?: $Enums.ScreeningOperator[]
+  not?: Prisma.NestedEnumScreeningOperatorWithAggregatesFilter<$PrismaModel> | $Enums.ScreeningOperator
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumScreeningOperatorFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumScreeningOperatorFilter<$PrismaModel>
+}
+
 export type EnumCandidateStatusFilter<$PrismaModel = never> = {
   equals?: $Enums.CandidateStatus | Prisma.EnumCandidateStatusFieldRefInput<$PrismaModel>
   in?: $Enums.CandidateStatus[]
@@ -386,6 +403,23 @@ export type NestedEnumQuestionTypeWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumQuestionTypeFilter<$PrismaModel>
   _max?: Prisma.NestedEnumQuestionTypeFilter<$PrismaModel>
+}
+
+export type NestedEnumScreeningOperatorFilter<$PrismaModel = never> = {
+  equals?: $Enums.ScreeningOperator | Prisma.EnumScreeningOperatorFieldRefInput<$PrismaModel>
+  in?: $Enums.ScreeningOperator[]
+  notIn?: $Enums.ScreeningOperator[]
+  not?: Prisma.NestedEnumScreeningOperatorFilter<$PrismaModel> | $Enums.ScreeningOperator
+}
+
+export type NestedEnumScreeningOperatorWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ScreeningOperator | Prisma.EnumScreeningOperatorFieldRefInput<$PrismaModel>
+  in?: $Enums.ScreeningOperator[]
+  notIn?: $Enums.ScreeningOperator[]
+  not?: Prisma.NestedEnumScreeningOperatorWithAggregatesFilter<$PrismaModel> | $Enums.ScreeningOperator
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumScreeningOperatorFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumScreeningOperatorFilter<$PrismaModel>
 }
 
 export type NestedEnumCandidateStatusFilter<$PrismaModel = never> = {

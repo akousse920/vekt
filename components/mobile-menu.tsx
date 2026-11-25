@@ -42,7 +42,7 @@ export default function MobileMenu({ email, role }: Props) {
       <Button
         variant="ghost"
         size="sm"
-        aria-label={open ? "Close menu" : "Open menu"}
+        aria-label={open ? "Fermer le menu" : "Ouvrir le menu"}
         aria-expanded={open}
         onClick={() => setOpen((prev) => !prev)}
         className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
@@ -59,7 +59,7 @@ export default function MobileMenu({ email, role }: Props) {
                 size="sm"
                 className="w-full justify-start text-sm font-medium text-muted-foreground hover:text-foreground"
               >
-                Home
+                Accueil
               </Button>
             </Link>
 
@@ -70,7 +70,7 @@ export default function MobileMenu({ email, role }: Props) {
                   size="sm"
                   className="w-full justify-start text-sm font-medium text-muted-foreground hover:text-foreground"
                 >
-                  Recruiter
+                  Offres et candidatures
                 </Button>
               </Link>
             )}
@@ -82,7 +82,7 @@ export default function MobileMenu({ email, role }: Props) {
                   size="sm"
                   className="w-full justify-start text-sm font-medium text-muted-foreground hover:text-foreground"
                 >
-                  Admin
+                  Administration
                 </Button>
               </Link>
             )}
@@ -103,7 +103,7 @@ export default function MobileMenu({ email, role }: Props) {
                     signOut({ callbackUrl: "/" });
                   }}
                 >
-                  Sign out
+                  Se déconnecter
                 </Button>
               </div>
             ) : (
@@ -112,7 +112,7 @@ export default function MobileMenu({ email, role }: Props) {
                   size="sm"
                   className="w-full text-xs font-medium rounded-full"
                 >
-                  Recruiter Login
+                  Espace recruteur
                 </Button>
               </Link>
             )}

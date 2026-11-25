@@ -34,10 +34,10 @@ const URL = /\bhttps?:\/\/\S+|\b(?:www\.|linkedin\.com\/|github\.com\/)\S+/gi;
 
 /** Postal-ish address lines are too varied to match safely; we only drop obvious ones. */
 const DOB =
-  /\b(?:date of birth|d\.?o\.?b\.?|geboortedatum|fødselsdato)\b\s*[:\-]?\s*\S.*/gi;
+  /^[ \t]*(?:date of birth|d\.?o\.?b\.?|geboortedatum|fødselsdato|date de naissance|âge|age)[ \t]*[:\-]?[ \t]*.+$/gim;
 
 const NATIONALITY =
-  /\b(?:nationality|citizenship|marital status|gender|sex)\b\s*[:\-]?\s*\S.*/gi;
+  /^[ \t]*(?:nationality|citizenship|marital status|gender|sex|nationalité|nationalite|situation matrimoniale|genre|sexe)[ \t]*[:\-]?[ \t]*.+$/gim;
 
 function countAndReplace(
   text: string,

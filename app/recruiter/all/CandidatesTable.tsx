@@ -35,7 +35,9 @@ import {
 } from "@/components/ui/table";
 import { ChartBarIcon, CheckIcon, CircleNotchIcon, DotsThreeIcon, XIcon } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useState, useTransition } from "react";
+import { toast } from "sonner";
 
 type Evaluation = {
   score: number;
@@ -64,6 +66,10 @@ const STATUS_VARIANT: Record<string, StatusVariant> = {
   NEEDS_REVIEW: "secondary",
   ACCEPTED: "outline", // overridden with green classNames below
   REJECTED: "destructive",
+};
+const STATUS_LABEL: Record<string, string> = {
+  APPLIED: "Reçue", ANALYZING: "En cours", SHORTLISTED: "Transmise",
+  NEEDS_REVIEW: "À examiner", ACCEPTED: "Acceptée", REJECTED: "Refusée",
 };
 
 function parseJson(raw: string | undefined | null): string[] {
@@ -94,7 +100,7 @@ function AiAnalysisContent({ evaluation }: { evaluation: Evaluation }) {
         <>
           <Separator />
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Strengths</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Points forts</p>
             <ul className="space-y-1">
               {pros.map((p, i) => (
                 <li key={i} className="flex items-start gap-2 text-sm">
@@ -111,7 +117,7 @@ function AiAnalysisContent({ evaluation }: { evaluation: Evaluation }) {
         <>
           <Separator />
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Weaknesses</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Points à examiner</p>
             <ul className="space-y-1">
               {cons.map((c, i) => (
                 <li key={i} className="flex items-start gap-2 text-sm">
@@ -137,12 +143,17 @@ function ActionButtons({ candidate }: { candidate: Candidate }) {
 
   async function decide(decision: "ACCEPT" | "SHORTLIST" | "REJECT") {
     setOpen(false);
-    await fetch(`/api/recruiter/review/${candidate.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ decision }),
-    });
-    startTransition(() => router.refresh());
+    try {
+      const response = await fetch(`/api/recruiter/review/${candidate.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ decision }),
+      });
+      if (!response.ok) throw new Error(`Review request failed: ${response.status}`);
+      startTransition(() => router.refresh());
+    } catch {
+      toast.error("Décision impossible à enregistrer. Réessayez.");
+    }
   }
 
   return (
@@ -152,7 +163,7 @@ function ActionButtons({ candidate }: { candidate: Candidate }) {
         <Dialog open={analysisOpen} onOpenChange={setAnalysisOpen}>
           <DialogContent className="max-w-lg">
             <DialogHeader>
-              <DialogTitle className="text-base">AI Analysis — {candidate.name}</DialogTitle>
+              <DialogTitle className="text-base">Analyse IA — {candidate.name}</DialogTitle>
             </DialogHeader>
             <AiAnalysisContent evaluation={candidate.evaluation} />
           </DialogContent>
@@ -178,7 +189,7 @@ function ActionButtons({ candidate }: { candidate: Candidate }) {
                   onClick={() => { setOpen(false); setAnalysisOpen(true); }}
                 >
                   <ChartBarIcon className="size-3.5" />
-                  View AI Analysis
+                  Voir l’analyse IA
                 </Button>
                 {!isSettled && <Separator className="my-1" />}
               </>
@@ -194,19 +205,19 @@ function ActionButtons({ candidate }: { candidate: Candidate }) {
                       className="w-full justify-start gap-2 text-xs h-8 text-green-700 hover:text-green-700 hover:bg-green-50 dark:text-green-400 dark:hover:bg-green-950/30"
                     >
                       <CheckIcon weight="bold" className="size-3.5" />
-                      Accept
+                      Accepter
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>Accept {candidate.name}?</AlertDialogTitle>
+                      <AlertDialogTitle>Accepter {candidate.name} ?</AlertDialogTitle>
                       <AlertDialogDescription>
-                        This will mark the candidate as hired.
+                        Cette décision marquera la candidature comme acceptée.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={() => decide("ACCEPT")}>Accept</AlertDialogAction>
+                      <AlertDialogCancel>Annuler</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => decide("ACCEPT")}>Accepter</AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
@@ -219,19 +230,19 @@ function ActionButtons({ candidate }: { candidate: Candidate }) {
                       className="w-full justify-start gap-2 text-xs h-8 text-blue-700 hover:text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-950/30"
                     >
                       <ChartBarIcon className="size-3.5" />
-                      Shortlist
+                      Transmettre
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>Shortlist {candidate.name}?</AlertDialogTitle>
+                      <AlertDialogTitle>Transmettre le profil de {candidate.name} ?</AlertDialogTitle>
                       <AlertDialogDescription>
-                        This will move the candidate to the shortlist for further review.
+                        Le recruteur de cette offre pourra consulter le dossier.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={() => decide("SHORTLIST")}>Shortlist</AlertDialogAction>
+                      <AlertDialogCancel>Annuler</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => decide("SHORTLIST")}>Transmettre</AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
@@ -244,23 +255,23 @@ function ActionButtons({ candidate }: { candidate: Candidate }) {
                       className="w-full justify-start gap-2 text-xs h-8 text-destructive hover:text-destructive hover:bg-destructive/10"
                     >
                       <XIcon weight="bold" className="size-3.5" />
-                      Reject
+                      Refuser
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>Reject {candidate.name}?</AlertDialogTitle>
+                      <AlertDialogTitle>Refuser {candidate.name} ?</AlertDialogTitle>
                       <AlertDialogDescription>
-                        This will flag the candidate as not suitable.
+                        Cette décision marquera la candidature comme refusée.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogCancel>Annuler</AlertDialogCancel>
                       <AlertDialogAction
                         className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                         onClick={() => decide("REJECT")}
                       >
-                        Reject
+                        Refuser
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
@@ -279,13 +290,13 @@ export default function CandidatesTable({ candidates }: { candidates: Candidate[
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Name</TableHead>
-          <TableHead>Position</TableHead>
+          <TableHead>Candidat</TableHead>
+          <TableHead>Offre</TableHead>
           <TableHead>Email</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead className="text-right">AI Score</TableHead>
-          <TableHead>Applied</TableHead>
-          <TableHead className="text-right">Actions</TableHead>
+          <TableHead>Statut</TableHead>
+          <TableHead className="text-right">Score IA</TableHead>
+          <TableHead>Date</TableHead>
+          <TableHead className="text-right">Dossier</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -307,24 +318,27 @@ export default function CandidatesTable({ candidates }: { candidates: Candidate[
                   ? "text-xs bg-green-500/15 text-green-700 border-green-200 dark:text-green-400 dark:border-green-800"
                   : "text-xs"}
               >
-                {c.status}
+                {STATUS_LABEL[c.status] ?? c.status}
               </Badge>
             </TableCell>
             <TableCell className="text-right font-semibold">
               {c.evaluation?.score ?? "—"}
             </TableCell>
             <TableCell className="text-muted-foreground">
-              {new Date(c.appliedAt).toLocaleDateString()}
+              {new Date(c.appliedAt).toLocaleDateString("fr-FR")}
             </TableCell>
             <TableCell>
-              <ActionButtons candidate={c} />
+              <div className="flex items-center justify-end gap-2">
+                {c.job && <Link href={`/recruiter/jobs/${c.job.id}/candidates/${c.id}`} className="whitespace-nowrap text-xs font-semibold text-primary hover:underline">Voir le dossier</Link>}
+                <ActionButtons candidate={c} />
+              </div>
             </TableCell>
           </TableRow>
         ))}
         {candidates.length === 0 && (
           <TableRow>
             <TableCell colSpan={7} className="py-12 text-center text-muted-foreground">
-              No candidates yet.
+              Aucune candidature pour le moment.
             </TableCell>
           </TableRow>
         )}
