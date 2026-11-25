@@ -29,9 +29,12 @@ const geistMono = localFont({
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata(): Promise<Metadata> {
+  const companyName = await getCompanyName();
   return {
-    title: `${await getCompanyName()} — Recrutement`,
+    metadataBase: new URL(process.env.APP_URL ?? "http://localhost:3000"),
+    title: `${companyName} - Recrutement`,
     description: "Découvrez les offres et postulez simplement.",
+    openGraph: { siteName: companyName, locale: "fr_FR", type: "website" },
   };
 }
 

@@ -171,7 +171,7 @@ export default function EmailTemplatesSection({ templates, setTemplates, setting
                 <Dialog open={showPreview} onOpenChange={setShowPreview}>
                   <DialogContent className="w-full bg-white sm:max-w-2xl">
                     <DialogHeader>
-                      <DialogTitle className="text-lg font-semibold">Aperçu — {interpolatePreview(editSubject || "(sans objet)")}</DialogTitle>
+                      <DialogTitle className="text-lg font-semibold">Aperçu - {interpolatePreview(editSubject || "(sans objet)")}</DialogTitle>
                     </DialogHeader>
                     <div className="rounded-md border overflow-hidden bg-white">
                       <iframe srcDoc={interpolatePreview(editBody)} title="Email preview" className="w-full min-h-[480px] border-0" sandbox="allow-same-origin" />

@@ -163,7 +163,7 @@ function ActionButtons({ candidate }: { candidate: Candidate }) {
         <Dialog open={analysisOpen} onOpenChange={setAnalysisOpen}>
           <DialogContent className="max-w-lg">
             <DialogHeader>
-              <DialogTitle className="text-base">Analyse IA — {candidate.name}</DialogTitle>
+              <DialogTitle className="text-base">Analyse IA - {candidate.name}</DialogTitle>
             </DialogHeader>
             <AiAnalysisContent evaluation={candidate.evaluation} />
           </DialogContent>
@@ -307,7 +307,7 @@ export default function CandidatesTable({ candidates }: { candidates: Candidate[
               {c.job ? (
                 <span className="text-foreground text-xs font-medium">{c.job.title}</span>
               ) : (
-                <span className="text-xs">—</span>
+                <span className="text-xs">-</span>
               )}
             </TableCell>
             <TableCell className="text-muted-foreground">{c.email}</TableCell>
@@ -322,7 +322,7 @@ export default function CandidatesTable({ candidates }: { candidates: Candidate[
               </Badge>
             </TableCell>
             <TableCell className="text-right font-semibold">
-              {c.evaluation?.score ?? "—"}
+              {c.evaluation?.score ?? "-"}
             </TableCell>
             <TableCell className="text-muted-foreground">
               {new Date(c.appliedAt).toLocaleDateString("fr-FR")}

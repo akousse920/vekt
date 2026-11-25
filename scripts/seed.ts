@@ -43,24 +43,29 @@ async function main() {
         id: "seed-job-caissier",
         slug: "caissier-caissiere",
         title: "Caissier / Caissière",
-        description: `Nous recherchons un(e) caissier(ère) souriant(e) et rigoureux(se) pour rejoindre notre équipe en magasin.
-
-**Missions :**
-- Accueillir les clients et assurer un passage en caisse rapide et agréable
-- Encaisser les achats (espèces, carte bancaire, paiement mobile) et rendre la monnaie
-- Gérer l’ouverture et la clôture de caisse, et contrôler le fond de caisse
-- Renseigner les clients et traiter les retours ou réclamations simples
-- Participer à la mise en rayon et au maintien de la propreté de l’espace de vente
-
-**Profil recherché :**
-- Une première expérience en caisse ou dans la vente est un plus
-- Aisance avec les chiffres et sens de la rigueur
-- Sens du service client, politesse et patience
-- Ponctualité et capacité à travailler en horaires décalés (week-ends inclus)
-
-**Atouts appréciés :**
-- Maîtrise d’un logiciel de caisse
-- Notions d’anglais pour accueillir une clientèle internationale`,
+        description: [
+          "<p>Nous recherchons un(e) caissier(ère) souriant(e) et rigoureux(se) pour rejoindre notre équipe en magasin.</p>",
+          "<h3>Missions</h3>",
+          "<ul>",
+          "<li>Accueillir les clients et assurer un passage en caisse rapide et agréable</li>",
+          "<li>Encaisser les achats (espèces, carte bancaire, paiement mobile) et rendre la monnaie</li>",
+          "<li>Gérer l’ouverture et la clôture de caisse, et contrôler le fond de caisse</li>",
+          "<li>Renseigner les clients et traiter les retours ou réclamations simples</li>",
+          "<li>Participer à la mise en rayon et au maintien de la propreté de l’espace de vente</li>",
+          "</ul>",
+          "<h3>Profil recherché</h3>",
+          "<ul>",
+          "<li>Une première expérience en caisse ou dans la vente est un plus</li>",
+          "<li>Aisance avec les chiffres et sens de la rigueur</li>",
+          "<li>Sens du service client, politesse et patience</li>",
+          "<li>Ponctualité et capacité à travailler en horaires décalés (week-ends inclus)</li>",
+          "</ul>",
+          "<h3>Atouts appréciés</h3>",
+          "<ul>",
+          "<li>Maîtrise d’un logiciel de caisse</li>",
+          "<li>Notions d’anglais pour accueillir une clientèle internationale</li>",
+          "</ul>",
+        ].join(""),
         location: "Sur site",
         isActive: true,
       },

@@ -1,7 +1,40 @@
+import { getCompanyName } from "@/lib/brand";
 import { prisma } from "@/lib/prisma";
 import { sanitizeRichText } from "@/lib/sanitize-html";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import sanitizeHtml from "sanitize-html";
 import ApplyForm from "./ApplyForm";
+
+/** Plain-text excerpt of the (HTML) job description for link previews. */
+function excerpt(html: string, max = 160): string {
+  const text = sanitizeHtml(html.replace(/<\/(p|li|h[1-6])>/gi, " "), { allowedTags: [], allowedAttributes: {} })
+    .replace(/\s+/g, " ")
+    .trim();
+  return text.length > max ? `${text.slice(0, max - 1).trimEnd()}…` : text;
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const job = await prisma.job.findUnique({
+    where: { slug, isActive: true },
+    select: { title: true, description: true, location: true },
+  });
+  if (!job) return {};
+
+  const title = `${job.title} - ${await getCompanyName()}`;
+  const location = job.location ? `${job.location} · ` : "";
+  const description = `${location}${excerpt(job.description)}`;
+  return {
+    title,
+    description,
+    openGraph: { title, description, url: `/jobs/${slug}` },
+  };
+}
 
 export default async function JobApplyPage({
   params,

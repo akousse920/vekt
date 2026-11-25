@@ -22,7 +22,7 @@ export function buildRecruiterApplicationEmail(jobTitle: string, jobId: string, 
   const title = escapeHtml(jobTitle);
   const jobUrl = new URL(`/recruiter/jobs/${encodeURIComponent(jobId)}`, appUrl).toString();
   return {
-    subject: `Nouvelle candidature — ${jobTitle.replace(/[\r\n]+/g, " ")}`,
+    subject: `Nouvelle candidature - ${jobTitle.replace(/[\r\n]+/g, " ")}`,
     html: `<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;color:#193653;line-height:1.6">
       <h1 style="font-size:22px">Nouvelle candidature reçue</h1>
       <p>Une nouvelle candidature a été déposée pour l’offre <strong>${title}</strong>.</p>

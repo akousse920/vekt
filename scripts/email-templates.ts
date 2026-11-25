@@ -34,7 +34,7 @@ const STATUS_BUTTON = "Suivre ma candidature";
 export const DEFAULT_EMAIL_TEMPLATES: { type: EmailType; subject: string; body: string }[] = [
   {
     type: EmailType.APPLIED,
-    subject: "Candidature reçue – {{jobTitle}}",
+    subject: "Candidature reçue - {{jobTitle}}",
     body: layout("{{companyName}}", "Candidature reçue", [
       "Merci d’avoir postulé au poste de <strong>{{jobTitle}}</strong>. Nous avons bien reçu votre candidature et notre équipe reviendra vers vous pour vous tenir informé(e) de la suite.",
       "Vous pouvez suivre l’avancement de votre candidature à tout moment grâce au lien ci-dessous.",
@@ -42,14 +42,14 @@ export const DEFAULT_EMAIL_TEMPLATES: { type: EmailType; subject: string; body: 
   },
   {
     type: EmailType.SHORTLISTED,
-    subject: "Votre candidature est présélectionnée – {{jobTitle}}",
+    subject: "Votre candidature est présélectionnée - {{jobTitle}}",
     body: layout("{{companyName}}", "Bonne nouvelle !", [
       "Nous avons le plaisir de vous informer que votre candidature au poste de <strong>{{jobTitle}}</strong> a été présélectionnée. Notre équipe étudie votre profil et vous contactera prochainement pour la suite du processus.",
     ], STATUS_BUTTON, FOOTER),
   },
   {
     type: EmailType.REJECTED,
-    subject: "Suite donnée à votre candidature – {{jobTitle}}",
+    subject: "Suite donnée à votre candidature - {{jobTitle}}",
     body: layout("{{companyName}}", "Suite donnée à votre candidature", [
       "Merci d’avoir pris le temps de postuler au poste de <strong>{{jobTitle}}</strong>. Après examen attentif, nous ne donnerons pas suite à votre candidature pour le moment.",
       "Nous vous remercions de l’intérêt que vous portez à {{companyName}} et vous encourageons à postuler à nos futures offres.",
@@ -57,7 +57,7 @@ export const DEFAULT_EMAIL_TEMPLATES: { type: EmailType; subject: string; body: 
   },
   {
     type: EmailType.ACCEPTED,
-    subject: "Félicitations – votre candidature au poste de {{jobTitle}} est retenue",
+    subject: "Félicitations, votre candidature au poste de {{jobTitle}} est retenue",
     body: layout("{{companyName}}", "Félicitations !", [
       "Nous avons le plaisir de vous annoncer que votre candidature au poste de <strong>{{jobTitle}}</strong> a été retenue. Un membre de notre équipe vous contactera très prochainement pour vous présenter les prochaines étapes.",
     ], STATUS_BUTTON, FOOTER),
@@ -66,7 +66,7 @@ export const DEFAULT_EMAIL_TEMPLATES: { type: EmailType; subject: string; body: 
     type: EmailType.DATA_RETENTION_WARNING,
     subject: "Important : vos données de candidature seront supprimées le {{retentionDate}}",
     body: layout("{{companyName}} · Protection des données", "Suppression prochaine de vos données", [
-      "Conformément à notre politique de conservation des données et au RGPD, les données de votre candidature au poste de <strong>{{jobTitle}}</strong> — y compris votre CV et vos informations personnelles — seront définitivement supprimées le <strong>{{retentionDate}}</strong>.",
+      "Conformément à notre politique de conservation des données et au RGPD, les données de votre candidature au poste de <strong>{{jobTitle}}</strong> (y compris votre CV et vos informations personnelles) seront définitivement supprimées le <strong>{{retentionDate}}</strong>.",
       "Si vous souhaitez en obtenir une copie avant leur suppression, suivez les instructions indiquées sur la page de suivi de votre candidature.",
     ], "Voir ma candidature et télécharger mes données", "{{companyName}} · Cet avis est envoyé au titre d’une obligation légale (RGPD) de conservation des données et ne peut pas être désactivé."),
   },

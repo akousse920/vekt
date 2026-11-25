@@ -2,7 +2,7 @@ import { getCompanyName, PRIVACY_POLICY_VERSION } from "@/lib/brand";
 import type { Metadata } from "next";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return { title: `Politique de confidentialité — ${await getCompanyName()}` };
+  return { title: `Politique de confidentialité - ${await getCompanyName()}` };
 }
 
 const PRIVACY_EMAIL = process.env.PRIVACY_CONTACT_EMAIL || "privacy@example.com";
@@ -158,14 +158,14 @@ export default async function PrivacyPolicyPage() {
                 Conformément au RGPD, vous disposez des droits suivants :
               </p>
               <ul className="text-sm text-muted-foreground list-disc list-inside space-y-1">
-                <li><strong>Accès</strong> — obtenir une copie des données que nous détenons sur vous</li>
-                <li><strong>Rectification</strong> — faire corriger des données inexactes</li>
-                <li><strong>Effacement</strong> — demander la suppression de vos données (« droit à l’oubli »)</li>
-                <li><strong>Limitation</strong> — demander à restreindre l’utilisation de vos données</li>
-                <li><strong>Portabilité</strong> — recevoir vos données dans un format lisible par machine</li>
-                <li><strong>Opposition</strong> — vous opposer à un traitement fondé sur l’intérêt légitime</li>
-                <li><strong>Retrait du consentement</strong> — retirer votre consentement à tout moment, sans remettre en cause les traitements déjà effectués</li>
-                <li><strong>Explication</strong> — savoir comment votre candidature a été examinée et obtenir l’avis d’une personne</li>
+                <li><strong>Accès</strong> - obtenir une copie des données que nous détenons sur vous</li>
+                <li><strong>Rectification</strong> - faire corriger des données inexactes</li>
+                <li><strong>Effacement</strong> - demander la suppression de vos données (« droit à l’oubli »)</li>
+                <li><strong>Limitation</strong> - demander à restreindre l’utilisation de vos données</li>
+                <li><strong>Portabilité</strong> - recevoir vos données dans un format lisible par machine</li>
+                <li><strong>Opposition</strong> - vous opposer à un traitement fondé sur l’intérêt légitime</li>
+                <li><strong>Retrait du consentement</strong> - retirer votre consentement à tout moment, sans remettre en cause les traitements déjà effectués</li>
+                <li><strong>Explication</strong> - savoir comment votre candidature a été examinée et obtenir l’avis d’une personne</li>
               </ul>
               <p className="text-sm text-muted-foreground leading-relaxed mt-3">
                 Pour exercer ces droits, écrivez-nous à{" "}
