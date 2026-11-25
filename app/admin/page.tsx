@@ -1,9 +1,10 @@
 import { auth } from "@/lib/auth";
+import { DEFAULT_COMPANY_NAME } from "@/lib/brand";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import AdminPanel from "./AdminPanel";
 
-const DEFAULTS: Record<string, string> = { RETENTION_DAYS: "90" };
+const DEFAULTS: Record<string, string> = { RETENTION_DAYS: "90", COMPANY_NAME: DEFAULT_COMPANY_NAME };
 
 export default async function AdminPage() {
   const session = await auth();

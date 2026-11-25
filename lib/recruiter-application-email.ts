@@ -1,7 +1,7 @@
-import { COMPANY_NAME } from "@/lib/brand";
+import { DEFAULT_COMPANY_NAME, getCompanyName } from "@/lib/brand";
 import logger from "@/lib/logger";
+import { getMailer } from "@/lib/mailer";
 import { prisma } from "@/lib/prisma";
-import { Resend } from "resend";
 
 type NotificationJob = {
   notifyOnApplication: boolean;
@@ -18,7 +18,7 @@ function escapeHtml(value: string): string {
   })[character]!);
 }
 
-export function buildRecruiterApplicationEmail(jobTitle: string, jobId: string, appUrl: string) {
+export function buildRecruiterApplicationEmail(jobTitle: string, jobId: string, appUrl: string, companyName = DEFAULT_COMPANY_NAME) {
   const title = escapeHtml(jobTitle);
   const jobUrl = new URL(`/recruiter/jobs/${encodeURIComponent(jobId)}`, appUrl).toString();
   return {
@@ -28,7 +28,7 @@ export function buildRecruiterApplicationEmail(jobTitle: string, jobId: string, 
       <p>Une nouvelle candidature a été déposée pour l’offre <strong>${title}</strong>.</p>
       <p><a href="${escapeHtml(jobUrl)}">Consulter les candidatures de cette offre</a></p>
       <p style="font-size:13px;color:#526a83">Vous pouvez désactiver ces alertes dans les paramètres de l’offre.</p>
-      <p style="font-size:13px;color:#526a83">${escapeHtml(COMPANY_NAME)}</p>
+      <p style="font-size:13px;color:#526a83">${escapeHtml(companyName)}</p>
     </div>`,
   };
 }
@@ -49,9 +49,9 @@ export async function sendRecruiterApplicationEmail(candidateId: string): Promis
   const recipient = recruiterNotificationRecipient(job);
   if (!job || !recipient) return;
 
-  const key = process.env.RESEND_API_KEY;
-  if (!key) {
-    logger.warn({ candidateId }, "Recruiter email: RESEND_API_KEY not set, skipping");
+  const sendMail = getMailer();
+  if (!sendMail) {
+    logger.warn({ candidateId }, "Recruiter email: neither SMTP_HOST nor RESEND_API_KEY set, skipping");
     return;
   }
 
@@ -59,13 +59,8 @@ export async function sendRecruiterApplicationEmail(candidateId: string): Promis
     job.title,
     job.id,
     process.env.APP_URL ?? "http://localhost:3000",
+    await getCompanyName(),
   );
-  const { data, error } = await new Resend(key).emails.send({
-    from: process.env.EMAIL_FROM ?? "noreply@vekt.io",
-    to: recipient,
-    subject,
-    html,
-  });
-  if (error) throw new Error(error.message);
-  logger.info({ candidateId, jobId: job.id, resendId: data?.id }, "Recruiter email: sent");
+  const messageId = await sendMail({ to: recipient, subject, html });
+  logger.info({ candidateId, jobId: job.id, messageId }, "Recruiter email: sent");
 }

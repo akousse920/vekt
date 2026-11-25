@@ -27,6 +27,7 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  outputFileTracingRoot: process.cwd(),
   serverExternalPackages: ["pino", "pino-pretty", "better-sqlite3"],
   async headers() {
     return [

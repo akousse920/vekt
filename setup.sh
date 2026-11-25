@@ -80,12 +80,12 @@ sed -i.bak "s|^SEED_ON_START=.*|SEED_ON_START=true|" .env && rm -f .env.bak
 
 # ── Branding ───────────────────────────────────────────────────────────────────
 echo -e "\n${BOLD}Branding${RESET}"
-read -rp "  Company name [Vekt]: " company_name < /dev/tty
-company_name="${company_name:-Vekt}"
+read -rp "  Company name [GRACE DIVINE]: " company_name < /dev/tty
+company_name="${company_name:-GRACE DIVINE}"
 read -rp "  Public URL   [http://localhost:3000]: " app_url < /dev/tty
 app_url="${app_url:-http://localhost:3000}"
 
-sed -i.bak "s|^COMPANY_NAME=.*|COMPANY_NAME=${company_name}|" .env && rm -f .env.bak
+sed -i.bak "s|^COMPANY_NAME=.*|COMPANY_NAME=\"${company_name}\"|" .env && rm -f .env.bak
 sed -i.bak "s|^APP_URL=.*|APP_URL=${app_url}|" .env && rm -f .env.bak
 
 # ── AI provider ────────────────────────────────────────────────────────────────

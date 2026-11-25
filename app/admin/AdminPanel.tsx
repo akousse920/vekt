@@ -80,7 +80,7 @@ export default function AdminPanel({ currentUserId, initialUsers, initialSetting
         <section className="flex flex-col gap-4">
           <div className="flex items-center gap-2">
             <ClipboardTextIcon weight="duotone" className="size-5 text-primary" />
-            <h2 className="text-xl font-semibold">Conservation des données</h2>
+            <h2 className="text-xl font-semibold">Identité et réglages</h2>
           </div>
 
           <SettingsSection settings={settings} setSettings={setSettings} flash={flash} />

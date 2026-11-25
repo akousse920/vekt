@@ -2,7 +2,7 @@ import CookieBanner from "@/components/cookie-banner";
 import SiteFooter from "@/components/site-footer";
 import SiteHeader from "@/components/site-header";
 import { Toaster } from "@/components/ui/sonner";
-import { COMPANY_NAME } from "@/lib/brand";
+import { getCompanyName } from "@/lib/brand";
 import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
@@ -24,25 +24,28 @@ const geistMono = localFont({
   variable: "--font-geist-mono",
 });
 
-export const metadata: Metadata = {
-  title: `${COMPANY_NAME} — Recrutement`,
-  description: "Découvrez les offres et postulez simplement.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: `${await getCompanyName()} — Recrutement`,
+    description: "Découvrez les offres et postulez simplement.",
+  };
+}
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const companyName = await getCompanyName();
   return (
     <html lang="fr" className={cn("font-sans", inter.variable)}>
       <body
         className={`${geistSans.variable} ${geistMono.variable} readable-ui antialiased bg-background text-foreground`}
       >
         <AuthProvider>
-          <SiteHeader />
+          <SiteHeader companyName={companyName} />
           {children}
-          <SiteFooter />
+          <SiteFooter companyName={companyName} />
         </AuthProvider>
         <Toaster richColors={true} theme="light" position="top-center"/>
         <CookieBanner />

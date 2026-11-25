@@ -1,4 +1,4 @@
-import { COMPANY_NAME } from "@/lib/brand";
+import { getCompanyName } from "@/lib/brand";
 import { prisma } from "@/lib/prisma";
 import { sanitizeRichText } from "@/lib/sanitize-html";
 import { ArrowRightIcon, BriefcaseIcon, MapPinIcon } from "@phosphor-icons/react/dist/ssr";
@@ -6,6 +6,7 @@ import Link from "next/link";
 import JobSearchInput from "./JobSearchInput";
 
 export default async function Home({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
+  const companyName = await getCompanyName();
   const search = ((await searchParams).q ?? "").trim();
   const listings = await prisma.job.findMany({
     where: {
@@ -29,7 +30,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ q
             Trouvez votre prochaine <span className="text-[#ffc276]">opportunité</span>.
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-relaxed text-white/85 sm:text-lg">
-            Découvrez les postes proposés par {COMPANY_NAME}. Choisissez une offre, répondez à ses questions et déposez votre CV en quelques étapes.
+            Découvrez les postes proposés par {companyName}. Choisissez une offre, répondez à ses questions et déposez votre CV en quelques étapes.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-4">
             <Link href="#offres" className="brand-cta inline-flex min-h-12 items-center gap-2 rounded-full px-6 text-sm font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-white">

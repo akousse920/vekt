@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CircleNotchIcon } from "@phosphor-icons/react";
 import React, { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 
 type Props = {
   settings: Record<string, string>;
@@ -14,6 +15,8 @@ type Props = {
 };
 
 export default function SettingsSection({ settings, setSettings, flash }: Props) {
+  const router = useRouter();
+  const [companyName, setCompanyName] = useState(settings.COMPANY_NAME ?? "GRACE DIVINE");
   const [retentionDays, setRetentionDays] = useState(String(settings.RETENTION_DAYS ?? "90"));
   const [autoReject, setAutoReject] = useState(
     settings.AUTO_REJECT_BELOW_THRESHOLD === "true",
@@ -27,6 +30,7 @@ export default function SettingsSection({ settings, setSettings, flash }: Props)
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          COMPANY_NAME: companyName.trim(),
           RETENTION_DAYS: Number(retentionDays),
           AUTO_REJECT_BELOW_THRESHOLD: autoReject,
         }),
@@ -39,10 +43,12 @@ export default function SettingsSection({ settings, setSettings, flash }: Props)
       const data = await res.json();
       setSettings((prev) => ({
         ...prev,
+        COMPANY_NAME: String(data.COMPANY_NAME),
         RETENTION_DAYS: String(data.RETENTION_DAYS),
         AUTO_REJECT_BELOW_THRESHOLD: String(data.AUTO_REJECT_BELOW_THRESHOLD ?? autoReject),
       }));
       flash("Réglages enregistrés", "ok");
+      router.refresh();
     });
   }
 
@@ -50,11 +56,16 @@ export default function SettingsSection({ settings, setSettings, flash }: Props)
     <Card className="border-[#d8e0e8] bg-white shadow-sm">
       <CardHeader className="pb-3">
         <CardDescription className="text-xs">
-          Les dossiers au-delà de la durée définie peuvent être supprimés lors du nettoyage des données. Ce réglage peut être modifié à tout moment.
+          Personnalisez l’identité affichée sur le site et les courriels, ainsi que les règles de conservation et de traitement.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSaveSettings} className="flex flex-col gap-4">
+          <div className="flex max-w-md flex-col gap-1.5">
+            <Label htmlFor="company-name" className="text-sm">Nom de l’organisation</Label>
+            <Input id="company-name" value={companyName} onChange={(e) => setCompanyName(e.target.value)} minLength={2} maxLength={80} required className="h-11 bg-white" />
+            <p className="text-xs text-muted-foreground">Visible dans l’en-tête, le pied de page, la page d’accueil et les courriels.</p>
+          </div>
           <div className="flex items-end gap-3">
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="retention-days" className="text-xs">Durée de conservation (jours)</Label>

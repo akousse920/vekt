@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth";
+import { DEFAULT_COMPANY_NAME } from "@/lib/brand";
 import logger from "@/lib/logger";
 import { prisma } from "@/lib/prisma";
 import type { Session } from "next-auth";
@@ -6,6 +7,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 const DEFAULTS: Record<string, string> = {
+  COMPANY_NAME: DEFAULT_COMPANY_NAME,
   RETENTION_DAYS: "90",
   STATUS_EMAIL_DELAY_HOURS: "48",
   // Off by default: a rejection with no human in the loop is a decision based
@@ -32,6 +34,7 @@ export async function GET() {
 }
 
 const updateSchema = z.object({
+  COMPANY_NAME: z.string().trim().min(2).max(80).optional(),
   RETENTION_DAYS: z.coerce.number().int().min(1).max(3650),
   STATUS_EMAIL_DELAY_HOURS: z.coerce.number().int().min(0).max(168).optional(),
   AUTO_REJECT_BELOW_THRESHOLD: z.boolean().optional(),
@@ -45,7 +48,7 @@ export async function PUT(req: NextRequest) {
   const body = await req.json();
   const parsed = updateSchema.safeParse(body);
   if (!parsed.success)
-    return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+    return NextResponse.json({ error: "Vérifiez le nom de l’organisation et les valeurs saisies." }, { status: 400 });
 
   const ops = [
     prisma.setting.upsert({
@@ -61,6 +64,16 @@ export async function PUT(req: NextRequest) {
         where: { key: "STATUS_EMAIL_DELAY_HOURS" },
         update: { value: String(parsed.data.STATUS_EMAIL_DELAY_HOURS) },
         create: { key: "STATUS_EMAIL_DELAY_HOURS", value: String(parsed.data.STATUS_EMAIL_DELAY_HOURS) },
+      }),
+    );
+  }
+
+  if (parsed.data.COMPANY_NAME !== undefined) {
+    ops.push(
+      prisma.setting.upsert({
+        where: { key: "COMPANY_NAME" },
+        update: { value: parsed.data.COMPANY_NAME },
+        create: { key: "COMPANY_NAME", value: parsed.data.COMPANY_NAME },
       }),
     );
   }
@@ -84,11 +97,13 @@ export async function PUT(req: NextRequest) {
 
   await prisma.$transaction(ops);
 
-  const updated: Record<string, number | boolean> = {
+  const updated: Record<string, number | boolean | string> = {
     RETENTION_DAYS: parsed.data.RETENTION_DAYS,
   };
   if (parsed.data.STATUS_EMAIL_DELAY_HOURS !== undefined)
     updated.STATUS_EMAIL_DELAY_HOURS = parsed.data.STATUS_EMAIL_DELAY_HOURS;
+  if (parsed.data.COMPANY_NAME !== undefined)
+    updated.COMPANY_NAME = parsed.data.COMPANY_NAME;
   if (parsed.data.AUTO_REJECT_BELOW_THRESHOLD !== undefined)
     updated.AUTO_REJECT_BELOW_THRESHOLD = parsed.data.AUTO_REJECT_BELOW_THRESHOLD;
 

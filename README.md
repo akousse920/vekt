@@ -63,7 +63,7 @@ Use Vekt if you need:
 - **Structured failure logging** — AI provider/API failures, JSON parsing errors, and pipeline step failures are logged with candidate/step/provider context for faster debugging
 - **Screening questions** — per-job single choice, multiple choice, and free-text questions. Choice answers can be checked against configured rules; free-text answers are stored for human review and never receive an automatic rule.
 - **Delayed status emails** — status-change emails are held for a configurable delay (default 48 h); if a recruiter overrides the decision before the delay elapses the pending email is automatically cancelled and a new one is scheduled
-- **Admin-editable email templates** — all candidate email subjects and HTML bodies are stored in the database and editable from the Admin Dashboard; every sent email is logged with its Resend delivery ID
+- **Admin-editable email templates** — all candidate email subjects and HTML bodies are stored in the database and editable from the Admin Dashboard; every sent email is logged with its delivery ID (Resend ID or SMTP Message-ID)
 - **Recruiter dashboard** — per-job applications view sorted by AI score; shortlist, accept, or reject candidates with AI reasoning and screening-question answers
 - **Admin dashboard** — manage recruiter accounts, configure data retention and status email delay, edit email templates
 - **Automated data purge** — Inngest cron job deletes candidate records and resume files that exceed the configured retention window
@@ -333,7 +333,7 @@ APPLIED → ANALYZING → SHORTLISTED  → ACCEPTED
 
 Status-change emails (`SHORTLISTED`, `REJECTED`, `ACCEPTED`) are queued and delivered after a configurable delay (default **48 hours**). If a recruiter changes the status before the delay elapses, the pending email is cancelled and a new delayed email is scheduled for the updated status. Set `STATUS_EMAIL_DELAY_HOURS` to `0` in the Admin Dashboard to send immediately.
 
-The owner of a job receives a French email when a new application is submitted. This alert is enabled by default for each job and can be turned off in **Modifier le poste**; applications remain available in the recruiter's job view. Jobs without an owner do not send a recruiter alert. Delivery requires `RESEND_API_KEY` and a valid `EMAIL_FROM` address.
+The owner of a job receives a French email when a new application is submitted. This alert is enabled by default for each job and can be turned off in **Modifier le poste**; applications remain available in the recruiter's job view. Jobs without an owner do not send a recruiter alert. Delivery requires either SMTP (`SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`) or `RESEND_API_KEY`, plus a valid `EMAIL_FROM` address.
 
 ---
 

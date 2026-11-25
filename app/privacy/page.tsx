@@ -1,13 +1,14 @@
-import { COMPANY_NAME, PRIVACY_POLICY_VERSION } from "@/lib/brand";
+import { getCompanyName, PRIVACY_POLICY_VERSION } from "@/lib/brand";
 import type { Metadata } from "next";
 
-export const metadata: Metadata = {
-  title: `Privacy Policy — ${COMPANY_NAME}`,
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: `Privacy Policy — ${await getCompanyName()}` };
+}
 
 const PRIVACY_EMAIL = process.env.PRIVACY_CONTACT_EMAIL || "privacy@example.com";
 
-export default function PrivacyPolicyPage() {
+export default async function PrivacyPolicyPage() {
+  const companyName = await getCompanyName();
   return (
     <div className="flex min-h-[89vh] flex-col bg-background">
       <main className="flex-1">
@@ -23,7 +24,7 @@ export default function PrivacyPolicyPage() {
             <div>
               <h2 className="text-base font-semibold mb-2">1. Data Controller</h2>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                {COMPANY_NAME} is the data controller responsible for the personal data you submit
+                {companyName} is the data controller responsible for the personal data you submit
                 through this recruitment platform. If you have any questions about how your data is
                 handled, please contact us at{" "}
                 <a href={`mailto:${PRIVACY_EMAIL}`} className="text-primary underline underline-offset-3">
@@ -128,7 +129,7 @@ export default function PrivacyPolicyPage() {
               <h2 className="text-base font-semibold mb-2">6. Data Recipients</h2>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 Your data is accessible only to authorised recruiters and hiring managers within{" "}
-                {COMPANY_NAME}. We do not share, sell, or transfer your data to third parties.
+                {companyName}. We do not share, sell, or transfer your data to third parties.
                 All data is stored on servers under our direct control.
               </p>
             </div>

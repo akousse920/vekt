@@ -2,16 +2,16 @@ import SignOutButton from "@/app/recruiter/SignOutButton";
 import MobileMenu from "@/components/mobile-menu";
 import { Button } from "@/components/ui/button";
 import { auth } from "@/lib/auth";
-import { COMPANY_NAME } from "@/lib/brand";
-import Image from "next/image";
+import { getCompanyInitials } from "@/lib/brand";
 import Link from "next/link";
 type Props = {
+  companyName: string;
   /** Optional back link shown left of the logo area */
   backHref?: string;
   backLabel?: string;
 };
 
-export default async function SiteHeader({ backHref, backLabel }: Props) {
+export default async function SiteHeader({ companyName, backHref, backLabel }: Props) {
   const session = await auth();
   const email = session?.user?.email;
   const role = (session?.user as { role?: string } | undefined)?.role;
@@ -32,10 +32,10 @@ export default async function SiteHeader({ backHref, backLabel }: Props) {
             href="/"
             className="flex items-center rounded-md gap-2 py-1 text-base font-bold text-[#205398] hover:text-primary transition-colors shrink-0"
           >
-            <div className="flex size-9 items-center justify-center rounded-xl bg-primary">
-              <Image src="/logo.png" alt="Logo" width={24} height={24} className="shrink-0" />
+            <div aria-hidden="true" className="flex size-9 items-center justify-center rounded-xl bg-primary text-xs font-bold tracking-wide text-white">
+              {getCompanyInitials(companyName)}
             </div>
-            <span className="tracking-tight">{COMPANY_NAME}</span>
+            <span className="max-w-36 truncate tracking-tight sm:max-w-56">{companyName}</span>
           </Link>
 
           {email && (
