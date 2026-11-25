@@ -9,7 +9,8 @@
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import bcrypt from "bcryptjs";
 import "dotenv/config";
-import { EmailType, PrismaClient } from "../generated/client";
+import { PrismaClient } from "../generated/client";
+import { DEFAULT_EMAIL_TEMPLATES } from "./email-templates";
 
 const dbUrl = process.env.DATABASE_URL ?? "file:./dev.db";
 const adapter = new PrismaBetterSqlite3({ url: dbUrl });
@@ -39,164 +40,36 @@ async function main() {
   if (!existingAdmin) {
     await prisma.job.create({
       data: {
-        id: "seed-job-ux-ui-designer",
-        slug: "ux-ui-designer",
-        title: "UX/UI Designer",
-        description: `We are looking for a talented UX/UI Designer to join our growing team.
+        id: "seed-job-caissier",
+        slug: "caissier-caissiere",
+        title: "Caissier / Caissière",
+        description: `Nous recherchons un(e) caissier(ère) souriant(e) et rigoureux(se) pour rejoindre notre équipe en magasin.
 
-**Responsibilities:**
-- Design intuitive and visually compelling user interfaces for web and mobile products
-- Conduct user research, usability testing, and analyse feedback to iterate on designs
-- Create wireframes, prototypes, and high-fidelity mockups using Figma or similar tools
-- Collaborate with product managers and engineers to ensure designs are implemented accurately
-- Maintain and evolve our design system and style guides
+**Missions :**
+- Accueillir les clients et assurer un passage en caisse rapide et agréable
+- Encaisser les achats (espèces, carte bancaire, paiement mobile) et rendre la monnaie
+- Gérer l’ouverture et la clôture de caisse, et contrôler le fond de caisse
+- Renseigner les clients et traiter les retours ou réclamations simples
+- Participer à la mise en rayon et au maintien de la propreté de l’espace de vente
 
-**Requirements:**
-- 2+ years of experience in UX/UI design
-- Proficiency in Figma (or Sketch / Adobe XD)
-- Strong portfolio demonstrating end-to-end design process
-- Solid understanding of accessibility standards (WCAG)
-- Excellent communication and collaboration skills
+**Profil recherché :**
+- Une première expérience en caisse ou dans la vente est un plus
+- Aisance avec les chiffres et sens de la rigueur
+- Sens du service client, politesse et patience
+- Ponctualité et capacité à travailler en horaires décalés (week-ends inclus)
 
-**Nice to have:**
-- Experience with motion design or micro-interactions
-- Familiarity with front-end technologies (HTML/CSS/React)`,
-        location: "Remote",
+**Atouts appréciés :**
+- Maîtrise d’un logiciel de caisse
+- Notions d’anglais pour accueillir une clientèle internationale`,
+        location: "Sur site",
         isActive: true,
       },
     });
-    console.log("✅ Seeded job listing:    UX/UI Designer");
+    console.log("✅ Seeded job listing:    Caissier / Caissière");
   }
 
-  // --- Email templates ---
-  const templates: { type: EmailType; subject: string; body: string }[] = [
-    {
-      type: EmailType.APPLIED,
-      subject: "Application Received – {{jobTitle}}",
-      body: `<!DOCTYPE html>
-<html><head><meta charset="utf-8"></head>
-<body style="font-family:Inter,Arial,sans-serif;background:#f9fafb;margin:0;padding:40px 16px;">
-  <div style="max-width:560px;margin:0 auto;background:#fff;border-radius:8px;border:1px solid #e5e7eb;padding:40px;">
-    <p style="font-size:12px;color:#9ca3af;margin:0 0 20px;text-transform:uppercase;letter-spacing:.05em;">{{companyName}}</p>
-    <h1 style="font-size:20px;font-weight:600;color:#111827;margin:0 0 24px;">Application Received</h1>
-    <p style="font-size:15px;color:#374151;line-height:1.6;margin:0 0 16px;">Hi {{candidateName}},</p>
-    <p style="font-size:15px;color:#374151;line-height:1.6;margin:0 0 16px;">
-      Thank you for applying for the <strong>{{jobTitle}}</strong> position. We've received your application and our team will be in touch with updates.
-    </p>
-    <p style="font-size:15px;color:#374151;line-height:1.6;margin:0 0 32px;">
-      You can track your application status at any time using the link below.
-    </p>
-    <div style="text-align:center;margin:0 0 32px;">
-      <a href="{{statusPageUrl}}" style="background:#0f172a;color:#fff;text-decoration:none;padding:12px 28px;border-radius:6px;font-size:14px;font-weight:500;display:inline-block;">
-        View Application Status
-      </a>
-    </div>
-    <hr style="border:none;border-top:1px solid #e5e7eb;margin:0 0 20px;">
-    <p style="font-size:12px;color:#9ca3af;margin:0;">{{companyName}} · Powered by Vekt</p>
-  </div>
-</body></html>`,
-    },
-    {
-      type: EmailType.SHORTLISTED,
-      subject: "You've Been Shortlisted – {{jobTitle}}",
-      body: `<!DOCTYPE html>
-<html><head><meta charset="utf-8"></head>
-<body style="font-family:Inter,Arial,sans-serif;background:#f9fafb;margin:0;padding:40px 16px;">
-  <div style="max-width:560px;margin:0 auto;background:#fff;border-radius:8px;border:1px solid #e5e7eb;padding:40px;">
-    <p style="font-size:12px;color:#9ca3af;margin:0 0 20px;text-transform:uppercase;letter-spacing:.05em;">{{companyName}}</p>
-    <h1 style="font-size:20px;font-weight:600;color:#111827;margin:0 0 24px;">Great News!</h1>
-    <p style="font-size:15px;color:#374151;line-height:1.6;margin:0 0 16px;">Hi {{candidateName}},</p>
-    <p style="font-size:15px;color:#374151;line-height:1.6;margin:0 0 16px;">
-      We're pleased to let you know that your application for <strong>{{jobTitle}}</strong> has been shortlisted. Our team will review your profile and be in touch with next steps shortly.
-    </p>
-    <div style="text-align:center;margin:32px 0;">
-      <a href="{{statusPageUrl}}" style="background:#0f172a;color:#fff;text-decoration:none;padding:12px 28px;border-radius:6px;font-size:14px;font-weight:500;display:inline-block;">
-        View Application Status
-      </a>
-    </div>
-    <hr style="border:none;border-top:1px solid #e5e7eb;margin:0 0 20px;">
-    <p style="font-size:12px;color:#9ca3af;margin:0;">{{companyName}} · Powered by Vekt</p>
-  </div>
-</body></html>`,
-    },
-    {
-      type: EmailType.REJECTED,
-      subject: "Update on Your Application – {{jobTitle}}",
-      body: `<!DOCTYPE html>
-<html><head><meta charset="utf-8"></head>
-<body style="font-family:Inter,Arial,sans-serif;background:#f9fafb;margin:0;padding:40px 16px;">
-  <div style="max-width:560px;margin:0 auto;background:#fff;border-radius:8px;border:1px solid #e5e7eb;padding:40px;">
-    <p style="font-size:12px;color:#9ca3af;margin:0 0 20px;text-transform:uppercase;letter-spacing:.05em;">{{companyName}}</p>
-    <h1 style="font-size:20px;font-weight:600;color:#111827;margin:0 0 24px;">Application Update</h1>
-    <p style="font-size:15px;color:#374151;line-height:1.6;margin:0 0 16px;">Hi {{candidateName}},</p>
-    <p style="font-size:15px;color:#374151;line-height:1.6;margin:0 0 16px;">
-      Thank you for taking the time to apply for the <strong>{{jobTitle}}</strong> position. After careful consideration, we won't be moving forward with your application at this time.
-    </p>
-    <p style="font-size:15px;color:#374151;line-height:1.6;margin:0 0 32px;">
-      We appreciate your interest in {{companyName}} and encourage you to apply for future opportunities.
-    </p>
-    <div style="text-align:center;margin:0 0 32px;">
-      <a href="{{statusPageUrl}}" style="background:#0f172a;color:#fff;text-decoration:none;padding:12px 28px;border-radius:6px;font-size:14px;font-weight:500;display:inline-block;">
-        View Application Status
-      </a>
-    </div>
-    <hr style="border:none;border-top:1px solid #e5e7eb;margin:0 0 20px;">
-    <p style="font-size:12px;color:#9ca3af;margin:0;">{{companyName}} · Powered by Vekt</p>
-  </div>
-</body></html>`,
-    },
-    {
-      type: EmailType.ACCEPTED,
-      subject: "Congratulations – Your Application for {{jobTitle}} Has Been Accepted",
-      body: `<!DOCTYPE html>
-<html><head><meta charset="utf-8"></head>
-<body style="font-family:Inter,Arial,sans-serif;background:#f9fafb;margin:0;padding:40px 16px;">
-  <div style="max-width:560px;margin:0 auto;background:#fff;border-radius:8px;border:1px solid #e5e7eb;padding:40px;">
-    <p style="font-size:12px;color:#9ca3af;margin:0 0 20px;text-transform:uppercase;letter-spacing:.05em;">{{companyName}}</p>
-    <h1 style="font-size:20px;font-weight:600;color:#111827;margin:0 0 24px;">Congratulations!</h1>
-    <p style="font-size:15px;color:#374151;line-height:1.6;margin:0 0 16px;">Hi {{candidateName}},</p>
-    <p style="font-size:15px;color:#374151;line-height:1.6;margin:0 0 16px;">
-      We're thrilled to inform you that your application for <strong>{{jobTitle}}</strong> has been accepted. A member of our team will be reaching out shortly with details on next steps.
-    </p>
-    <div style="text-align:center;margin:32px 0;">
-      <a href="{{statusPageUrl}}" style="background:#0f172a;color:#fff;text-decoration:none;padding:12px 28px;border-radius:6px;font-size:14px;font-weight:500;display:inline-block;">
-        View Application Status
-      </a>
-    </div>
-    <hr style="border:none;border-top:1px solid #e5e7eb;margin:0 0 20px;">
-    <p style="font-size:12px;color:#9ca3af;margin:0;">{{companyName}} · Powered by Vekt</p>
-  </div>
-</body></html>`,
-    },
-    {
-      type: EmailType.DATA_RETENTION_WARNING,
-      subject: "Important: Your Application Data Will Be Deleted on {{retentionDate}}",
-      body: `<!DOCTYPE html>
-<html><head><meta charset="utf-8"></head>
-<body style="font-family:Inter,Arial,sans-serif;background:#f9fafb;margin:0;padding:40px 16px;">
-  <div style="max-width:560px;margin:0 auto;background:#fff;border-radius:8px;border:1px solid #e5e7eb;padding:40px;">
-    <p style="font-size:12px;color:#9ca3af;margin:0 0 20px;text-transform:uppercase;letter-spacing:.05em;">{{companyName}} · Data Privacy Notice</p>
-    <h1 style="font-size:20px;font-weight:600;color:#111827;margin:0 0 24px;">Your Data Is Scheduled for Deletion</h1>
-    <p style="font-size:15px;color:#374151;line-height:1.6;margin:0 0 16px;">Hi {{candidateName}},</p>
-    <p style="font-size:15px;color:#374151;line-height:1.6;margin:0 0 16px;">
-      In accordance with our data retention policy and GDPR obligations, your application data for the <strong>{{jobTitle}}</strong> position — including your CV and personal information — will be permanently deleted on <strong>{{retentionDate}}</strong>.
-    </p>
-    <p style="font-size:15px;color:#374151;line-height:1.6;margin:0 0 32px;">
-      If you wish to download a copy of your data before it is removed, please follow the instructions on your application status page.
-    </p>
-    <div style="text-align:center;margin:0 0 32px;">
-      <a href="{{statusPageUrl}}" style="background:#0f172a;color:#fff;text-decoration:none;padding:12px 28px;border-radius:6px;font-size:14px;font-weight:500;display:inline-block;">
-        View Application &amp; Download Data
-      </a>
-    </div>
-    <hr style="border:none;border-top:1px solid #e5e7eb;margin:0 0 20px;">
-    <p style="font-size:12px;color:#9ca3af;margin:0;">{{companyName}} · This notice is sent as a legal GDPR data retention obligation and cannot be opted out of.</p>
-  </div>
-</body></html>`,
-    },
-  ];
-
-  for (const t of templates) {
+  // --- Email templates (French defaults, see scripts/email-templates.ts) ---
+  for (const t of DEFAULT_EMAIL_TEMPLATES) {
     await prisma.emailTemplate.upsert({
       where: { type: t.type },
       update: {},

@@ -68,10 +68,10 @@ export async function sendCandidateEmail({ candidateId, type }: SendEmailOptions
 
   const vars: Record<string, string> = {
     candidateName: candidate.name,
-    jobTitle: candidate.job?.title ?? "General Position",
+    jobTitle: candidate.job?.title ?? "Candidature spontanée",
     companyName,
     statusPageUrl: getStatusPageUrl(candidateId),
-    retentionDate: retentionDate.toLocaleDateString("en-GB", {
+    retentionDate: retentionDate.toLocaleDateString("fr-FR", {
       day: "numeric",
       month: "long",
       year: "numeric",
@@ -83,7 +83,7 @@ export async function sendCandidateEmail({ candidateId, type }: SendEmailOptions
 
   const unsubscribeFooter = `<p style="font-size:11px;color:#9ca3af;margin-top:24px;text-align:center;">
     Vous recevez cet e-mail parce que vous avez postulé via ${companyName.replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character]!)}.<br>
-    <a href="${getUnsubscribeUrl(candidateId)}" style="color:#9ca3af;">Unsubscribe</a> from application updates.
+    <a href="${getUnsubscribeUrl(candidateId)}" style="color:#9ca3af;">Se désabonner</a> des notifications liées à votre candidature.
   </p>`;
 
   const html = `${renderedBody}${unsubscribeFooter}`;
