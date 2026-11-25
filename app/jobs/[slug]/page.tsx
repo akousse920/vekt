@@ -6,9 +6,10 @@ import { notFound } from "next/navigation";
 import sanitizeHtml from "sanitize-html";
 import ApplyForm from "./ApplyForm";
 
-/** Plain-text excerpt of the (HTML) job description for link previews. */
+/** Plain-text excerpt of the (HTML) job description for link previews: its first paragraph. */
 function excerpt(html: string, max = 160): string {
-  const text = sanitizeHtml(html.replace(/<\/(p|li|h[1-6])>/gi, " "), { allowedTags: [], allowedAttributes: {} })
+  const firstParagraph = html.match(/<p[^>]*>([\s\S]*?)<\/p>/i)?.[1] ?? html;
+  const text = sanitizeHtml(firstParagraph.replace(/<\/(p|li|h[1-6])>/gi, " "), { allowedTags: [], allowedAttributes: {} })
     .replace(/\s+/g, " ")
     .trim();
   return text.length > max ? `${text.slice(0, max - 1).trimEnd()}…` : text;
@@ -26,13 +27,15 @@ export async function generateMetadata({
   });
   if (!job) return {};
 
-  const title = `${job.title} - ${await getCompanyName()}`;
+  const companyName = await getCompanyName();
+  const title = `${job.title} - ${companyName}`;
   const location = job.location ? `${job.location} · ` : "";
   const description = `${location}${excerpt(job.description)}`;
   return {
     title,
     description,
-    openGraph: { title, description, url: `/jobs/${slug}` },
+    // Page-level openGraph replaces the layout's, so repeat the shared fields.
+    openGraph: { title, description, url: `/jobs/${slug}`, siteName: companyName, locale: "fr_FR", type: "website" },
   };
 }
 
