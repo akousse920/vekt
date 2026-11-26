@@ -14,7 +14,7 @@ services:
 
   app:
     container_name: vekt-app
-    image: ghcr.io/behnoudmst/vekt:latest
+    image: ghcr.io/akousse920/vekt:main
     ports:
       - "3000:3000"
     depends_on:
