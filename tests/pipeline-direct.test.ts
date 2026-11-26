@@ -237,6 +237,31 @@ test("direct pipeline follows the shared human-review policy and records provena
     assert.equal(passingRulesOnlyResult.status, "SHORTLISTED");
     assert.equal(passingRulesOnlyResult.evaluation, null);
     assert.equal(passingRulesOnlyResult.decisionReasons.length, 0);
+
+    const formJob = await prisma.job.create({
+      data: { slug: "application-rule-test", title: "Engineer", description: "Build software" },
+    });
+    const diplomaField = await prisma.applicationField.create({
+      data: { jobId: formJob.id, key: "diplome", label: "Diplôme", type: "SINGLE_SELECT", options: '["Licence","Master","Autre"]' },
+    });
+    const experienceField = await prisma.applicationField.create({
+      data: { jobId: formJob.id, key: "experience", label: "Années d’expérience", type: "NUMBER" },
+    });
+    const formRule = await prisma.applicationRule.create({
+      data: { jobId: formJob.id, key: "qualification", label: "Qualification attendue", mode: "ALL", action: "REVIEW", conditions: JSON.stringify([
+        { fieldKey: "diplome", operator: "IN", value: ["Licence", "Master"] },
+        { fieldKey: "experience", operator: "GTE", value: 3 },
+      ]) },
+    });
+    const formCandidate = await prisma.candidate.create({
+      data: { name: "Jane Example", email: "form-rule@example.test", resumePath: "/api/uploads/form-rule.pdf", jobId: formJob.id,
+        applicationAnswers: { create: [{ fieldId: diplomaField.id, value: "Master" }, { fieldId: experienceField.id, value: "1" }] } },
+    });
+    await runEvaluationPipelineDirect(formCandidate.id);
+    const formResult = await prisma.candidate.findUniqueOrThrow({ where: { id: formCandidate.id }, include: { decisionReasons: true } });
+    assert.equal(formResult.status, "NEEDS_REVIEW");
+    assert.ok(formResult.decisionReasons.some((reason) => reason.ruleId === formRule.id && reason.stage === "APPLICATION_FORM"));
+
     process.env.AI_PROVIDER = "mock";
 
     const rubricJob = await prisma.job.create({

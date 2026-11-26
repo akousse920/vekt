@@ -1,4 +1,7 @@
 import { auth } from "@/lib/auth";
+import { parseApplicationFields } from "@/lib/application-fields";
+import { isApplicationClosed } from "@/lib/application-deadline";
+import { evaluateApplicationRules } from "@/lib/application-rules";
 import { recruiterVisibleCandidateWhere } from "@/lib/candidate-access";
 import { PRIVACY_POLICY_VERSION } from "@/lib/brand";
 import { inngest } from "@/lib/inngest";
@@ -9,7 +12,7 @@ import { runEvaluationPipelineDirect } from "@/lib/queue";
 import { consumeRateLimit, getRequestIp } from "@/lib/rate-limit";
 import { candidateAnswersSchema, candidateApplicationSchema } from "@/lib/schemas";
 import { randomUUID } from "crypto";
-import { mkdir, writeFile } from "fs/promises";
+import { mkdir, unlink, writeFile } from "fs/promises";
 import { NextRequest, NextResponse } from "next/server";
 import path from "path";
 import { extractText } from "unpdf";
@@ -53,11 +56,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Verify jobId refers to an existing, active job before any further processing
+    // Load the exact form definition for this job before writing any files.
+    let applicationFields: Awaited<ReturnType<typeof prisma.applicationField.findMany>> = [];
+    let applicationRules: Awaited<ReturnType<typeof prisma.applicationRule.findMany>> = [];
     if (jobId) {
       const job = await prisma.job.findUnique({
         where: { id: jobId, isActive: true },
-        select: { id: true },
+        select: { id: true, applicationDeadline: true, applicationFields: { orderBy: { order: "asc" } }, applicationRules: { orderBy: { order: "asc" } } },
       });
       if (!job) {
         return NextResponse.json(
@@ -65,6 +70,10 @@ export async function POST(req: NextRequest) {
           { status: 400 },
         );
       }
+      if (isApplicationClosed(job.applicationDeadline)) return NextResponse.json({ error: "La date limite de candidature est dépassée." }, { status: 400 });
+      if (formData.get("criteriaDeclared") !== "true") return NextResponse.json({ error: "Veuillez confirmer avoir lu les critères de l’offre." }, { status: 400 });
+      applicationFields = job.applicationFields;
+      applicationRules = job.applicationRules;
     }
 
     const requestIp = getRequestIp(req.headers);
@@ -116,12 +125,40 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const parsedFields = parseApplicationFields(formData, applicationFields);
+    if (!parsedFields.ok) return NextResponse.json({ error: parsedFields.error }, { status: 400 });
+    const extraFiles = parsedFields.answers.flatMap((answer) => answer.file ? [answer.file] : answer.files ?? []);
+    if (extraFiles.reduce((size, file) => size + file.size, 0) > 20 * 1024 * 1024) {
+      return NextResponse.json({ error: "Les pièces jointes dépassent 20 Mo au total." }, { status: 413 });
+    }
+
     // Save PDF to private directory (not publicly served)
     await mkdir(UPLOADS_DIR, { recursive: true });
     const filename = `${randomUUID()}.pdf`;
     const filePath = path.join(UPLOADS_DIR, filename);
     const bytes = await resume.arrayBuffer();
     await writeFile(filePath, Buffer.from(bytes));
+
+    const savedExtraPaths: string[] = [];
+    try {
+      for (const answer of parsedFields.answers) {
+        const files = answer.file ? [answer.file] : answer.files ?? [];
+        const paths: string[] = [];
+        for (const file of files) {
+          const extraFilename = `${randomUUID()}.pdf`;
+          await writeFile(path.join(UPLOADS_DIR, extraFilename), Buffer.from(await file.arrayBuffer()));
+          paths.push(`/api/application-files/${extraFilename}`);
+          savedExtraPaths.push(path.join(UPLOADS_DIR, extraFilename));
+        }
+        if (answer.files) answer.value = JSON.stringify(paths);
+        else if (answer.file) answer.value = paths[0];
+      }
+    } catch (error) {
+      await Promise.allSettled([unlink(filePath), ...savedExtraPaths.map((saved) => unlink(saved))]);
+      throw error;
+    }
+
+    const applicationRuleResult = evaluateApplicationRules(applicationRules, applicationFields, parsedFields.answers);
 
     // Extract PDF text
     let resumeText = "";
@@ -132,7 +169,9 @@ export async function POST(req: NextRequest) {
       logger.warn({ pdfErr }, "API: PDF text extraction failed, continuing with empty text");
     }
 
-    const candidate = await prisma.candidate.create({
+    let candidate;
+    try {
+      candidate = await prisma.candidate.create({
       data: {
         name: validation.data.name,
         email: validation.data.email,
@@ -140,10 +179,17 @@ export async function POST(req: NextRequest) {
         resumeText,
         consentGiven: true,
         consentAt: new Date(),
+        ...(jobId ? { criteriaDeclaredAt: new Date() } : {}),
         privacyPolicyVersion: PRIVACY_POLICY_VERSION,
         ...(jobId ? { jobId } : {}),
+        applicationAnswers: { create: parsedFields.answers.map((answer) => ({ fieldId: answer.fieldId, value: answer.value })) },
+        flags: { create: [...parsedFields.flags, ...applicationRuleResult.flags] },
       },
-    });
+      });
+    } catch (error) {
+      await Promise.allSettled([unlink(filePath), ...savedExtraPaths.map((saved) => unlink(saved))]);
+      throw error;
+    }
 
     // Persist screening question answers — all IDs are validated against the DB
     // to prevent IDOR: a candidate submitting questionId/optionId values from a

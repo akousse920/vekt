@@ -5,12 +5,15 @@ import { ArrowRightIcon, BriefcaseIcon, MapPinIcon } from "@phosphor-icons/react
 import Link from "next/link";
 import JobSearchInput from "./JobSearchInput";
 
+export const dynamic = "force-dynamic";
+
 export default async function Home({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   const companyName = await getCompanyName();
   const search = ((await searchParams).q ?? "").trim();
   const listings = await prisma.job.findMany({
     where: {
       isActive: true,
+      AND: [{ OR: [{ applicationDeadline: null }, { applicationDeadline: { gte: new Date() } }] }],
       ...(search ? { OR: [{ title: { contains: search } }, { location: { contains: search } }] } : {}),
     },
     orderBy: { createdAt: "desc" },

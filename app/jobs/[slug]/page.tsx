@@ -1,10 +1,13 @@
 import { getCompanyName } from "@/lib/brand";
+import { isApplicationClosed } from "@/lib/application-deadline";
 import { prisma } from "@/lib/prisma";
 import { sanitizeRichText } from "@/lib/sanitize-html";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import sanitizeHtml from "sanitize-html";
 import ApplyForm from "./ApplyForm";
+
+export const dynamic = "force-dynamic";
 
 /** Plain-text excerpt of the (HTML) job description for link previews: its first paragraph. */
 function excerpt(html: string, max = 160): string {
@@ -53,6 +56,11 @@ export default async function JobApplyPage({
       title: true,
       description: true,
       location: true,
+      applicationDeadline: true,
+      applicationFields: {
+        orderBy: { order: "asc" },
+        select: { id: true, key: true, label: true, type: true, required: true, options: true, minValue: true, maxValue: true, flagOutsideRange: true, maxFiles: true },
+      },
       screeningQuestions: {
         orderBy: { order: "asc" },
         select: {
@@ -74,7 +82,8 @@ export default async function JobApplyPage({
 
   return (
     <ApplyForm
-      job={{ ...job, description: sanitizeRichText(job.description) }}
+      job={{ ...job, applicationDeadline: job.applicationDeadline?.toISOString() ?? null, description: sanitizeRichText(job.description) }}
+      closed={isApplicationClosed(job.applicationDeadline)}
       supportEmail={process.env.SUPPORT_EMAIL || "example-support@email.com"}
       aiEnabled={["openai", "openrouter", "ollama"].includes((process.env.AI_PROVIDER ?? "none").toLowerCase())}
     />

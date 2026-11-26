@@ -3,6 +3,7 @@ import logger from "@/lib/logger";
 import { prisma } from "@/lib/prisma";
 import { sanitizeRichText } from "@/lib/sanitize-html";
 import { jobSchema } from "@/lib/schemas";
+import { deadlineFromDateOnly } from "@/lib/application-deadline";
 import { generateSlug } from "@/lib/utils";
 import type { Session } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
@@ -106,8 +107,10 @@ export async function POST(req: NextRequest) {
 
     const slug = await generateUniqueSlug(validation.data.title);
     const description = sanitizeRichText(validation.data.description);
+    const { applicationDeadlineDate, ...jobData } = validation.data;
+    const applicationDeadline = deadlineFromDateOnly(applicationDeadlineDate);
     const job = await prisma.job.create({
-      data: { ...validation.data, description, slug, createdById: currentUser.id },
+      data: { ...jobData, description, slug, applicationDeadline, createdById: currentUser.id },
     });
     logger.info({ jobId: job.id, slug: job.slug }, "API: job created");
     return NextResponse.json(job, { status: 201 });

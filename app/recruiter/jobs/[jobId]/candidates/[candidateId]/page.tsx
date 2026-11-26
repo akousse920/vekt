@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { auth } from "@/lib/auth";
 import { recruiterVisibleCandidateWhere } from "@/lib/candidate-access";
 import { prisma } from "@/lib/prisma";
+import { applicationFilePaths } from "@/lib/application-file-paths";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import ReviewButton from "../../../../ReviewButton";
@@ -28,6 +29,8 @@ export default async function CandidateDetailPage({ params }: { params: Promise<
       evaluation: { select: { score: true, reasoning: true, pros: true, cons: true, rubricSnapshot: true, rubricBreakdown: true } },
       answers: { orderBy: { question: { order: "asc" } }, select: { questionId: true, question: { select: { text: true } }, option: { select: { text: true } } } },
       textAnswers: { orderBy: { question: { order: "asc" } }, select: { id: true, text: true, question: { select: { text: true } } } },
+      applicationAnswers: { orderBy: { field: { order: "asc" } }, select: { id: true, value: true, field: { select: { label: true, type: true } } } },
+      flags: { orderBy: { createdAt: "asc" }, select: { id: true, detail: true } },
       decisionReasons: { orderBy: { createdAt: "asc" }, select: { id: true, detail: true } },
     },
   });
@@ -59,6 +62,22 @@ export default async function CandidateDetailPage({ params }: { params: Promise<
       </div>
 
       <div className="mt-6 grid gap-6">
+        {candidate.flags.length > 0 && (
+          <section className="rounded-2xl border border-amber-300 bg-amber-50 p-5 sm:p-7">
+            <h2 className="text-lg font-bold text-amber-950">Points à examiner</h2>
+            <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-amber-950">{candidate.flags.map((flag) => <li key={flag.id}>{flag.detail}</li>)}</ul>
+          </section>
+        )}
+        {candidate.applicationAnswers.length > 0 && (
+          <section className="rounded-2xl border border-[#d8e0e8] bg-white p-5 sm:p-7">
+            <h2 className="text-lg font-bold">Informations complémentaires</h2>
+            <dl className="mt-4 space-y-4">{candidate.applicationAnswers.map((answer) => {
+              const display = answer.field.type === "MULTI_SELECT" ? (JSON.parse(answer.value) as string[]).join(", ") : answer.field.type === "YES_NO" ? answer.value === "true" ? "Oui" : "Non" : answer.field.type === "DECLARATION" ? "Déclaration confirmée" : answer.value;
+              const files = applicationFilePaths(answer.value, answer.field.type);
+              return <div key={answer.id} className="border-t pt-3 first:border-0 first:pt-0"><dt className="text-sm font-medium">{answer.field.label}</dt><dd className="mt-1 text-sm text-muted-foreground">{files.length ? <span className="flex flex-wrap gap-3">{files.map((file, index) => <a key={file} href={file} target="_blank" rel="noopener noreferrer" className="text-primary underline">Document {index + 1} ↗</a>)}</span> : display}</dd></div>;
+            })}</dl>
+          </section>
+        )}
         <section className="rounded-2xl border border-[#d8e0e8] bg-white p-5 sm:p-7">
           <h2 className="text-lg font-bold">Réponses aux questions</h2>
           {grouped.size === 0 && candidate.textAnswers.length === 0 ? (

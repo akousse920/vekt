@@ -36,6 +36,7 @@ export type CandidateMinAggregateOutputType = {
   jobId: string | null
   consentGiven: boolean | null
   consentAt: Date | null
+  criteriaDeclaredAt: Date | null
   privacyPolicyVersion: string | null
   emailOptOut: boolean | null
 }
@@ -52,6 +53,7 @@ export type CandidateMaxAggregateOutputType = {
   jobId: string | null
   consentGiven: boolean | null
   consentAt: Date | null
+  criteriaDeclaredAt: Date | null
   privacyPolicyVersion: string | null
   emailOptOut: boolean | null
 }
@@ -68,6 +70,7 @@ export type CandidateCountAggregateOutputType = {
   jobId: number
   consentGiven: number
   consentAt: number
+  criteriaDeclaredAt: number
   privacyPolicyVersion: number
   emailOptOut: number
   _all: number
@@ -86,6 +89,7 @@ export type CandidateMinAggregateInputType = {
   jobId?: true
   consentGiven?: true
   consentAt?: true
+  criteriaDeclaredAt?: true
   privacyPolicyVersion?: true
   emailOptOut?: true
 }
@@ -102,6 +106,7 @@ export type CandidateMaxAggregateInputType = {
   jobId?: true
   consentGiven?: true
   consentAt?: true
+  criteriaDeclaredAt?: true
   privacyPolicyVersion?: true
   emailOptOut?: true
 }
@@ -118,6 +123,7 @@ export type CandidateCountAggregateInputType = {
   jobId?: true
   consentGiven?: true
   consentAt?: true
+  criteriaDeclaredAt?: true
   privacyPolicyVersion?: true
   emailOptOut?: true
   _all?: true
@@ -207,6 +213,7 @@ export type CandidateGroupByOutputType = {
   jobId: string | null
   consentGiven: boolean
   consentAt: Date | null
+  criteriaDeclaredAt: Date | null
   privacyPolicyVersion: string | null
   emailOptOut: boolean
   _count: CandidateCountAggregateOutputType | null
@@ -244,6 +251,7 @@ export type CandidateWhereInput = {
   jobId?: Prisma.StringNullableFilter<"Candidate"> | string | null
   consentGiven?: Prisma.BoolFilter<"Candidate"> | boolean
   consentAt?: Prisma.DateTimeNullableFilter<"Candidate"> | Date | string | null
+  criteriaDeclaredAt?: Prisma.DateTimeNullableFilter<"Candidate"> | Date | string | null
   privacyPolicyVersion?: Prisma.StringNullableFilter<"Candidate"> | string | null
   emailOptOut?: Prisma.BoolFilter<"Candidate"> | boolean
   job?: Prisma.XOR<Prisma.JobNullableScalarRelationFilter, Prisma.JobWhereInput> | null
@@ -252,6 +260,8 @@ export type CandidateWhereInput = {
   answers?: Prisma.CandidateAnswerListRelationFilter
   textAnswers?: Prisma.CandidateTextAnswerListRelationFilter
   decisionReasons?: Prisma.DecisionReasonListRelationFilter
+  applicationAnswers?: Prisma.ApplicationAnswerListRelationFilter
+  flags?: Prisma.CandidateFlagListRelationFilter
 }
 
 export type CandidateOrderByWithRelationInput = {
@@ -266,6 +276,7 @@ export type CandidateOrderByWithRelationInput = {
   jobId?: Prisma.SortOrderInput | Prisma.SortOrder
   consentGiven?: Prisma.SortOrder
   consentAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  criteriaDeclaredAt?: Prisma.SortOrderInput | Prisma.SortOrder
   privacyPolicyVersion?: Prisma.SortOrderInput | Prisma.SortOrder
   emailOptOut?: Prisma.SortOrder
   job?: Prisma.JobOrderByWithRelationInput
@@ -274,6 +285,8 @@ export type CandidateOrderByWithRelationInput = {
   answers?: Prisma.CandidateAnswerOrderByRelationAggregateInput
   textAnswers?: Prisma.CandidateTextAnswerOrderByRelationAggregateInput
   decisionReasons?: Prisma.DecisionReasonOrderByRelationAggregateInput
+  applicationAnswers?: Prisma.ApplicationAnswerOrderByRelationAggregateInput
+  flags?: Prisma.CandidateFlagOrderByRelationAggregateInput
 }
 
 export type CandidateWhereUniqueInput = Prisma.AtLeast<{
@@ -291,6 +304,7 @@ export type CandidateWhereUniqueInput = Prisma.AtLeast<{
   jobId?: Prisma.StringNullableFilter<"Candidate"> | string | null
   consentGiven?: Prisma.BoolFilter<"Candidate"> | boolean
   consentAt?: Prisma.DateTimeNullableFilter<"Candidate"> | Date | string | null
+  criteriaDeclaredAt?: Prisma.DateTimeNullableFilter<"Candidate"> | Date | string | null
   privacyPolicyVersion?: Prisma.StringNullableFilter<"Candidate"> | string | null
   emailOptOut?: Prisma.BoolFilter<"Candidate"> | boolean
   job?: Prisma.XOR<Prisma.JobNullableScalarRelationFilter, Prisma.JobWhereInput> | null
@@ -299,6 +313,8 @@ export type CandidateWhereUniqueInput = Prisma.AtLeast<{
   answers?: Prisma.CandidateAnswerListRelationFilter
   textAnswers?: Prisma.CandidateTextAnswerListRelationFilter
   decisionReasons?: Prisma.DecisionReasonListRelationFilter
+  applicationAnswers?: Prisma.ApplicationAnswerListRelationFilter
+  flags?: Prisma.CandidateFlagListRelationFilter
 }, "id">
 
 export type CandidateOrderByWithAggregationInput = {
@@ -313,6 +329,7 @@ export type CandidateOrderByWithAggregationInput = {
   jobId?: Prisma.SortOrderInput | Prisma.SortOrder
   consentGiven?: Prisma.SortOrder
   consentAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  criteriaDeclaredAt?: Prisma.SortOrderInput | Prisma.SortOrder
   privacyPolicyVersion?: Prisma.SortOrderInput | Prisma.SortOrder
   emailOptOut?: Prisma.SortOrder
   _count?: Prisma.CandidateCountOrderByAggregateInput
@@ -335,6 +352,7 @@ export type CandidateScalarWhereWithAggregatesInput = {
   jobId?: Prisma.StringNullableWithAggregatesFilter<"Candidate"> | string | null
   consentGiven?: Prisma.BoolWithAggregatesFilter<"Candidate"> | boolean
   consentAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Candidate"> | Date | string | null
+  criteriaDeclaredAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Candidate"> | Date | string | null
   privacyPolicyVersion?: Prisma.StringNullableWithAggregatesFilter<"Candidate"> | string | null
   emailOptOut?: Prisma.BoolWithAggregatesFilter<"Candidate"> | boolean
 }
@@ -350,6 +368,7 @@ export type CandidateCreateInput = {
   updatedAt?: Date | string
   consentGiven?: boolean
   consentAt?: Date | string | null
+  criteriaDeclaredAt?: Date | string | null
   privacyPolicyVersion?: string | null
   emailOptOut?: boolean
   job?: Prisma.JobCreateNestedOneWithoutCandidatesInput
@@ -358,6 +377,8 @@ export type CandidateCreateInput = {
   answers?: Prisma.CandidateAnswerCreateNestedManyWithoutCandidateInput
   textAnswers?: Prisma.CandidateTextAnswerCreateNestedManyWithoutCandidateInput
   decisionReasons?: Prisma.DecisionReasonCreateNestedManyWithoutCandidateInput
+  applicationAnswers?: Prisma.ApplicationAnswerCreateNestedManyWithoutCandidateInput
+  flags?: Prisma.CandidateFlagCreateNestedManyWithoutCandidateInput
 }
 
 export type CandidateUncheckedCreateInput = {
@@ -372,6 +393,7 @@ export type CandidateUncheckedCreateInput = {
   jobId?: string | null
   consentGiven?: boolean
   consentAt?: Date | string | null
+  criteriaDeclaredAt?: Date | string | null
   privacyPolicyVersion?: string | null
   emailOptOut?: boolean
   evaluation?: Prisma.EvaluationUncheckedCreateNestedOneWithoutCandidateInput
@@ -379,6 +401,8 @@ export type CandidateUncheckedCreateInput = {
   answers?: Prisma.CandidateAnswerUncheckedCreateNestedManyWithoutCandidateInput
   textAnswers?: Prisma.CandidateTextAnswerUncheckedCreateNestedManyWithoutCandidateInput
   decisionReasons?: Prisma.DecisionReasonUncheckedCreateNestedManyWithoutCandidateInput
+  applicationAnswers?: Prisma.ApplicationAnswerUncheckedCreateNestedManyWithoutCandidateInput
+  flags?: Prisma.CandidateFlagUncheckedCreateNestedManyWithoutCandidateInput
 }
 
 export type CandidateUpdateInput = {
@@ -392,6 +416,7 @@ export type CandidateUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   consentGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   consentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  criteriaDeclaredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   privacyPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailOptOut?: Prisma.BoolFieldUpdateOperationsInput | boolean
   job?: Prisma.JobUpdateOneWithoutCandidatesNestedInput
@@ -400,6 +425,8 @@ export type CandidateUpdateInput = {
   answers?: Prisma.CandidateAnswerUpdateManyWithoutCandidateNestedInput
   textAnswers?: Prisma.CandidateTextAnswerUpdateManyWithoutCandidateNestedInput
   decisionReasons?: Prisma.DecisionReasonUpdateManyWithoutCandidateNestedInput
+  applicationAnswers?: Prisma.ApplicationAnswerUpdateManyWithoutCandidateNestedInput
+  flags?: Prisma.CandidateFlagUpdateManyWithoutCandidateNestedInput
 }
 
 export type CandidateUncheckedUpdateInput = {
@@ -414,6 +441,7 @@ export type CandidateUncheckedUpdateInput = {
   jobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   consentGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   consentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  criteriaDeclaredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   privacyPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailOptOut?: Prisma.BoolFieldUpdateOperationsInput | boolean
   evaluation?: Prisma.EvaluationUncheckedUpdateOneWithoutCandidateNestedInput
@@ -421,6 +449,8 @@ export type CandidateUncheckedUpdateInput = {
   answers?: Prisma.CandidateAnswerUncheckedUpdateManyWithoutCandidateNestedInput
   textAnswers?: Prisma.CandidateTextAnswerUncheckedUpdateManyWithoutCandidateNestedInput
   decisionReasons?: Prisma.DecisionReasonUncheckedUpdateManyWithoutCandidateNestedInput
+  applicationAnswers?: Prisma.ApplicationAnswerUncheckedUpdateManyWithoutCandidateNestedInput
+  flags?: Prisma.CandidateFlagUncheckedUpdateManyWithoutCandidateNestedInput
 }
 
 export type CandidateCreateManyInput = {
@@ -435,6 +465,7 @@ export type CandidateCreateManyInput = {
   jobId?: string | null
   consentGiven?: boolean
   consentAt?: Date | string | null
+  criteriaDeclaredAt?: Date | string | null
   privacyPolicyVersion?: string | null
   emailOptOut?: boolean
 }
@@ -450,6 +481,7 @@ export type CandidateUpdateManyMutationInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   consentGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   consentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  criteriaDeclaredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   privacyPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailOptOut?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
@@ -466,6 +498,7 @@ export type CandidateUncheckedUpdateManyInput = {
   jobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   consentGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   consentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  criteriaDeclaredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   privacyPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailOptOut?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
@@ -497,6 +530,7 @@ export type CandidateCountOrderByAggregateInput = {
   jobId?: Prisma.SortOrder
   consentGiven?: Prisma.SortOrder
   consentAt?: Prisma.SortOrder
+  criteriaDeclaredAt?: Prisma.SortOrder
   privacyPolicyVersion?: Prisma.SortOrder
   emailOptOut?: Prisma.SortOrder
 }
@@ -513,6 +547,7 @@ export type CandidateMaxOrderByAggregateInput = {
   jobId?: Prisma.SortOrder
   consentGiven?: Prisma.SortOrder
   consentAt?: Prisma.SortOrder
+  criteriaDeclaredAt?: Prisma.SortOrder
   privacyPolicyVersion?: Prisma.SortOrder
   emailOptOut?: Prisma.SortOrder
 }
@@ -529,6 +564,7 @@ export type CandidateMinOrderByAggregateInput = {
   jobId?: Prisma.SortOrder
   consentGiven?: Prisma.SortOrder
   consentAt?: Prisma.SortOrder
+  criteriaDeclaredAt?: Prisma.SortOrder
   privacyPolicyVersion?: Prisma.SortOrder
   emailOptOut?: Prisma.SortOrder
 }
@@ -603,12 +639,36 @@ export type CandidateUpdateOneRequiredWithoutTextAnswersNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CandidateUpdateToOneWithWhereWithoutTextAnswersInput, Prisma.CandidateUpdateWithoutTextAnswersInput>, Prisma.CandidateUncheckedUpdateWithoutTextAnswersInput>
 }
 
-export type EnumCandidateStatusFieldUpdateOperationsInput = {
-  set?: $Enums.CandidateStatus
+export type CandidateCreateNestedOneWithoutApplicationAnswersInput = {
+  create?: Prisma.XOR<Prisma.CandidateCreateWithoutApplicationAnswersInput, Prisma.CandidateUncheckedCreateWithoutApplicationAnswersInput>
+  connectOrCreate?: Prisma.CandidateCreateOrConnectWithoutApplicationAnswersInput
+  connect?: Prisma.CandidateWhereUniqueInput
 }
 
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
+export type CandidateUpdateOneRequiredWithoutApplicationAnswersNestedInput = {
+  create?: Prisma.XOR<Prisma.CandidateCreateWithoutApplicationAnswersInput, Prisma.CandidateUncheckedCreateWithoutApplicationAnswersInput>
+  connectOrCreate?: Prisma.CandidateCreateOrConnectWithoutApplicationAnswersInput
+  upsert?: Prisma.CandidateUpsertWithoutApplicationAnswersInput
+  connect?: Prisma.CandidateWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CandidateUpdateToOneWithWhereWithoutApplicationAnswersInput, Prisma.CandidateUpdateWithoutApplicationAnswersInput>, Prisma.CandidateUncheckedUpdateWithoutApplicationAnswersInput>
+}
+
+export type CandidateCreateNestedOneWithoutFlagsInput = {
+  create?: Prisma.XOR<Prisma.CandidateCreateWithoutFlagsInput, Prisma.CandidateUncheckedCreateWithoutFlagsInput>
+  connectOrCreate?: Prisma.CandidateCreateOrConnectWithoutFlagsInput
+  connect?: Prisma.CandidateWhereUniqueInput
+}
+
+export type CandidateUpdateOneRequiredWithoutFlagsNestedInput = {
+  create?: Prisma.XOR<Prisma.CandidateCreateWithoutFlagsInput, Prisma.CandidateUncheckedCreateWithoutFlagsInput>
+  connectOrCreate?: Prisma.CandidateCreateOrConnectWithoutFlagsInput
+  upsert?: Prisma.CandidateUpsertWithoutFlagsInput
+  connect?: Prisma.CandidateWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CandidateUpdateToOneWithWhereWithoutFlagsInput, Prisma.CandidateUpdateWithoutFlagsInput>, Prisma.CandidateUncheckedUpdateWithoutFlagsInput>
+}
+
+export type EnumCandidateStatusFieldUpdateOperationsInput = {
+  set?: $Enums.CandidateStatus
 }
 
 export type CandidateCreateNestedOneWithoutDecisionReasonsInput = {
@@ -664,6 +724,7 @@ export type CandidateCreateWithoutJobInput = {
   updatedAt?: Date | string
   consentGiven?: boolean
   consentAt?: Date | string | null
+  criteriaDeclaredAt?: Date | string | null
   privacyPolicyVersion?: string | null
   emailOptOut?: boolean
   evaluation?: Prisma.EvaluationCreateNestedOneWithoutCandidateInput
@@ -671,6 +732,8 @@ export type CandidateCreateWithoutJobInput = {
   answers?: Prisma.CandidateAnswerCreateNestedManyWithoutCandidateInput
   textAnswers?: Prisma.CandidateTextAnswerCreateNestedManyWithoutCandidateInput
   decisionReasons?: Prisma.DecisionReasonCreateNestedManyWithoutCandidateInput
+  applicationAnswers?: Prisma.ApplicationAnswerCreateNestedManyWithoutCandidateInput
+  flags?: Prisma.CandidateFlagCreateNestedManyWithoutCandidateInput
 }
 
 export type CandidateUncheckedCreateWithoutJobInput = {
@@ -684,6 +747,7 @@ export type CandidateUncheckedCreateWithoutJobInput = {
   updatedAt?: Date | string
   consentGiven?: boolean
   consentAt?: Date | string | null
+  criteriaDeclaredAt?: Date | string | null
   privacyPolicyVersion?: string | null
   emailOptOut?: boolean
   evaluation?: Prisma.EvaluationUncheckedCreateNestedOneWithoutCandidateInput
@@ -691,6 +755,8 @@ export type CandidateUncheckedCreateWithoutJobInput = {
   answers?: Prisma.CandidateAnswerUncheckedCreateNestedManyWithoutCandidateInput
   textAnswers?: Prisma.CandidateTextAnswerUncheckedCreateNestedManyWithoutCandidateInput
   decisionReasons?: Prisma.DecisionReasonUncheckedCreateNestedManyWithoutCandidateInput
+  applicationAnswers?: Prisma.ApplicationAnswerUncheckedCreateNestedManyWithoutCandidateInput
+  flags?: Prisma.CandidateFlagUncheckedCreateNestedManyWithoutCandidateInput
 }
 
 export type CandidateCreateOrConnectWithoutJobInput = {
@@ -733,6 +799,7 @@ export type CandidateScalarWhereInput = {
   jobId?: Prisma.StringNullableFilter<"Candidate"> | string | null
   consentGiven?: Prisma.BoolFilter<"Candidate"> | boolean
   consentAt?: Prisma.DateTimeNullableFilter<"Candidate"> | Date | string | null
+  criteriaDeclaredAt?: Prisma.DateTimeNullableFilter<"Candidate"> | Date | string | null
   privacyPolicyVersion?: Prisma.StringNullableFilter<"Candidate"> | string | null
   emailOptOut?: Prisma.BoolFilter<"Candidate"> | boolean
 }
@@ -748,6 +815,7 @@ export type CandidateCreateWithoutAnswersInput = {
   updatedAt?: Date | string
   consentGiven?: boolean
   consentAt?: Date | string | null
+  criteriaDeclaredAt?: Date | string | null
   privacyPolicyVersion?: string | null
   emailOptOut?: boolean
   job?: Prisma.JobCreateNestedOneWithoutCandidatesInput
@@ -755,6 +823,8 @@ export type CandidateCreateWithoutAnswersInput = {
   emailLogs?: Prisma.EmailLogCreateNestedManyWithoutCandidateInput
   textAnswers?: Prisma.CandidateTextAnswerCreateNestedManyWithoutCandidateInput
   decisionReasons?: Prisma.DecisionReasonCreateNestedManyWithoutCandidateInput
+  applicationAnswers?: Prisma.ApplicationAnswerCreateNestedManyWithoutCandidateInput
+  flags?: Prisma.CandidateFlagCreateNestedManyWithoutCandidateInput
 }
 
 export type CandidateUncheckedCreateWithoutAnswersInput = {
@@ -769,12 +839,15 @@ export type CandidateUncheckedCreateWithoutAnswersInput = {
   jobId?: string | null
   consentGiven?: boolean
   consentAt?: Date | string | null
+  criteriaDeclaredAt?: Date | string | null
   privacyPolicyVersion?: string | null
   emailOptOut?: boolean
   evaluation?: Prisma.EvaluationUncheckedCreateNestedOneWithoutCandidateInput
   emailLogs?: Prisma.EmailLogUncheckedCreateNestedManyWithoutCandidateInput
   textAnswers?: Prisma.CandidateTextAnswerUncheckedCreateNestedManyWithoutCandidateInput
   decisionReasons?: Prisma.DecisionReasonUncheckedCreateNestedManyWithoutCandidateInput
+  applicationAnswers?: Prisma.ApplicationAnswerUncheckedCreateNestedManyWithoutCandidateInput
+  flags?: Prisma.CandidateFlagUncheckedCreateNestedManyWithoutCandidateInput
 }
 
 export type CandidateCreateOrConnectWithoutAnswersInput = {
@@ -804,6 +877,7 @@ export type CandidateUpdateWithoutAnswersInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   consentGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   consentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  criteriaDeclaredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   privacyPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailOptOut?: Prisma.BoolFieldUpdateOperationsInput | boolean
   job?: Prisma.JobUpdateOneWithoutCandidatesNestedInput
@@ -811,6 +885,8 @@ export type CandidateUpdateWithoutAnswersInput = {
   emailLogs?: Prisma.EmailLogUpdateManyWithoutCandidateNestedInput
   textAnswers?: Prisma.CandidateTextAnswerUpdateManyWithoutCandidateNestedInput
   decisionReasons?: Prisma.DecisionReasonUpdateManyWithoutCandidateNestedInput
+  applicationAnswers?: Prisma.ApplicationAnswerUpdateManyWithoutCandidateNestedInput
+  flags?: Prisma.CandidateFlagUpdateManyWithoutCandidateNestedInput
 }
 
 export type CandidateUncheckedUpdateWithoutAnswersInput = {
@@ -825,12 +901,15 @@ export type CandidateUncheckedUpdateWithoutAnswersInput = {
   jobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   consentGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   consentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  criteriaDeclaredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   privacyPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailOptOut?: Prisma.BoolFieldUpdateOperationsInput | boolean
   evaluation?: Prisma.EvaluationUncheckedUpdateOneWithoutCandidateNestedInput
   emailLogs?: Prisma.EmailLogUncheckedUpdateManyWithoutCandidateNestedInput
   textAnswers?: Prisma.CandidateTextAnswerUncheckedUpdateManyWithoutCandidateNestedInput
   decisionReasons?: Prisma.DecisionReasonUncheckedUpdateManyWithoutCandidateNestedInput
+  applicationAnswers?: Prisma.ApplicationAnswerUncheckedUpdateManyWithoutCandidateNestedInput
+  flags?: Prisma.CandidateFlagUncheckedUpdateManyWithoutCandidateNestedInput
 }
 
 export type CandidateCreateWithoutTextAnswersInput = {
@@ -844,6 +923,7 @@ export type CandidateCreateWithoutTextAnswersInput = {
   updatedAt?: Date | string
   consentGiven?: boolean
   consentAt?: Date | string | null
+  criteriaDeclaredAt?: Date | string | null
   privacyPolicyVersion?: string | null
   emailOptOut?: boolean
   job?: Prisma.JobCreateNestedOneWithoutCandidatesInput
@@ -851,6 +931,8 @@ export type CandidateCreateWithoutTextAnswersInput = {
   emailLogs?: Prisma.EmailLogCreateNestedManyWithoutCandidateInput
   answers?: Prisma.CandidateAnswerCreateNestedManyWithoutCandidateInput
   decisionReasons?: Prisma.DecisionReasonCreateNestedManyWithoutCandidateInput
+  applicationAnswers?: Prisma.ApplicationAnswerCreateNestedManyWithoutCandidateInput
+  flags?: Prisma.CandidateFlagCreateNestedManyWithoutCandidateInput
 }
 
 export type CandidateUncheckedCreateWithoutTextAnswersInput = {
@@ -865,12 +947,15 @@ export type CandidateUncheckedCreateWithoutTextAnswersInput = {
   jobId?: string | null
   consentGiven?: boolean
   consentAt?: Date | string | null
+  criteriaDeclaredAt?: Date | string | null
   privacyPolicyVersion?: string | null
   emailOptOut?: boolean
   evaluation?: Prisma.EvaluationUncheckedCreateNestedOneWithoutCandidateInput
   emailLogs?: Prisma.EmailLogUncheckedCreateNestedManyWithoutCandidateInput
   answers?: Prisma.CandidateAnswerUncheckedCreateNestedManyWithoutCandidateInput
   decisionReasons?: Prisma.DecisionReasonUncheckedCreateNestedManyWithoutCandidateInput
+  applicationAnswers?: Prisma.ApplicationAnswerUncheckedCreateNestedManyWithoutCandidateInput
+  flags?: Prisma.CandidateFlagUncheckedCreateNestedManyWithoutCandidateInput
 }
 
 export type CandidateCreateOrConnectWithoutTextAnswersInput = {
@@ -900,6 +985,7 @@ export type CandidateUpdateWithoutTextAnswersInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   consentGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   consentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  criteriaDeclaredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   privacyPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailOptOut?: Prisma.BoolFieldUpdateOperationsInput | boolean
   job?: Prisma.JobUpdateOneWithoutCandidatesNestedInput
@@ -907,6 +993,8 @@ export type CandidateUpdateWithoutTextAnswersInput = {
   emailLogs?: Prisma.EmailLogUpdateManyWithoutCandidateNestedInput
   answers?: Prisma.CandidateAnswerUpdateManyWithoutCandidateNestedInput
   decisionReasons?: Prisma.DecisionReasonUpdateManyWithoutCandidateNestedInput
+  applicationAnswers?: Prisma.ApplicationAnswerUpdateManyWithoutCandidateNestedInput
+  flags?: Prisma.CandidateFlagUpdateManyWithoutCandidateNestedInput
 }
 
 export type CandidateUncheckedUpdateWithoutTextAnswersInput = {
@@ -921,12 +1009,231 @@ export type CandidateUncheckedUpdateWithoutTextAnswersInput = {
   jobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   consentGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   consentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  criteriaDeclaredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   privacyPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailOptOut?: Prisma.BoolFieldUpdateOperationsInput | boolean
   evaluation?: Prisma.EvaluationUncheckedUpdateOneWithoutCandidateNestedInput
   emailLogs?: Prisma.EmailLogUncheckedUpdateManyWithoutCandidateNestedInput
   answers?: Prisma.CandidateAnswerUncheckedUpdateManyWithoutCandidateNestedInput
   decisionReasons?: Prisma.DecisionReasonUncheckedUpdateManyWithoutCandidateNestedInput
+  applicationAnswers?: Prisma.ApplicationAnswerUncheckedUpdateManyWithoutCandidateNestedInput
+  flags?: Prisma.CandidateFlagUncheckedUpdateManyWithoutCandidateNestedInput
+}
+
+export type CandidateCreateWithoutApplicationAnswersInput = {
+  id?: string
+  name: string
+  email: string
+  resumePath: string
+  resumeText?: string
+  status?: $Enums.CandidateStatus
+  appliedAt?: Date | string
+  updatedAt?: Date | string
+  consentGiven?: boolean
+  consentAt?: Date | string | null
+  criteriaDeclaredAt?: Date | string | null
+  privacyPolicyVersion?: string | null
+  emailOptOut?: boolean
+  job?: Prisma.JobCreateNestedOneWithoutCandidatesInput
+  evaluation?: Prisma.EvaluationCreateNestedOneWithoutCandidateInput
+  emailLogs?: Prisma.EmailLogCreateNestedManyWithoutCandidateInput
+  answers?: Prisma.CandidateAnswerCreateNestedManyWithoutCandidateInput
+  textAnswers?: Prisma.CandidateTextAnswerCreateNestedManyWithoutCandidateInput
+  decisionReasons?: Prisma.DecisionReasonCreateNestedManyWithoutCandidateInput
+  flags?: Prisma.CandidateFlagCreateNestedManyWithoutCandidateInput
+}
+
+export type CandidateUncheckedCreateWithoutApplicationAnswersInput = {
+  id?: string
+  name: string
+  email: string
+  resumePath: string
+  resumeText?: string
+  status?: $Enums.CandidateStatus
+  appliedAt?: Date | string
+  updatedAt?: Date | string
+  jobId?: string | null
+  consentGiven?: boolean
+  consentAt?: Date | string | null
+  criteriaDeclaredAt?: Date | string | null
+  privacyPolicyVersion?: string | null
+  emailOptOut?: boolean
+  evaluation?: Prisma.EvaluationUncheckedCreateNestedOneWithoutCandidateInput
+  emailLogs?: Prisma.EmailLogUncheckedCreateNestedManyWithoutCandidateInput
+  answers?: Prisma.CandidateAnswerUncheckedCreateNestedManyWithoutCandidateInput
+  textAnswers?: Prisma.CandidateTextAnswerUncheckedCreateNestedManyWithoutCandidateInput
+  decisionReasons?: Prisma.DecisionReasonUncheckedCreateNestedManyWithoutCandidateInput
+  flags?: Prisma.CandidateFlagUncheckedCreateNestedManyWithoutCandidateInput
+}
+
+export type CandidateCreateOrConnectWithoutApplicationAnswersInput = {
+  where: Prisma.CandidateWhereUniqueInput
+  create: Prisma.XOR<Prisma.CandidateCreateWithoutApplicationAnswersInput, Prisma.CandidateUncheckedCreateWithoutApplicationAnswersInput>
+}
+
+export type CandidateUpsertWithoutApplicationAnswersInput = {
+  update: Prisma.XOR<Prisma.CandidateUpdateWithoutApplicationAnswersInput, Prisma.CandidateUncheckedUpdateWithoutApplicationAnswersInput>
+  create: Prisma.XOR<Prisma.CandidateCreateWithoutApplicationAnswersInput, Prisma.CandidateUncheckedCreateWithoutApplicationAnswersInput>
+  where?: Prisma.CandidateWhereInput
+}
+
+export type CandidateUpdateToOneWithWhereWithoutApplicationAnswersInput = {
+  where?: Prisma.CandidateWhereInput
+  data: Prisma.XOR<Prisma.CandidateUpdateWithoutApplicationAnswersInput, Prisma.CandidateUncheckedUpdateWithoutApplicationAnswersInput>
+}
+
+export type CandidateUpdateWithoutApplicationAnswersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  resumePath?: Prisma.StringFieldUpdateOperationsInput | string
+  resumeText?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumCandidateStatusFieldUpdateOperationsInput | $Enums.CandidateStatus
+  appliedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  consentGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  consentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  criteriaDeclaredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  privacyPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailOptOut?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  job?: Prisma.JobUpdateOneWithoutCandidatesNestedInput
+  evaluation?: Prisma.EvaluationUpdateOneWithoutCandidateNestedInput
+  emailLogs?: Prisma.EmailLogUpdateManyWithoutCandidateNestedInput
+  answers?: Prisma.CandidateAnswerUpdateManyWithoutCandidateNestedInput
+  textAnswers?: Prisma.CandidateTextAnswerUpdateManyWithoutCandidateNestedInput
+  decisionReasons?: Prisma.DecisionReasonUpdateManyWithoutCandidateNestedInput
+  flags?: Prisma.CandidateFlagUpdateManyWithoutCandidateNestedInput
+}
+
+export type CandidateUncheckedUpdateWithoutApplicationAnswersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  resumePath?: Prisma.StringFieldUpdateOperationsInput | string
+  resumeText?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumCandidateStatusFieldUpdateOperationsInput | $Enums.CandidateStatus
+  appliedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  jobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  consentGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  consentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  criteriaDeclaredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  privacyPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailOptOut?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  evaluation?: Prisma.EvaluationUncheckedUpdateOneWithoutCandidateNestedInput
+  emailLogs?: Prisma.EmailLogUncheckedUpdateManyWithoutCandidateNestedInput
+  answers?: Prisma.CandidateAnswerUncheckedUpdateManyWithoutCandidateNestedInput
+  textAnswers?: Prisma.CandidateTextAnswerUncheckedUpdateManyWithoutCandidateNestedInput
+  decisionReasons?: Prisma.DecisionReasonUncheckedUpdateManyWithoutCandidateNestedInput
+  flags?: Prisma.CandidateFlagUncheckedUpdateManyWithoutCandidateNestedInput
+}
+
+export type CandidateCreateWithoutFlagsInput = {
+  id?: string
+  name: string
+  email: string
+  resumePath: string
+  resumeText?: string
+  status?: $Enums.CandidateStatus
+  appliedAt?: Date | string
+  updatedAt?: Date | string
+  consentGiven?: boolean
+  consentAt?: Date | string | null
+  criteriaDeclaredAt?: Date | string | null
+  privacyPolicyVersion?: string | null
+  emailOptOut?: boolean
+  job?: Prisma.JobCreateNestedOneWithoutCandidatesInput
+  evaluation?: Prisma.EvaluationCreateNestedOneWithoutCandidateInput
+  emailLogs?: Prisma.EmailLogCreateNestedManyWithoutCandidateInput
+  answers?: Prisma.CandidateAnswerCreateNestedManyWithoutCandidateInput
+  textAnswers?: Prisma.CandidateTextAnswerCreateNestedManyWithoutCandidateInput
+  decisionReasons?: Prisma.DecisionReasonCreateNestedManyWithoutCandidateInput
+  applicationAnswers?: Prisma.ApplicationAnswerCreateNestedManyWithoutCandidateInput
+}
+
+export type CandidateUncheckedCreateWithoutFlagsInput = {
+  id?: string
+  name: string
+  email: string
+  resumePath: string
+  resumeText?: string
+  status?: $Enums.CandidateStatus
+  appliedAt?: Date | string
+  updatedAt?: Date | string
+  jobId?: string | null
+  consentGiven?: boolean
+  consentAt?: Date | string | null
+  criteriaDeclaredAt?: Date | string | null
+  privacyPolicyVersion?: string | null
+  emailOptOut?: boolean
+  evaluation?: Prisma.EvaluationUncheckedCreateNestedOneWithoutCandidateInput
+  emailLogs?: Prisma.EmailLogUncheckedCreateNestedManyWithoutCandidateInput
+  answers?: Prisma.CandidateAnswerUncheckedCreateNestedManyWithoutCandidateInput
+  textAnswers?: Prisma.CandidateTextAnswerUncheckedCreateNestedManyWithoutCandidateInput
+  decisionReasons?: Prisma.DecisionReasonUncheckedCreateNestedManyWithoutCandidateInput
+  applicationAnswers?: Prisma.ApplicationAnswerUncheckedCreateNestedManyWithoutCandidateInput
+}
+
+export type CandidateCreateOrConnectWithoutFlagsInput = {
+  where: Prisma.CandidateWhereUniqueInput
+  create: Prisma.XOR<Prisma.CandidateCreateWithoutFlagsInput, Prisma.CandidateUncheckedCreateWithoutFlagsInput>
+}
+
+export type CandidateUpsertWithoutFlagsInput = {
+  update: Prisma.XOR<Prisma.CandidateUpdateWithoutFlagsInput, Prisma.CandidateUncheckedUpdateWithoutFlagsInput>
+  create: Prisma.XOR<Prisma.CandidateCreateWithoutFlagsInput, Prisma.CandidateUncheckedCreateWithoutFlagsInput>
+  where?: Prisma.CandidateWhereInput
+}
+
+export type CandidateUpdateToOneWithWhereWithoutFlagsInput = {
+  where?: Prisma.CandidateWhereInput
+  data: Prisma.XOR<Prisma.CandidateUpdateWithoutFlagsInput, Prisma.CandidateUncheckedUpdateWithoutFlagsInput>
+}
+
+export type CandidateUpdateWithoutFlagsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  resumePath?: Prisma.StringFieldUpdateOperationsInput | string
+  resumeText?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumCandidateStatusFieldUpdateOperationsInput | $Enums.CandidateStatus
+  appliedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  consentGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  consentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  criteriaDeclaredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  privacyPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailOptOut?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  job?: Prisma.JobUpdateOneWithoutCandidatesNestedInput
+  evaluation?: Prisma.EvaluationUpdateOneWithoutCandidateNestedInput
+  emailLogs?: Prisma.EmailLogUpdateManyWithoutCandidateNestedInput
+  answers?: Prisma.CandidateAnswerUpdateManyWithoutCandidateNestedInput
+  textAnswers?: Prisma.CandidateTextAnswerUpdateManyWithoutCandidateNestedInput
+  decisionReasons?: Prisma.DecisionReasonUpdateManyWithoutCandidateNestedInput
+  applicationAnswers?: Prisma.ApplicationAnswerUpdateManyWithoutCandidateNestedInput
+}
+
+export type CandidateUncheckedUpdateWithoutFlagsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  resumePath?: Prisma.StringFieldUpdateOperationsInput | string
+  resumeText?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumCandidateStatusFieldUpdateOperationsInput | $Enums.CandidateStatus
+  appliedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  jobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  consentGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  consentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  criteriaDeclaredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  privacyPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailOptOut?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  evaluation?: Prisma.EvaluationUncheckedUpdateOneWithoutCandidateNestedInput
+  emailLogs?: Prisma.EmailLogUncheckedUpdateManyWithoutCandidateNestedInput
+  answers?: Prisma.CandidateAnswerUncheckedUpdateManyWithoutCandidateNestedInput
+  textAnswers?: Prisma.CandidateTextAnswerUncheckedUpdateManyWithoutCandidateNestedInput
+  decisionReasons?: Prisma.DecisionReasonUncheckedUpdateManyWithoutCandidateNestedInput
+  applicationAnswers?: Prisma.ApplicationAnswerUncheckedUpdateManyWithoutCandidateNestedInput
 }
 
 export type CandidateCreateWithoutDecisionReasonsInput = {
@@ -940,6 +1247,7 @@ export type CandidateCreateWithoutDecisionReasonsInput = {
   updatedAt?: Date | string
   consentGiven?: boolean
   consentAt?: Date | string | null
+  criteriaDeclaredAt?: Date | string | null
   privacyPolicyVersion?: string | null
   emailOptOut?: boolean
   job?: Prisma.JobCreateNestedOneWithoutCandidatesInput
@@ -947,6 +1255,8 @@ export type CandidateCreateWithoutDecisionReasonsInput = {
   emailLogs?: Prisma.EmailLogCreateNestedManyWithoutCandidateInput
   answers?: Prisma.CandidateAnswerCreateNestedManyWithoutCandidateInput
   textAnswers?: Prisma.CandidateTextAnswerCreateNestedManyWithoutCandidateInput
+  applicationAnswers?: Prisma.ApplicationAnswerCreateNestedManyWithoutCandidateInput
+  flags?: Prisma.CandidateFlagCreateNestedManyWithoutCandidateInput
 }
 
 export type CandidateUncheckedCreateWithoutDecisionReasonsInput = {
@@ -961,12 +1271,15 @@ export type CandidateUncheckedCreateWithoutDecisionReasonsInput = {
   jobId?: string | null
   consentGiven?: boolean
   consentAt?: Date | string | null
+  criteriaDeclaredAt?: Date | string | null
   privacyPolicyVersion?: string | null
   emailOptOut?: boolean
   evaluation?: Prisma.EvaluationUncheckedCreateNestedOneWithoutCandidateInput
   emailLogs?: Prisma.EmailLogUncheckedCreateNestedManyWithoutCandidateInput
   answers?: Prisma.CandidateAnswerUncheckedCreateNestedManyWithoutCandidateInput
   textAnswers?: Prisma.CandidateTextAnswerUncheckedCreateNestedManyWithoutCandidateInput
+  applicationAnswers?: Prisma.ApplicationAnswerUncheckedCreateNestedManyWithoutCandidateInput
+  flags?: Prisma.CandidateFlagUncheckedCreateNestedManyWithoutCandidateInput
 }
 
 export type CandidateCreateOrConnectWithoutDecisionReasonsInput = {
@@ -996,6 +1309,7 @@ export type CandidateUpdateWithoutDecisionReasonsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   consentGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   consentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  criteriaDeclaredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   privacyPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailOptOut?: Prisma.BoolFieldUpdateOperationsInput | boolean
   job?: Prisma.JobUpdateOneWithoutCandidatesNestedInput
@@ -1003,6 +1317,8 @@ export type CandidateUpdateWithoutDecisionReasonsInput = {
   emailLogs?: Prisma.EmailLogUpdateManyWithoutCandidateNestedInput
   answers?: Prisma.CandidateAnswerUpdateManyWithoutCandidateNestedInput
   textAnswers?: Prisma.CandidateTextAnswerUpdateManyWithoutCandidateNestedInput
+  applicationAnswers?: Prisma.ApplicationAnswerUpdateManyWithoutCandidateNestedInput
+  flags?: Prisma.CandidateFlagUpdateManyWithoutCandidateNestedInput
 }
 
 export type CandidateUncheckedUpdateWithoutDecisionReasonsInput = {
@@ -1017,12 +1333,15 @@ export type CandidateUncheckedUpdateWithoutDecisionReasonsInput = {
   jobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   consentGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   consentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  criteriaDeclaredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   privacyPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailOptOut?: Prisma.BoolFieldUpdateOperationsInput | boolean
   evaluation?: Prisma.EvaluationUncheckedUpdateOneWithoutCandidateNestedInput
   emailLogs?: Prisma.EmailLogUncheckedUpdateManyWithoutCandidateNestedInput
   answers?: Prisma.CandidateAnswerUncheckedUpdateManyWithoutCandidateNestedInput
   textAnswers?: Prisma.CandidateTextAnswerUncheckedUpdateManyWithoutCandidateNestedInput
+  applicationAnswers?: Prisma.ApplicationAnswerUncheckedUpdateManyWithoutCandidateNestedInput
+  flags?: Prisma.CandidateFlagUncheckedUpdateManyWithoutCandidateNestedInput
 }
 
 export type CandidateCreateWithoutEvaluationInput = {
@@ -1036,6 +1355,7 @@ export type CandidateCreateWithoutEvaluationInput = {
   updatedAt?: Date | string
   consentGiven?: boolean
   consentAt?: Date | string | null
+  criteriaDeclaredAt?: Date | string | null
   privacyPolicyVersion?: string | null
   emailOptOut?: boolean
   job?: Prisma.JobCreateNestedOneWithoutCandidatesInput
@@ -1043,6 +1363,8 @@ export type CandidateCreateWithoutEvaluationInput = {
   answers?: Prisma.CandidateAnswerCreateNestedManyWithoutCandidateInput
   textAnswers?: Prisma.CandidateTextAnswerCreateNestedManyWithoutCandidateInput
   decisionReasons?: Prisma.DecisionReasonCreateNestedManyWithoutCandidateInput
+  applicationAnswers?: Prisma.ApplicationAnswerCreateNestedManyWithoutCandidateInput
+  flags?: Prisma.CandidateFlagCreateNestedManyWithoutCandidateInput
 }
 
 export type CandidateUncheckedCreateWithoutEvaluationInput = {
@@ -1057,12 +1379,15 @@ export type CandidateUncheckedCreateWithoutEvaluationInput = {
   jobId?: string | null
   consentGiven?: boolean
   consentAt?: Date | string | null
+  criteriaDeclaredAt?: Date | string | null
   privacyPolicyVersion?: string | null
   emailOptOut?: boolean
   emailLogs?: Prisma.EmailLogUncheckedCreateNestedManyWithoutCandidateInput
   answers?: Prisma.CandidateAnswerUncheckedCreateNestedManyWithoutCandidateInput
   textAnswers?: Prisma.CandidateTextAnswerUncheckedCreateNestedManyWithoutCandidateInput
   decisionReasons?: Prisma.DecisionReasonUncheckedCreateNestedManyWithoutCandidateInput
+  applicationAnswers?: Prisma.ApplicationAnswerUncheckedCreateNestedManyWithoutCandidateInput
+  flags?: Prisma.CandidateFlagUncheckedCreateNestedManyWithoutCandidateInput
 }
 
 export type CandidateCreateOrConnectWithoutEvaluationInput = {
@@ -1092,6 +1417,7 @@ export type CandidateUpdateWithoutEvaluationInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   consentGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   consentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  criteriaDeclaredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   privacyPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailOptOut?: Prisma.BoolFieldUpdateOperationsInput | boolean
   job?: Prisma.JobUpdateOneWithoutCandidatesNestedInput
@@ -1099,6 +1425,8 @@ export type CandidateUpdateWithoutEvaluationInput = {
   answers?: Prisma.CandidateAnswerUpdateManyWithoutCandidateNestedInput
   textAnswers?: Prisma.CandidateTextAnswerUpdateManyWithoutCandidateNestedInput
   decisionReasons?: Prisma.DecisionReasonUpdateManyWithoutCandidateNestedInput
+  applicationAnswers?: Prisma.ApplicationAnswerUpdateManyWithoutCandidateNestedInput
+  flags?: Prisma.CandidateFlagUpdateManyWithoutCandidateNestedInput
 }
 
 export type CandidateUncheckedUpdateWithoutEvaluationInput = {
@@ -1113,12 +1441,15 @@ export type CandidateUncheckedUpdateWithoutEvaluationInput = {
   jobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   consentGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   consentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  criteriaDeclaredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   privacyPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailOptOut?: Prisma.BoolFieldUpdateOperationsInput | boolean
   emailLogs?: Prisma.EmailLogUncheckedUpdateManyWithoutCandidateNestedInput
   answers?: Prisma.CandidateAnswerUncheckedUpdateManyWithoutCandidateNestedInput
   textAnswers?: Prisma.CandidateTextAnswerUncheckedUpdateManyWithoutCandidateNestedInput
   decisionReasons?: Prisma.DecisionReasonUncheckedUpdateManyWithoutCandidateNestedInput
+  applicationAnswers?: Prisma.ApplicationAnswerUncheckedUpdateManyWithoutCandidateNestedInput
+  flags?: Prisma.CandidateFlagUncheckedUpdateManyWithoutCandidateNestedInput
 }
 
 export type CandidateCreateWithoutEmailLogsInput = {
@@ -1132,6 +1463,7 @@ export type CandidateCreateWithoutEmailLogsInput = {
   updatedAt?: Date | string
   consentGiven?: boolean
   consentAt?: Date | string | null
+  criteriaDeclaredAt?: Date | string | null
   privacyPolicyVersion?: string | null
   emailOptOut?: boolean
   job?: Prisma.JobCreateNestedOneWithoutCandidatesInput
@@ -1139,6 +1471,8 @@ export type CandidateCreateWithoutEmailLogsInput = {
   answers?: Prisma.CandidateAnswerCreateNestedManyWithoutCandidateInput
   textAnswers?: Prisma.CandidateTextAnswerCreateNestedManyWithoutCandidateInput
   decisionReasons?: Prisma.DecisionReasonCreateNestedManyWithoutCandidateInput
+  applicationAnswers?: Prisma.ApplicationAnswerCreateNestedManyWithoutCandidateInput
+  flags?: Prisma.CandidateFlagCreateNestedManyWithoutCandidateInput
 }
 
 export type CandidateUncheckedCreateWithoutEmailLogsInput = {
@@ -1153,12 +1487,15 @@ export type CandidateUncheckedCreateWithoutEmailLogsInput = {
   jobId?: string | null
   consentGiven?: boolean
   consentAt?: Date | string | null
+  criteriaDeclaredAt?: Date | string | null
   privacyPolicyVersion?: string | null
   emailOptOut?: boolean
   evaluation?: Prisma.EvaluationUncheckedCreateNestedOneWithoutCandidateInput
   answers?: Prisma.CandidateAnswerUncheckedCreateNestedManyWithoutCandidateInput
   textAnswers?: Prisma.CandidateTextAnswerUncheckedCreateNestedManyWithoutCandidateInput
   decisionReasons?: Prisma.DecisionReasonUncheckedCreateNestedManyWithoutCandidateInput
+  applicationAnswers?: Prisma.ApplicationAnswerUncheckedCreateNestedManyWithoutCandidateInput
+  flags?: Prisma.CandidateFlagUncheckedCreateNestedManyWithoutCandidateInput
 }
 
 export type CandidateCreateOrConnectWithoutEmailLogsInput = {
@@ -1188,6 +1525,7 @@ export type CandidateUpdateWithoutEmailLogsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   consentGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   consentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  criteriaDeclaredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   privacyPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailOptOut?: Prisma.BoolFieldUpdateOperationsInput | boolean
   job?: Prisma.JobUpdateOneWithoutCandidatesNestedInput
@@ -1195,6 +1533,8 @@ export type CandidateUpdateWithoutEmailLogsInput = {
   answers?: Prisma.CandidateAnswerUpdateManyWithoutCandidateNestedInput
   textAnswers?: Prisma.CandidateTextAnswerUpdateManyWithoutCandidateNestedInput
   decisionReasons?: Prisma.DecisionReasonUpdateManyWithoutCandidateNestedInput
+  applicationAnswers?: Prisma.ApplicationAnswerUpdateManyWithoutCandidateNestedInput
+  flags?: Prisma.CandidateFlagUpdateManyWithoutCandidateNestedInput
 }
 
 export type CandidateUncheckedUpdateWithoutEmailLogsInput = {
@@ -1209,12 +1549,15 @@ export type CandidateUncheckedUpdateWithoutEmailLogsInput = {
   jobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   consentGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   consentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  criteriaDeclaredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   privacyPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailOptOut?: Prisma.BoolFieldUpdateOperationsInput | boolean
   evaluation?: Prisma.EvaluationUncheckedUpdateOneWithoutCandidateNestedInput
   answers?: Prisma.CandidateAnswerUncheckedUpdateManyWithoutCandidateNestedInput
   textAnswers?: Prisma.CandidateTextAnswerUncheckedUpdateManyWithoutCandidateNestedInput
   decisionReasons?: Prisma.DecisionReasonUncheckedUpdateManyWithoutCandidateNestedInput
+  applicationAnswers?: Prisma.ApplicationAnswerUncheckedUpdateManyWithoutCandidateNestedInput
+  flags?: Prisma.CandidateFlagUncheckedUpdateManyWithoutCandidateNestedInput
 }
 
 export type CandidateCreateManyJobInput = {
@@ -1228,6 +1571,7 @@ export type CandidateCreateManyJobInput = {
   updatedAt?: Date | string
   consentGiven?: boolean
   consentAt?: Date | string | null
+  criteriaDeclaredAt?: Date | string | null
   privacyPolicyVersion?: string | null
   emailOptOut?: boolean
 }
@@ -1243,6 +1587,7 @@ export type CandidateUpdateWithoutJobInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   consentGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   consentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  criteriaDeclaredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   privacyPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailOptOut?: Prisma.BoolFieldUpdateOperationsInput | boolean
   evaluation?: Prisma.EvaluationUpdateOneWithoutCandidateNestedInput
@@ -1250,6 +1595,8 @@ export type CandidateUpdateWithoutJobInput = {
   answers?: Prisma.CandidateAnswerUpdateManyWithoutCandidateNestedInput
   textAnswers?: Prisma.CandidateTextAnswerUpdateManyWithoutCandidateNestedInput
   decisionReasons?: Prisma.DecisionReasonUpdateManyWithoutCandidateNestedInput
+  applicationAnswers?: Prisma.ApplicationAnswerUpdateManyWithoutCandidateNestedInput
+  flags?: Prisma.CandidateFlagUpdateManyWithoutCandidateNestedInput
 }
 
 export type CandidateUncheckedUpdateWithoutJobInput = {
@@ -1263,6 +1610,7 @@ export type CandidateUncheckedUpdateWithoutJobInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   consentGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   consentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  criteriaDeclaredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   privacyPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailOptOut?: Prisma.BoolFieldUpdateOperationsInput | boolean
   evaluation?: Prisma.EvaluationUncheckedUpdateOneWithoutCandidateNestedInput
@@ -1270,6 +1618,8 @@ export type CandidateUncheckedUpdateWithoutJobInput = {
   answers?: Prisma.CandidateAnswerUncheckedUpdateManyWithoutCandidateNestedInput
   textAnswers?: Prisma.CandidateTextAnswerUncheckedUpdateManyWithoutCandidateNestedInput
   decisionReasons?: Prisma.DecisionReasonUncheckedUpdateManyWithoutCandidateNestedInput
+  applicationAnswers?: Prisma.ApplicationAnswerUncheckedUpdateManyWithoutCandidateNestedInput
+  flags?: Prisma.CandidateFlagUncheckedUpdateManyWithoutCandidateNestedInput
 }
 
 export type CandidateUncheckedUpdateManyWithoutJobInput = {
@@ -1283,6 +1633,7 @@ export type CandidateUncheckedUpdateManyWithoutJobInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   consentGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   consentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  criteriaDeclaredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   privacyPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailOptOut?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
@@ -1297,6 +1648,8 @@ export type CandidateCountOutputType = {
   answers: number
   textAnswers: number
   decisionReasons: number
+  applicationAnswers: number
+  flags: number
 }
 
 export type CandidateCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1304,6 +1657,8 @@ export type CandidateCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensi
   answers?: boolean | CandidateCountOutputTypeCountAnswersArgs
   textAnswers?: boolean | CandidateCountOutputTypeCountTextAnswersArgs
   decisionReasons?: boolean | CandidateCountOutputTypeCountDecisionReasonsArgs
+  applicationAnswers?: boolean | CandidateCountOutputTypeCountApplicationAnswersArgs
+  flags?: boolean | CandidateCountOutputTypeCountFlagsArgs
 }
 
 /**
@@ -1344,6 +1699,20 @@ export type CandidateCountOutputTypeCountDecisionReasonsArgs<ExtArgs extends run
   where?: Prisma.DecisionReasonWhereInput
 }
 
+/**
+ * CandidateCountOutputType without action
+ */
+export type CandidateCountOutputTypeCountApplicationAnswersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ApplicationAnswerWhereInput
+}
+
+/**
+ * CandidateCountOutputType without action
+ */
+export type CandidateCountOutputTypeCountFlagsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CandidateFlagWhereInput
+}
+
 
 export type CandidateSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1357,6 +1726,7 @@ export type CandidateSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   jobId?: boolean
   consentGiven?: boolean
   consentAt?: boolean
+  criteriaDeclaredAt?: boolean
   privacyPolicyVersion?: boolean
   emailOptOut?: boolean
   job?: boolean | Prisma.Candidate$jobArgs<ExtArgs>
@@ -1365,6 +1735,8 @@ export type CandidateSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   answers?: boolean | Prisma.Candidate$answersArgs<ExtArgs>
   textAnswers?: boolean | Prisma.Candidate$textAnswersArgs<ExtArgs>
   decisionReasons?: boolean | Prisma.Candidate$decisionReasonsArgs<ExtArgs>
+  applicationAnswers?: boolean | Prisma.Candidate$applicationAnswersArgs<ExtArgs>
+  flags?: boolean | Prisma.Candidate$flagsArgs<ExtArgs>
   _count?: boolean | Prisma.CandidateCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["candidate"]>
 
@@ -1380,6 +1752,7 @@ export type CandidateSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   jobId?: boolean
   consentGiven?: boolean
   consentAt?: boolean
+  criteriaDeclaredAt?: boolean
   privacyPolicyVersion?: boolean
   emailOptOut?: boolean
   job?: boolean | Prisma.Candidate$jobArgs<ExtArgs>
@@ -1397,6 +1770,7 @@ export type CandidateSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   jobId?: boolean
   consentGiven?: boolean
   consentAt?: boolean
+  criteriaDeclaredAt?: boolean
   privacyPolicyVersion?: boolean
   emailOptOut?: boolean
   job?: boolean | Prisma.Candidate$jobArgs<ExtArgs>
@@ -1414,11 +1788,12 @@ export type CandidateSelectScalar = {
   jobId?: boolean
   consentGiven?: boolean
   consentAt?: boolean
+  criteriaDeclaredAt?: boolean
   privacyPolicyVersion?: boolean
   emailOptOut?: boolean
 }
 
-export type CandidateOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "resumePath" | "resumeText" | "status" | "appliedAt" | "updatedAt" | "jobId" | "consentGiven" | "consentAt" | "privacyPolicyVersion" | "emailOptOut", ExtArgs["result"]["candidate"]>
+export type CandidateOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "resumePath" | "resumeText" | "status" | "appliedAt" | "updatedAt" | "jobId" | "consentGiven" | "consentAt" | "criteriaDeclaredAt" | "privacyPolicyVersion" | "emailOptOut", ExtArgs["result"]["candidate"]>
 export type CandidateInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   job?: boolean | Prisma.Candidate$jobArgs<ExtArgs>
   evaluation?: boolean | Prisma.Candidate$evaluationArgs<ExtArgs>
@@ -1426,6 +1801,8 @@ export type CandidateInclude<ExtArgs extends runtime.Types.Extensions.InternalAr
   answers?: boolean | Prisma.Candidate$answersArgs<ExtArgs>
   textAnswers?: boolean | Prisma.Candidate$textAnswersArgs<ExtArgs>
   decisionReasons?: boolean | Prisma.Candidate$decisionReasonsArgs<ExtArgs>
+  applicationAnswers?: boolean | Prisma.Candidate$applicationAnswersArgs<ExtArgs>
+  flags?: boolean | Prisma.Candidate$flagsArgs<ExtArgs>
   _count?: boolean | Prisma.CandidateCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CandidateIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1444,6 +1821,8 @@ export type $CandidatePayload<ExtArgs extends runtime.Types.Extensions.InternalA
     answers: Prisma.$CandidateAnswerPayload<ExtArgs>[]
     textAnswers: Prisma.$CandidateTextAnswerPayload<ExtArgs>[]
     decisionReasons: Prisma.$DecisionReasonPayload<ExtArgs>[]
+    applicationAnswers: Prisma.$ApplicationAnswerPayload<ExtArgs>[]
+    flags: Prisma.$CandidateFlagPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1457,6 +1836,7 @@ export type $CandidatePayload<ExtArgs extends runtime.Types.Extensions.InternalA
     jobId: string | null
     consentGiven: boolean
     consentAt: Date | null
+    criteriaDeclaredAt: Date | null
     privacyPolicyVersion: string | null
     emailOptOut: boolean
   }, ExtArgs["result"]["candidate"]>
@@ -1859,6 +2239,8 @@ export interface Prisma__CandidateClient<T, Null = never, ExtArgs extends runtim
   answers<T extends Prisma.Candidate$answersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Candidate$answersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CandidateAnswerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   textAnswers<T extends Prisma.Candidate$textAnswersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Candidate$textAnswersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CandidateTextAnswerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   decisionReasons<T extends Prisma.Candidate$decisionReasonsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Candidate$decisionReasonsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DecisionReasonPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  applicationAnswers<T extends Prisma.Candidate$applicationAnswersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Candidate$applicationAnswersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ApplicationAnswerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  flags<T extends Prisma.Candidate$flagsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Candidate$flagsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CandidateFlagPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1899,6 +2281,7 @@ export interface CandidateFieldRefs {
   readonly jobId: Prisma.FieldRef<"Candidate", 'String'>
   readonly consentGiven: Prisma.FieldRef<"Candidate", 'Boolean'>
   readonly consentAt: Prisma.FieldRef<"Candidate", 'DateTime'>
+  readonly criteriaDeclaredAt: Prisma.FieldRef<"Candidate", 'DateTime'>
   readonly privacyPolicyVersion: Prisma.FieldRef<"Candidate", 'String'>
   readonly emailOptOut: Prisma.FieldRef<"Candidate", 'Boolean'>
 }
@@ -2431,6 +2814,54 @@ export type Candidate$decisionReasonsArgs<ExtArgs extends runtime.Types.Extensio
   take?: number
   skip?: number
   distinct?: Prisma.DecisionReasonScalarFieldEnum | Prisma.DecisionReasonScalarFieldEnum[]
+}
+
+/**
+ * Candidate.applicationAnswers
+ */
+export type Candidate$applicationAnswersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ApplicationAnswer
+   */
+  select?: Prisma.ApplicationAnswerSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ApplicationAnswer
+   */
+  omit?: Prisma.ApplicationAnswerOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ApplicationAnswerInclude<ExtArgs> | null
+  where?: Prisma.ApplicationAnswerWhereInput
+  orderBy?: Prisma.ApplicationAnswerOrderByWithRelationInput | Prisma.ApplicationAnswerOrderByWithRelationInput[]
+  cursor?: Prisma.ApplicationAnswerWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ApplicationAnswerScalarFieldEnum | Prisma.ApplicationAnswerScalarFieldEnum[]
+}
+
+/**
+ * Candidate.flags
+ */
+export type Candidate$flagsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CandidateFlag
+   */
+  select?: Prisma.CandidateFlagSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CandidateFlag
+   */
+  omit?: Prisma.CandidateFlagOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CandidateFlagInclude<ExtArgs> | null
+  where?: Prisma.CandidateFlagWhereInput
+  orderBy?: Prisma.CandidateFlagOrderByWithRelationInput | Prisma.CandidateFlagOrderByWithRelationInput[]
+  cursor?: Prisma.CandidateFlagWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CandidateFlagScalarFieldEnum | Prisma.CandidateFlagScalarFieldEnum[]
 }
 
 /**

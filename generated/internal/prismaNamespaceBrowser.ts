@@ -59,6 +59,10 @@ export const ModelName = {
   CandidateAnswer: 'CandidateAnswer',
   CandidateTextAnswer: 'CandidateTextAnswer',
   JobView: 'JobView',
+  ApplicationField: 'ApplicationField',
+  ApplicationAnswer: 'ApplicationAnswer',
+  ApplicationRule: 'ApplicationRule',
+  CandidateFlag: 'CandidateFlag',
   Candidate: 'Candidate',
   DecisionReason: 'DecisionReason',
   Evaluation: 'Evaluation',
@@ -91,6 +95,7 @@ export const JobScalarFieldEnum = {
   threshold: 'threshold',
   isActive: 'isActive',
   notifyOnApplication: 'notifyOnApplication',
+  applicationDeadline: 'applicationDeadline',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   createdById: 'createdById'
@@ -175,6 +180,59 @@ export const JobViewScalarFieldEnum = {
 export type JobViewScalarFieldEnum = (typeof JobViewScalarFieldEnum)[keyof typeof JobViewScalarFieldEnum]
 
 
+export const ApplicationFieldScalarFieldEnum = {
+  id: 'id',
+  jobId: 'jobId',
+  key: 'key',
+  label: 'label',
+  type: 'type',
+  required: 'required',
+  options: 'options',
+  minValue: 'minValue',
+  maxValue: 'maxValue',
+  flagOutsideRange: 'flagOutsideRange',
+  maxFiles: 'maxFiles',
+  order: 'order'
+} as const
+
+export type ApplicationFieldScalarFieldEnum = (typeof ApplicationFieldScalarFieldEnum)[keyof typeof ApplicationFieldScalarFieldEnum]
+
+
+export const ApplicationAnswerScalarFieldEnum = {
+  id: 'id',
+  candidateId: 'candidateId',
+  fieldId: 'fieldId',
+  value: 'value'
+} as const
+
+export type ApplicationAnswerScalarFieldEnum = (typeof ApplicationAnswerScalarFieldEnum)[keyof typeof ApplicationAnswerScalarFieldEnum]
+
+
+export const ApplicationRuleScalarFieldEnum = {
+  id: 'id',
+  jobId: 'jobId',
+  key: 'key',
+  label: 'label',
+  mode: 'mode',
+  action: 'action',
+  conditions: 'conditions',
+  order: 'order'
+} as const
+
+export type ApplicationRuleScalarFieldEnum = (typeof ApplicationRuleScalarFieldEnum)[keyof typeof ApplicationRuleScalarFieldEnum]
+
+
+export const CandidateFlagScalarFieldEnum = {
+  id: 'id',
+  candidateId: 'candidateId',
+  fieldId: 'fieldId',
+  detail: 'detail',
+  createdAt: 'createdAt'
+} as const
+
+export type CandidateFlagScalarFieldEnum = (typeof CandidateFlagScalarFieldEnum)[keyof typeof CandidateFlagScalarFieldEnum]
+
+
 export const CandidateScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -187,6 +245,7 @@ export const CandidateScalarFieldEnum = {
   jobId: 'jobId',
   consentGiven: 'consentGiven',
   consentAt: 'consentAt',
+  criteriaDeclaredAt: 'criteriaDeclaredAt',
   privacyPolicyVersion: 'privacyPolicyVersion',
   emailOptOut: 'emailOptOut'
 } as const

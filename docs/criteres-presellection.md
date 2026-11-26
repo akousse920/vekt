@@ -18,4 +18,6 @@ Une réponse absente, ambiguë ou non interprétable impose une revue humaine lo
 
 L'administrateur peut aussi définir une grille de compétences sur la page de l'offre. L'API `GET/PUT /api/job-listings/[id]/rubric` accepte au plus dix critères `{ label, weight, required }`, dont les poids totalisent 100 %. Les critères sont figés après la première candidature. Le modèle renvoie une note et une justification par compétence ; l'application calcule le score pondéré. Une compétence obligatoire évaluée sous 50/100 impose une revue humaine. La grille et le détail des notes sont conservés avec l'évaluation et affichés sur la page de l'offre. Sans grille, le score historique de Vekt reste utilisé.
 
+Les champs supplémentaires du formulaire disposent aussi de règles de réponses attendues, y compris sur plusieurs champs. Leur configuration par API est décrite dans [champs-candidature.md](champs-candidature.md). Une règle peut seulement signaler le dossier ou imposer une revue humaine ; elle ne provoque pas de refus automatique.
+
 Le traitement des scores proches du seuil reste à réaliser. Le gestionnaire du chemin Inngest est testé avec des étapes simulées, mais sa durabilité réelle avec un serveur Inngest n'a pas été vérifiée. Aucune candidature réelle ne doit être traitée avant la qualification complète du filtre.

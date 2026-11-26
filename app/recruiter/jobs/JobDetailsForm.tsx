@@ -16,6 +16,7 @@ type InitialJob = {
   threshold: number;
   isActive: boolean;
   notifyOnApplication: boolean;
+  applicationDeadline: string | null;
 };
 
 export default function JobDetailsForm({ job, aiEnabled }: { job?: InitialJob; aiEnabled: boolean }) {
@@ -42,6 +43,7 @@ export default function JobDetailsForm({ job, aiEnabled }: { job?: InitialJob; a
       customPrompt: aiEnabled ? String(form.get("customPrompt") ?? "") : job?.customPrompt ?? undefined,
       threshold: aiEnabled ? Number(form.get("threshold") ?? 75) : job?.threshold ?? 75,
       notifyOnApplication,
+      applicationDeadlineDate: String(form.get("applicationDeadlineDate") || "") || null,
     };
     try {
       const response = await fetch(job ? `/api/job-listings/${job.id}` : "/api/job-listings", {
@@ -100,6 +102,11 @@ export default function JobDetailsForm({ job, aiEnabled }: { job?: InitialJob; a
             <Label htmlFor="job-location">Lieu</Label>
             <Input id="job-location" name="location" defaultValue={job?.location ?? ""} placeholder="Ex. Cotonou ou télétravail" className="h-12 bg-white" />
           </div>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="job-deadline">Date limite de candidature (facultative)</Label>
+          <Input id="job-deadline" name="applicationDeadlineDate" type="date" defaultValue={job?.applicationDeadline?.slice(0, 10) ?? ""} className="h-12 max-w-xs bg-white" />
+          <p className="text-sm text-muted-foreground">Les candidatures restent ouvertes jusqu’à la fin de cette journée, heure du Bénin.</p>
         </div>
         <div className="space-y-2">
           <Label>Description du poste</Label>

@@ -1,8 +1,9 @@
 import { ScreeningOperator } from "@/generated/client";
+import { evaluateApplicationRules } from "@/lib/application-rules";
 import { prisma } from "@/lib/prisma";
 
 export type ScreeningReason = {
-  stage: "SCREENING" | "DOCUMENT";
+  stage: "SCREENING" | "DOCUMENT" | "APPLICATION_FORM";
   ruleId: string | null;
   detail: string;
 };
@@ -90,7 +91,7 @@ export async function assessCandidateScreening(
   resumeText: string,
   options: { requireResumeText?: boolean } = {},
 ) {
-  const [rules, answers] = await Promise.all([
+  const [rules, answers, applicationRules, applicationFields, applicationAnswers] = await Promise.all([
     jobId
       ? prisma.screeningRule.findMany({
           where: { jobId },
@@ -101,6 +102,15 @@ export async function assessCandidateScreening(
       where: { candidateId },
       include: { option: { select: { text: true } } },
     }),
+    jobId
+      ? prisma.applicationRule.findMany({ where: { jobId }, orderBy: { order: "asc" } })
+      : Promise.resolve([]),
+    jobId
+      ? prisma.applicationField.findMany({ where: { jobId }, select: { id: true, key: true, type: true } })
+      : Promise.resolve([]),
+    prisma.applicationAnswer.findMany({ where: { candidateId }, select: { fieldId: true, value: true } }),
   ]);
-  return evaluateScreeningRules(rules, answers, resumeText, options);
+  const screening = evaluateScreeningRules(rules, answers, resumeText, options);
+  const application = evaluateApplicationRules(applicationRules, applicationFields, applicationAnswers);
+  return { needsReview: screening.needsReview || application.needsReview, reasons: [...screening.reasons, ...application.reasons] };
 }

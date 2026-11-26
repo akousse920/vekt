@@ -22,6 +22,7 @@ import {
 } from "@phosphor-icons/react";
 import Link from "next/link";
 import { AiDisclosure } from "@/components/ai-disclosure";
+import type { PublicApplicationField } from "@/lib/application-fields";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -39,12 +40,15 @@ type Job = {
   description: string;
   location: string | null;
   screeningQuestions: ScreeningQuestion[];
+  applicationFields: PublicApplicationField[];
+  applicationDeadline: string | null;
 };
 
 type Props = {
   job?: Job | null;
   supportEmail: string;
   aiEnabled: boolean;
+  closed?: boolean;
 };
 
 type SubmissionState =
@@ -76,18 +80,26 @@ function StepDot({ active, done }: { active?: boolean; done?: boolean }) {
   );
 }
 
-export default function ApplyForm({ job, supportEmail, aiEnabled }: Props) {
+export default function ApplyForm({ job, supportEmail, aiEnabled, closed = false }: Props) {
   const hasQuestions = (job?.screeningQuestions?.length ?? 0) > 0;
 
   const [step, setStep] = useState<"details" | "questions">("details");
   const [state, setState] = useState<SubmissionState>({ status: "idle" });
   const [consentPrivacy, setConsentPrivacy] = useState(false);
+  const [criteriaDeclared, setCriteriaDeclared] = useState(false);
   const [selectedResumeName, setSelectedResumeName] = useState("");
   const [resumeError, setResumeError] = useState<string | null>(null);
 
   // answers: questionId → Set of selected optionIds
   const [answers, setAnswers] = useState<Record<string, Set<string>>>({});
   const [textAnswers, setTextAnswers] = useState<Record<string, string>>({});
+  const [extraValues, setExtraValues] = useState<Record<string, string | string[] | File | File[]>>({});
+  const extraFields = job?.applicationFields ?? [];
+  const missingExtraField = extraFields.find((field) => {
+    if (!field.required) return false;
+    const value = extraValues[field.id];
+    return value === undefined || value === "" || (Array.isArray(value) && value.length === 0);
+  });
   const allQuestionsAnswered = !job || job.screeningQuestions.every((question) =>
     question.type === "TEXT"
       ? Boolean(textAnswers[question.id]?.trim())
@@ -137,7 +149,10 @@ export default function ApplyForm({ job, supportEmail, aiEnabled }: Props) {
       toast.error("Le nom et l’adresse email doivent contenir moins de 30 caractères.");
       return;
     }
-
+    if (missingExtraField) {
+      toast.error(`Renseignez « ${missingExtraField.label} » avant de continuer.`);
+      return;
+    }
     setDetailsSnapshot({ name, email, resume: resumeFile });
     setResumeError(null);
     setState({ status: "idle" });
@@ -146,8 +161,17 @@ export default function ApplyForm({ job, supportEmail, aiEnabled }: Props) {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (job && !criteriaDeclared) {
+      toast.error("Confirmez avoir lu les critères de l’offre.");
+      return;
+    }
     if (!allQuestionsAnswered) {
       toast.error("Répondez à toutes les questions avant de continuer.");
+      return;
+    }
+    if (missingExtraField) {
+      toast.error(`Renseignez « ${missingExtraField.label} » avant d’envoyer la candidature.`);
+      if (hasQuestions) setStep("details");
       return;
     }
     const formData = new FormData();
@@ -188,7 +212,17 @@ export default function ApplyForm({ job, supportEmail, aiEnabled }: Props) {
     if (job) {
       formData.append("jobId", job.id);
     }
+    for (const field of extraFields) {
+      const value = extraValues[field.id];
+      if (value === undefined || value === "") continue;
+      if (field.type === "FILES" && Array.isArray(value)) {
+        for (const file of value) if (file instanceof File) formData.append(`field:${field.id}`, file);
+      } else if (value instanceof File) formData.append(`field:${field.id}`, value);
+      else if (Array.isArray(value)) formData.append(`field:${field.id}`, JSON.stringify(value));
+      else formData.append(`field:${field.id}`, value);
+    }
     formData.append("consentGiven", "true");
+    if (job) formData.append("criteriaDeclared", "true");
 
     if (hasQuestions) {
       const answersPayload = job!.screeningQuestions.map((question) => question.type === "TEXT"
@@ -230,6 +264,7 @@ export default function ApplyForm({ job, supportEmail, aiEnabled }: Props) {
               <p className="mt-6 text-xs font-semibold uppercase tracking-[0.16em] text-[#ffd196]">Postuler à l’offre</p>
               <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">{job.title}</h1>
               <p className="mt-2 flex items-center gap-2 text-sm text-white/85"><MapPinIcon className="size-4" />{job.location || "Lieu à préciser"}</p>
+              {job.applicationDeadline && <p className="mt-2 text-sm font-medium text-white/90">Date limite : {new Date(job.applicationDeadline).toLocaleDateString("fr-BJ", { day: "numeric", month: "long", year: "numeric", timeZone: "Africa/Porto-Novo" })}</p>}
             </div>
           </div>
         )}
@@ -289,7 +324,9 @@ export default function ApplyForm({ job, supportEmail, aiEnabled }: Props) {
                       setStep("details");
                       setAnswers({});
                       setTextAnswers({});
+                      setExtraValues({});
                       setConsentPrivacy(false);
+                      setCriteriaDeclared(false);
                       setSelectedResumeName("");
                     }}
                   >
@@ -297,6 +334,8 @@ export default function ApplyForm({ job, supportEmail, aiEnabled }: Props) {
                   </Button>
                 </CardFooter>
               </Card>
+            ) : closed ? (
+              <Card className="border-[#d8e0e8] bg-white"><CardHeader><CardTitle>Candidatures closes</CardTitle><CardDescription>La date limite pour cette offre est dépassée.</CardDescription></CardHeader></Card>
             ) : step === "details" || !hasQuestions ? (
               /* ── Step 1: Details ── */
               <Card className="border-[#d8e0e8] bg-white shadow-lg shadow-slate-900/5">
@@ -377,6 +416,81 @@ export default function ApplyForm({ job, supportEmail, aiEnabled }: Props) {
                       {resumeError && <p role="alert" className="text-sm font-medium text-destructive">{resumeError}</p>}
                     </div>
 
+                    {extraFields.map((field) => {
+                      const current = extraValues[field.id];
+                      const options: string[] = JSON.parse(field.options);
+                      return (
+                        <div key={field.id} className="flex flex-col gap-2">
+                          <Label htmlFor={`extra-${field.id}`}>{field.label}{field.required ? " *" : ""}</Label>
+                          {(field.type === "SHORT_TEXT" || field.type === "NUMBER" || field.type === "BIRTH_YEAR") && (
+                            <Input id={`extra-${field.id}`} type={field.type === "SHORT_TEXT" ? "text" : "number"}
+                              inputMode={field.type === "NUMBER" ? "decimal" : field.type === "BIRTH_YEAR" ? "numeric" : undefined}
+                              step={field.type === "BIRTH_YEAR" || field.key === "age" ? "1" : "any"}
+                              min={field.type === "BIRTH_YEAR" ? new Date().getUTCFullYear() - 120 : undefined}
+                              max={field.type === "BIRTH_YEAR" ? new Date().getUTCFullYear() : undefined}
+                              required={field.required} maxLength={field.type === "SHORT_TEXT" ? 200 : undefined}
+                              value={typeof current === "string" ? current : ""} className="h-11"
+                              onChange={(event) => setExtraValues((previous) => ({ ...previous, [field.id]: event.target.value }))} />
+                          )}
+                          {field.type === "LONG_TEXT" && (
+                            <textarea id={`extra-${field.id}`} maxLength={2000} rows={3} required={field.required}
+                              value={typeof current === "string" ? current : ""}
+                              onChange={(event) => setExtraValues((previous) => ({ ...previous, [field.id]: event.target.value }))}
+                              className="w-full rounded-xl border px-3 py-2 text-sm" />
+                          )}
+                          {field.type === "SINGLE_SELECT" && (
+                            <select id={`extra-${field.id}`} required={field.required} value={typeof current === "string" ? current : ""}
+                              onChange={(event) => setExtraValues((previous) => ({ ...previous, [field.id]: event.target.value }))}
+                              className="h-11 rounded-xl border bg-white px-3 text-sm">
+                              <option value="">Choisir une réponse</option>
+                              {options.map((option) => <option key={option} value={option}>{option}</option>)}
+                            </select>
+                          )}
+                          {field.type === "YES_NO" && (
+                            <div className="flex gap-2" role="group" aria-label={field.label}>
+                              {[["true", "Oui"], ["false", "Non"]].map(([value, label]) => <Button key={value} type="button" variant="outline" aria-pressed={current === value} className={cn("min-h-11 rounded-xl", current === value && "border-primary bg-primary/10")} onClick={() => setExtraValues((previous) => ({ ...previous, [field.id]: value }))}>{label}</Button>)}
+                            </div>
+                          )}
+                          {field.type === "DECLARATION" && (
+                            <label className="flex items-start gap-3 text-sm"><input id={`extra-${field.id}`} type="checkbox" checked={current === "true"} onChange={(event) => setExtraValues((previous) => ({ ...previous, [field.id]: event.target.checked ? "true" : "" }))} className="mt-1 size-4 accent-primary" /><span>Je confirme cette déclaration.</span></label>
+                          )}
+                          {field.type === "MULTI_SELECT" && (
+                            <div className="flex flex-wrap gap-2" role="group" aria-label={field.label}>
+                              {options.map((option) => {
+                                const selected = Array.isArray(current) && current.some((item) => item === option);
+                                return <Button key={option} type="button" variant="outline" aria-pressed={selected}
+                                  className={cn("min-h-11 rounded-xl", selected && "border-primary bg-primary/10")}
+                                  onClick={() => setExtraValues((previous) => {
+                                    const chosen = Array.isArray(previous[field.id]) ? previous[field.id] as string[] : [];
+                                    return { ...previous, [field.id]: chosen.includes(option) ? chosen.filter((item) => item !== option) : [...chosen, option] };
+                                  })}>{option}</Button>;
+                              })}
+                            </div>
+                          )}
+                          {field.type === "FILE" && (
+                            <Input id={`extra-${field.id}`} type="file" accept="application/pdf" required={field.required && !(current instanceof File)}
+                              onChange={(event) => setExtraValues((previous) => {
+                                const next = { ...previous };
+                                const file = event.target.files?.[0];
+                                if (file) next[field.id] = file;
+                                else delete next[field.id];
+                                return next;
+                              })} className="h-11" />
+                          )}
+                          {field.type === "FILE" && current instanceof File && <p className="text-xs text-muted-foreground">{current.name} · PDF, 5 Mo maximum</p>}
+                          {field.type === "FILES" && (
+                            <><Input id={`extra-${field.id}`} type="file" accept="application/pdf" multiple
+                              onChange={(event) => {
+                                const files = Array.from(event.target.files ?? []);
+                                if (files.length > (field.maxFiles ?? 5)) toast.error(`Sélectionnez au maximum ${field.maxFiles ?? 5} PDF pour « ${field.label} ».`);
+                                setExtraValues((previous) => ({ ...previous, [field.id]: files }));
+                              }} className="h-11" />
+                              <p className="text-xs text-muted-foreground">Jusqu’à {field.maxFiles ?? 5} PDF, 5 Mo chacun. {Array.isArray(current) && current.length > 0 ? current.filter((file): file is File => file instanceof File).map((file) => file.name).join(", ") : ""}</p></>
+                          )}
+                        </div>
+                      );
+                    })}
+
                     {!hasQuestions && state.status === "error" && (
                       <Alert variant="destructive">
                         <WarningCircleIcon />
@@ -390,6 +504,7 @@ export default function ApplyForm({ job, supportEmail, aiEnabled }: Props) {
                     {/* GDPR consent (single-step only) */}
                     {!hasQuestions && (
                       <div className="flex flex-col gap-3 rounded-lg border bg-muted/40 p-4">
+                        {job && <label className="flex cursor-pointer items-start gap-3 text-sm"><input type="checkbox" checked={criteriaDeclared} onChange={(event) => setCriteriaDeclared(event.target.checked)} className="mt-0.5 size-4 shrink-0 accent-primary" /><span>J’ai lu les critères de l’offre et je déclare y répondre.</span></label>}
                         <div className="flex items-start gap-3">
                           <input
                             type="checkbox"
@@ -421,7 +536,7 @@ export default function ApplyForm({ job, supportEmail, aiEnabled }: Props) {
                       type="submit"
                       disabled={
                         state.status === "loading" ||
-                        (!hasQuestions && !consentPrivacy)
+                        (!hasQuestions && (!consentPrivacy || Boolean(job && !criteriaDeclared)))
                       }
                       className="brand-cta h-12 w-full rounded-xl text-sm font-semibold"
                     >
@@ -522,6 +637,7 @@ export default function ApplyForm({ job, supportEmail, aiEnabled }: Props) {
 
                     {/* GDPR consent */}
                     <div className="flex flex-col gap-3 rounded-lg border bg-muted/40 p-4">
+                      {job && <label className="flex cursor-pointer items-start gap-3 text-sm"><input type="checkbox" checked={criteriaDeclared} onChange={(event) => setCriteriaDeclared(event.target.checked)} className="mt-0.5 size-4 shrink-0 accent-primary" /><span>J’ai lu les critères de l’offre et je déclare y répondre.</span></label>}
                       <div className="flex items-start gap-3">
                         <input
                           type="checkbox"
@@ -564,6 +680,7 @@ export default function ApplyForm({ job, supportEmail, aiEnabled }: Props) {
                         disabled={
                           state.status === "loading" ||
                           !consentPrivacy ||
+                          Boolean(job && !criteriaDeclared) ||
                           !allAnswered
                         }
                       >

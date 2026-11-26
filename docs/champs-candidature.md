@@ -1,0 +1,76 @@
+# Champs de candidature configurables
+
+Le formulaire public d'une offre peut recevoir des champs supplémentaires : texte court, texte long, nombre, année de naissance, choix unique, choix multiples, oui/non, déclaration à cocher, un document PDF ou plusieurs PDF dans un même champ. Le CV reste obligatoire. Aucun champ supplémentaire n'est ajouté par défaut. Pour toute offre, le candidat confirme aussi avoir lu les critères ; cette déclaration est enregistrée avec la candidature.
+
+La configuration se fait pour l'instant via `PUT /api/job-listings/{id}/application-form`, avec une session du recruteur propriétaire de l'offre ou d'un administrateur. Le backoffice de configuration viendra ensuite. Une fois la première candidature reçue, la définition du formulaire est figée pour conserver le sens des réponses enregistrées.
+
+Deux modèles peuvent être chargés avec `{ "template": "simple" }` ou `{ "template": "profil" }`. Le modèle `profil` contient téléphone, diplôme, expérience et justificatif de diplôme. Il ne demande pas l'année de naissance par défaut.
+
+Exemple de configuration explicite pour demander une année de naissance et signaler les dossiers qui ne correspondent pas clairement à une tranche d'âge de 25 à 40 ans :
+
+```json
+{
+  "fields": [
+    {
+      "key": "annee_naissance",
+      "label": "Année de naissance",
+      "type": "BIRTH_YEAR",
+      "required": true,
+      "options": [],
+      "minValue": 25,
+      "maxValue": 40,
+      "flagOutsideRange": true
+    }
+  ]
+}
+```
+
+Pour `BIRTH_YEAR`, `minValue` et `maxValue` représentent **l'âge recherché**, et non des années de naissance. Le système déduit deux âges possibles à partir de l'année seule. En 2026, une personne née en 2008 a 17 ou 18 ans : le dossier est signalé hors plage. Née en 2001, elle a 24 ou 25 ans : le dossier est signalé comme limite à vérifier. Née en 2000, elle a 25 ou 26 ans : aucun signal.
+
+Ces signaux sont visibles dans le dossier du recruteur. Ils ne modifient ni le statut, ni le score IA, ni la transmission de la candidature. Le formulaire public demande l'année de naissance ; la comparaison avec la tranche configurée est effectuée côté serveur. Une vérification exacte nécessite le jour et le mois de naissance ; le système ne les collecte pas dans ce modèle.
+
+## Réponses attendues sur les autres champs
+
+Le même `PUT` accepte une liste `rules` en plus de `fields`. Chaque règle décrit une ou plusieurs réponses attendues. `mode: "ALL"` demande que toutes les conditions soient satisfaites ; `mode: "ANY"` en demande au moins une. Si la règle échoue, `action: "FLAG"` ajoute seulement un signal au dossier ; `action: "REVIEW"` ajoute le signal et dirige le dossier vers la revue humaine. Aucune de ces actions ne refuse automatiquement une candidature.
+
+Exemple :
+
+```json
+{
+  "fields": [
+    { "key": "diplome", "label": "Diplôme", "type": "SINGLE_SELECT", "required": true, "options": ["Licence", "Master", "Autre"] },
+    { "key": "experience", "label": "Années d’expérience", "type": "NUMBER", "required": true }
+  ],
+  "rules": [
+    {
+      "key": "qualification",
+      "label": "Qualification attendue",
+      "mode": "ALL",
+      "action": "REVIEW",
+      "conditions": [
+        { "fieldKey": "diplome", "operator": "IN", "value": ["Licence", "Master"] },
+        { "fieldKey": "experience", "operator": "GTE", "value": 3 }
+      ]
+    }
+  ]
+}
+```
+
+Les choix uniques et les réponses `YES_NO` acceptent `EQUALS`, `NOT_EQUALS` et `IN` (avec les valeurs `"true"` et `"false"` pour oui/non). Les choix multiples acceptent `CONTAINS_ANY` et `CONTAINS_ALL`. Les nombres acceptent `EQUALS`, `GTE`, `LTE` et `BETWEEN` (intervalle inclusif, par exemple `[2, 5]`). `PRESENT` vérifie qu'un champ est renseigné, y compris `DECLARATION`, `FILE` ou `FILES`. Les règles de ce moteur ne s'appliquent pas à l'année de naissance ni aux caractéristiques personnelles : elles restent des signaux informatifs distincts.
+
+Un champ `FILES` accepte jusqu'à 5 PDF par défaut, ou de 2 à 10 avec `maxFiles`. Chaque PDF est limité à 5 Mo et l'ensemble des pièces complémentaires à 20 Mo. Exemple de champs :
+
+```json
+{
+  "fields": [
+    { "key": "experience_poissonnerie", "label": "Avez-vous travaillé dans la poissonnerie ?", "type": "YES_NO", "required": true },
+    { "key": "pieces", "label": "Diplôme, identité et attestations", "type": "FILES", "required": true, "maxFiles": 4 },
+    { "key": "declaration", "label": "Je confirme pouvoir assurer les missions décrites", "type": "DECLARATION", "required": true }
+  ],
+  "rules": [
+    { "key": "experience_obligatoire", "label": "Expérience en poissonnerie", "mode": "ALL", "action": "REVIEW", "conditions": [{ "fieldKey": "experience_poissonnerie", "operator": "EQUALS", "value": "true" }] }
+  ]
+}
+```
+
+La date limite se renseigne dans le formulaire de création ou de modification de l'offre. Le jour choisi reste inclus jusqu'à 23 h 59, heure du Bénin ; les nouveaux dépôts sont ensuite refusés côté serveur et l'offre sort de la liste publique.

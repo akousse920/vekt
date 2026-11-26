@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { deadlineFromDateOnly } from "./application-deadline";
 
 export const candidateApplicationSchema = z.object({
   name: z.string().min(1, "Name is required").max(100),
@@ -21,6 +22,7 @@ export const jobSchema = z.object({
   customPrompt: z.string().optional(),
   threshold: z.number().int().min(0).max(100).optional(),
   notifyOnApplication: z.boolean().optional(),
+  applicationDeadlineDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine((value) => { try { deadlineFromDateOnly(value); return true; } catch { return false; } }, "Date limite invalide").nullable().optional(),
 });
 
 export const candidateAnswersSchema = z

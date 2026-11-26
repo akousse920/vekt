@@ -3,9 +3,13 @@ import logger from "@/lib/logger";
 import { prisma } from "@/lib/prisma";
 import { sanitizeRichText } from "@/lib/sanitize-html";
 import { jobSchema } from "@/lib/schemas";
+import { deadlineFromDateOnly } from "@/lib/application-deadline";
+import { applicationFilePaths } from "@/lib/application-file-paths";
 import { generateSlug } from "@/lib/utils";
+import { unlink } from "fs/promises";
 import type { Session } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
+import path from "path";
 
 async function getCurrentDbUser(session: Session | null) {
   const email = session?.user?.email;
@@ -77,9 +81,10 @@ export async function PATCH(
     }
     const description = sanitizeRichText(validation.data.description);
     const slug = await generateUniqueSlug(validation.data.title, id);
+    const { applicationDeadlineDate, ...jobData } = validation.data;
     const job = await prisma.job.update({
       where: { id },
-      data: { ...validation.data, description, slug },
+      data: { ...jobData, description, slug, ...(applicationDeadlineDate !== undefined ? { applicationDeadline: deadlineFromDateOnly(applicationDeadlineDate) } : {}) },
     });
     logger.info({ jobId: id }, "API: job updated");
     return NextResponse.json(job);
@@ -115,7 +120,17 @@ export async function DELETE(
   }
 
   try {
+    const attachments = await prisma.applicationAnswer.findMany({
+      where: { field: { jobId: id, type: { in: ["FILE", "FILES"] } } },
+      select: { value: true, field: { select: { type: true } } },
+    });
     await prisma.job.delete({ where: { id } });
+    await Promise.allSettled(attachments.flatMap(({ value, field }) => applicationFilePaths(value, field.type)).map((storedPath) => {
+      const filename = path.basename(storedPath);
+      return /^[a-f0-9-]{36}\.pdf$/i.test(filename)
+        ? unlink(path.join(process.cwd(), "private", "uploads", filename))
+        : Promise.resolve();
+    }));
     logger.info({ jobId: id }, "API: job deleted");
     return NextResponse.json({ success: true });
   } catch (err) {

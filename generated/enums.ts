@@ -18,6 +18,38 @@ export const QuestionType = {
 export type QuestionType = (typeof QuestionType)[keyof typeof QuestionType]
 
 
+export const ApplicationFieldType = {
+  SHORT_TEXT: 'SHORT_TEXT',
+  LONG_TEXT: 'LONG_TEXT',
+  NUMBER: 'NUMBER',
+  BIRTH_YEAR: 'BIRTH_YEAR',
+  SINGLE_SELECT: 'SINGLE_SELECT',
+  MULTI_SELECT: 'MULTI_SELECT',
+  FILE: 'FILE',
+  FILES: 'FILES',
+  YES_NO: 'YES_NO',
+  DECLARATION: 'DECLARATION'
+} as const
+
+export type ApplicationFieldType = (typeof ApplicationFieldType)[keyof typeof ApplicationFieldType]
+
+
+export const ApplicationRuleMode = {
+  ALL: 'ALL',
+  ANY: 'ANY'
+} as const
+
+export type ApplicationRuleMode = (typeof ApplicationRuleMode)[keyof typeof ApplicationRuleMode]
+
+
+export const ApplicationRuleAction = {
+  FLAG: 'FLAG',
+  REVIEW: 'REVIEW'
+} as const
+
+export type ApplicationRuleAction = (typeof ApplicationRuleAction)[keyof typeof ApplicationRuleAction]
+
+
 export const ScreeningOperator = {
   EQUALS: 'EQUALS',
   NOT_EQUALS: 'NOT_EQUALS',

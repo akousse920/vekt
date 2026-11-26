@@ -1,4 +1,5 @@
 import { CandidateStatus, EmailType } from "@/generated/client";
+import { applicationFilePaths } from "@/lib/application-file-paths";
 import { evaluateCandidate } from "@/lib/ai";
 import { sendCandidateEmail } from "@/lib/email";
 import { sendRecruiterApplicationEmail } from "@/lib/recruiter-application-email";
@@ -314,7 +315,7 @@ export const purgeExpiredCandidates = inngest.createFunction(
     const expired = await step.run("fetch-expired-candidates", async () => {
       return prisma.candidate.findMany({
         where: { appliedAt: { lt: cutoff } },
-        select: { id: true, resumePath: true },
+        select: { id: true, resumePath: true, applicationAnswers: { where: { field: { type: { in: ["FILE", "FILES"] } } }, select: { value: true, field: { select: { type: true } } } } },
       });
     });
 
@@ -357,12 +358,14 @@ export const purgeExpiredCandidates = inngest.createFunction(
     await step.run("delete-resume-files", async () => {
       const uploadsDir = path.join(process.cwd(), "private", "uploads");
       for (const candidate of expired) {
-        const filename = path.basename(candidate.resumePath);
-        // Only delete UUIDs (guard against unexpected paths)
-        if (/^[a-f0-9-]{36}\.pdf$/i.test(filename)) {
-          await fs.unlink(path.join(uploadsDir, filename)).catch(() => {
-            // File already gone — not an error
-          });
+        for (const storedPath of [candidate.resumePath, ...candidate.applicationAnswers.flatMap((answer) => applicationFilePaths(answer.value, answer.field.type))]) {
+          const filename = path.basename(storedPath);
+          // Only delete UUIDs (guard against unexpected paths)
+          if (/^[a-f0-9-]{36}\.pdf$/i.test(filename)) {
+            await fs.unlink(path.join(uploadsDir, filename)).catch(() => {
+              // File already gone — not an error
+            });
+          }
         }
       }
     });

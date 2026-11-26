@@ -17,6 +17,7 @@ model Job {
   threshold           Int                 @default(75)
   isActive            Boolean             @default(true)
   notifyOnApplication Boolean             @default(true)
+  applicationDeadline DateTime?
   createdAt           DateTime            @default(now())
   updatedAt           DateTime            @updatedAt
   candidates          Candidate[]
@@ -24,6 +25,8 @@ model Job {
   screeningQuestions  ScreeningQuestion[]
   screeningRules      ScreeningRule[]
   rubricCriteria      RubricCriterion[]
+  applicationFields   ApplicationField[]
+  applicationRules    ApplicationRule[]
   createdById         String?
   createdBy           User?               @relation(fields: [createdById], references: [id], onDelete: SetNull)
 }
@@ -105,6 +108,70 @@ model JobView {
   viewedAt DateTime @default(now())
 }
 
+/// Extra fields shown on the public application form. Changes are locked after
+/// the first application so stored answers retain their original meaning.
+model ApplicationField {
+  id               String              @id @default(cuid())
+  jobId            String
+  job              Job                 @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  key              String
+  label            String
+  type             ApplicationFieldType
+  required         Boolean             @default(false)
+  options          String               @default("[]")
+  minValue         Float?
+  maxValue         Float?
+  flagOutsideRange Boolean             @default(false)
+  maxFiles         Int                 @default(1)
+  order            Int                 @default(0)
+  answers          ApplicationAnswer[]
+
+  @@unique([jobId, key])
+  @@index([jobId, order])
+}
+
+model ApplicationAnswer {
+  id          String           @id @default(cuid())
+  candidateId String
+  candidate   Candidate        @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  fieldId     String
+  field       ApplicationField @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+  /// JSON string for multi-select; file path for PDF; plain string otherwise.
+  value       String
+
+  @@unique([candidateId, fieldId])
+}
+
+/// Expected answers on one or more application fields. A failed REVIEW rule
+/// sends the dossier to a person; a failed FLAG rule only adds a visible flag.
+model ApplicationRule {
+  id         String                @id @default(cuid())
+  jobId      String
+  job        Job                   @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  key        String
+  label      String
+  mode       ApplicationRuleMode   @default(ALL)
+  action     ApplicationRuleAction @default(FLAG)
+  conditions String
+  order      Int                   @default(0)
+
+  @@unique([jobId, key])
+  @@index([jobId, order])
+}
+
+/// Informational only: flags never alter status, AI score or routing.
+model CandidateFlag {
+  id          String    @id @default(cuid())
+  candidateId String
+  candidate   Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  /// Identifier of the field or application rule that raised the flag.
+  fieldId     String
+  detail      String
+  createdAt   DateTime  @default(now())
+
+  @@index([candidateId])
+}
+
 model Candidate {
   id                   String          @id @default(cuid())
   name                 String
@@ -119,12 +186,15 @@ model Candidate {
   evaluation           Evaluation?
   consentGiven         Boolean         @default(false)
   consentAt            DateTime?
+  criteriaDeclaredAt   DateTime?
   privacyPolicyVersion String?
   emailOptOut          Boolean         @default(false)
   emailLogs            EmailLog[]
   answers              CandidateAnswer[]
   textAnswers          CandidateTextAnswer[]
   decisionReasons      DecisionReason[]
+  applicationAnswers   ApplicationAnswer[]
+  flags                CandidateFlag[]
 }
 
 model DecisionReason {
@@ -210,6 +280,29 @@ enum QuestionType {
   SINGLE
   MULTIPLE
   TEXT
+}
+
+enum ApplicationFieldType {
+  SHORT_TEXT
+  LONG_TEXT
+  NUMBER
+  BIRTH_YEAR
+  SINGLE_SELECT
+  MULTI_SELECT
+  FILE
+  FILES
+  YES_NO
+  DECLARATION
+}
+
+enum ApplicationRuleMode {
+  ALL
+  ANY
+}
+
+enum ApplicationRuleAction {
+  FLAG
+  REVIEW
 }
 
 enum ScreeningOperator {
