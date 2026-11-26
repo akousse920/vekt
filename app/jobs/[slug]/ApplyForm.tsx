@@ -23,6 +23,7 @@ import {
 import Link from "next/link";
 import { AiDisclosure } from "@/components/ai-disclosure";
 import type { PublicApplicationField } from "@/lib/application-fields";
+import { beninToday } from "@/lib/age-range";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -429,6 +430,11 @@ export default function ApplyForm({ job, supportEmail, aiEnabled, closed = false
                               min={field.type === "BIRTH_YEAR" ? new Date().getUTCFullYear() - 120 : undefined}
                               max={field.type === "BIRTH_YEAR" ? new Date().getUTCFullYear() : undefined}
                               required={field.required} maxLength={field.type === "SHORT_TEXT" ? 200 : undefined}
+                              value={typeof current === "string" ? current : ""} className="h-11"
+                              onChange={(event) => setExtraValues((previous) => ({ ...previous, [field.id]: event.target.value }))} />
+                          )}
+                          {field.type === "BIRTH_DATE" && (
+                            <Input id={`extra-${field.id}`} type="date" max={beninToday()} required={field.required}
                               value={typeof current === "string" ? current : ""} className="h-11"
                               onChange={(event) => setExtraValues((previous) => ({ ...previous, [field.id]: event.target.value }))} />
                           )}

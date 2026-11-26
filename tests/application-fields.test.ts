@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { applicationFormSchema, parseApplicationFields } from "../lib/application-fields";
 import { evaluateApplicationRules } from "../lib/application-rules";
-import { assessBirthYear } from "../lib/age-range";
+import { ageOnDate, assessBirthYear, beninToday } from "../lib/age-range";
 import { deadlineFromDateOnly, isApplicationClosed } from "../lib/application-deadline";
 
 const birthYearField = {
@@ -23,6 +23,53 @@ test("a birth year is assessed against the age range, including uncertain birthd
   assert.equal(assessBirthYear(2000, 25, 40, 2026), "within");
   assert.equal(assessBirthYear(1985, 25, 40, 2026), "boundary");
   assert.equal(assessBirthYear(1984, 25, 40, 2026), "outside");
+});
+
+test("a complete birth date gives an exact age on the local application day", () => {
+  assert.equal(beninToday(new Date("2026-11-25T22:59:59.000Z")), "2026-11-25");
+  assert.equal(beninToday(new Date("2026-11-25T23:00:00.000Z")), "2026-11-26");
+  assert.equal(ageOnDate("2008-11-26", "2026-11-25"), 17);
+  assert.equal(ageOnDate("2008-11-26", "2026-11-26"), 18);
+  assert.equal(ageOnDate("1991-11-26", "2026-11-26"), 35);
+  assert.equal(ageOnDate("1990-11-26", "2026-11-26"), 36);
+  assert.equal(ageOnDate("2000-02-29", "2026-02-28"), 25);
+  assert.equal(ageOnDate("2000-02-29", "2026-03-01"), 26);
+  assert.equal(ageOnDate("2026-02-30", "2026-11-26"), null);
+  assert.equal(ageOnDate("2027-01-01", "2026-11-26"), null);
+});
+
+test("a complete birth date outside the configured age range is flagged, not rejected", () => {
+  const field = { ...birthYearField, type: "BIRTH_DATE" as const, label: "Date de naissance" };
+  const form = new FormData();
+  form.set(`field:${field.id}`, "1980-01-01");
+  const now = new Date("2026-11-26T10:00:00Z");
+  const result = parseApplicationFields(form, [field], now);
+  assert.equal(result.ok, true);
+  if (!result.ok) return;
+  assert.equal(result.answers[0].value, "1980-01-01");
+  assert.equal(result.flags.length, 1);
+  assert.match(result.flags[0].detail, /hors de la plage indicative 25 à 40 ans/);
+  form.set(`field:${field.id}`, "2026-02-30");
+  assert.equal(parseApplicationFields(form, [field], now).ok, false);
+  assert.equal(applicationFormSchema.safeParse({ fields: [{ ...field, options: [] }], rules: [] }).success, true);
+});
+
+test("inclusive age limits accept exact birthdays and flag adjacent days", () => {
+  const field = { ...birthYearField, type: "BIRTH_DATE" as const, label: "Date de naissance", minValue: 18, maxValue: 35 };
+  const form = new FormData();
+  const now = new Date("2026-11-26T10:00:00Z");
+  for (const birthDate of ["2008-11-26", "1991-11-26"]) {
+    form.set(`field:${field.id}`, birthDate);
+    const result = parseApplicationFields(form, [field], now);
+    assert.equal(result.ok, true);
+    if (result.ok) assert.equal(result.flags.length, 0);
+  }
+  for (const birthDate of ["2008-11-27", "1990-11-26"]) {
+    form.set(`field:${field.id}`, birthDate);
+    const result = parseApplicationFields(form, [field], now);
+    assert.equal(result.ok, true);
+    if (result.ok) assert.equal(result.flags.length, 1);
+  }
 });
 
 test("a date limit includes the full local day in Benin", () => {
@@ -107,6 +154,7 @@ test("selection rules reject unknown options and birth-year rules cannot route a
   assert.equal(applicationFormSchema.safeParse({ fields: [base], rules: [rule] }).success, false);
   const ageRule = { ...rule, conditions: [{ fieldKey: "annee_naissance", operator: "GTE", value: 25 }] };
   assert.equal(applicationFormSchema.safeParse({ fields: [{ ...birthYearField, options: [] }], rules: [ageRule] }).success, false);
+  assert.equal(applicationFormSchema.safeParse({ fields: [{ ...birthYearField, type: "BIRTH_DATE", options: [] }], rules: [ageRule] }).success, false);
 });
 
 test("multiple selections and a document can be required by a combined rule", () => {

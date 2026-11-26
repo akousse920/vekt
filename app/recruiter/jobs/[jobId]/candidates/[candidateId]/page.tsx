@@ -74,7 +74,8 @@ export default async function CandidateDetailPage({ params }: { params: Promise<
             <dl className="mt-4 space-y-4">{candidate.applicationAnswers.map((answer) => {
               const display = answer.field.type === "MULTI_SELECT" ? (JSON.parse(answer.value) as string[]).join(", ") : answer.field.type === "YES_NO" ? answer.value === "true" ? "Oui" : "Non" : answer.field.type === "DECLARATION" ? "Déclaration confirmée" : answer.value;
               const files = applicationFilePaths(answer.value, answer.field.type);
-              return <div key={answer.id} className="border-t pt-3 first:border-0 first:pt-0"><dt className="text-sm font-medium">{answer.field.label}</dt><dd className="mt-1 text-sm text-muted-foreground">{files.length ? <span className="flex flex-wrap gap-3">{files.map((file, index) => <a key={file} href={file} target="_blank" rel="noopener noreferrer" className="text-primary underline">Document {index + 1} ↗</a>)}</span> : display}</dd></div>;
+              const historicalBirthYear = answer.field.type === "BIRTH_DATE" && /^\d{4}$/.test(answer.value);
+              return <div key={answer.id} className="border-t pt-3 first:border-0 first:pt-0"><dt className="text-sm font-medium">{historicalBirthYear ? "Année de naissance (ancien formulaire)" : answer.field.label}</dt><dd className="mt-1 text-sm text-muted-foreground">{files.length ? <span className="flex flex-wrap gap-3">{files.map((file, index) => <a key={file} href={file} target="_blank" rel="noopener noreferrer" className="text-primary underline">Document {index + 1} ↗</a>)}</span> : display}</dd></div>;
             })}</dl>
           </section>
         )}
