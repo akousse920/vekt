@@ -80,7 +80,12 @@ export async function PATCH(
       );
     }
     const description = sanitizeRichText(validation.data.description);
-    const slug = await generateUniqueSlug(validation.data.title, id);
+    // Keep the public URL stable (it may already be shared) unless the title changes.
+    const current = await prisma.job.findUnique({ where: { id }, select: { title: true, slug: true } });
+    if (!current) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    const slug = current.title === validation.data.title
+      ? current.slug
+      : await generateUniqueSlug(validation.data.title, id);
     const { applicationDeadlineDate, ...jobData } = validation.data;
     const job = await prisma.job.update({
       where: { id },
