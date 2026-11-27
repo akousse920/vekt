@@ -12,7 +12,7 @@ on:
 
 concurrency:
   group: main-image
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 env:
   REGISTRY: ghcr.io
@@ -20,6 +20,7 @@ env:
 
 jobs:
   build:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -60,3 +61,33 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha,scope=main-amd64
           cache-to: type=gha,mode=max,scope=main-amd64
+
+  deploy:
+    name: Deploy to Kousse
+    needs: build
+    if: github.repository == 'akousse920/vekt'
+    runs-on: ubuntu-latest
+    permissions: {}
+    timeout-minutes: 15
+    steps:
+      - name: Update the application
+        env:
+          SSH_KEY: ${{ secrets.KOUSSE_DEPLOY_KEY }}
+          SSH_TARGET: ${{ vars.KOUSSE_SSH_TARGET }}
+          KNOWN_HOSTS: ${{ vars.KOUSSE_KNOWN_HOSTS }}
+        run: |
+          umask 077
+          key="$RUNNER_TEMP/kousse_key"
+          hosts="$RUNNER_TEMP/kousse_hosts"
+          trap 'rm -f "$key" "$hosts"' EXIT
+          printf '%s\n' "$SSH_KEY" > "$key"
+          printf '%s\n' "$KNOWN_HOSTS" > "$hosts"
+          ssh -T -i "$key" -o IdentitiesOnly=yes -o BatchMode=yes \
+            -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$hosts" \
+            -o ConnectTimeout=15 "$SSH_TARGET" "$GITHUB_SHA"
+
+      - name: Verify public availability
+        run: |
+          curl --fail --silent --show-error --output /dev/null \
+            --retry 10 --retry-all-errors --retry-delay 3 --max-time 10 \
+            https://recrutement.kdevs.space/login
