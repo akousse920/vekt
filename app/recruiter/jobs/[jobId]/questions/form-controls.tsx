@@ -27,6 +27,17 @@ export function canUseInRule(field: Field) {
   return !isBirth(field.type) && field.key !== "age" && !isSensitiveScreeningQuestion(field.label);
 }
 
+export function hasExpectation(field: Field, existing = false) {
+  if (!canUseInRule(field)) return false;
+  return existing || !["SHORT_TEXT", "LONG_TEXT", "DECLARATION"].includes(field.type);
+}
+
+export const isCombined = (rule: Rule) => rule.conditions.length > 1;
+
+export function simpleRules(rules: Rule[], field: Field) {
+  return rules.filter(rule => !isCombined(rule) && rule.conditions[0]?.fieldKey === field.key);
+}
+
 export function allowedOperators(field: Field): Condition["operator"][] {
   switch (field.type) {
     case "NUMBER": return ["GTE", "LTE", "BETWEEN", "EQUALS", "PRESENT"];

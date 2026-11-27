@@ -19,7 +19,7 @@ export function newCondition(field: Field, operator = allowedOperators(field)[0]
   return { ...base, value: choices(field)[0] };
 }
 
-function ExpectedValue({ condition, field, change }: { condition: Condition; field: Field; change: (value: Condition["value"]) => void }) {
+export function ExpectedValue({ condition, field, change }: { condition: Condition; field: Field; change: (value: Condition["value"]) => void }) {
   const { operator, value } = condition;
   if (operator === "PRESENT") return null;
   if (operator === "BETWEEN") {
@@ -45,7 +45,7 @@ function ExpectedValue({ condition, field, change }: { condition: Condition; fie
       </label>)}
     </fieldset>;
   }
-  return <label className="grid gap-1 text-sm font-medium">Réponse attendue<Select value={String(value ?? "")} onChange={e => change(e.target.value)}>
+  return <label className="grid gap-1 text-sm font-medium">Choix attendu<Select value={String(value ?? "")} onChange={e => change(e.target.value)}>
     {choices(field).map(option => <option key={option} value={option}>{displayValue(field, option)}</option>)}
   </Select></label>;
 }
