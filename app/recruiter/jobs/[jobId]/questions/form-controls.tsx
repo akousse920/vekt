@@ -48,6 +48,41 @@ export function displayValue(field: Field, value: string | number) {
   return String(value);
 }
 
+export const actions: Record<Rule["action"], string> = {
+  FLAG: "Signaler le point dans le dossier", REVIEW: "Envoyer le dossier en revue humaine",
+};
+
+function describeCondition(condition: Condition, fields: Field[]) {
+  const field = fields.find(f => f.key === condition.fieldKey);
+  if (!field) return "question à choisir";
+  const values = (Array.isArray(condition.value) ? condition.value : condition.value === undefined ? [] : [condition.value])
+    .map(v => typeof v === "number" && !Number.isFinite(v) ? "…" : displayValue(field, v));
+  const list = values.join(", ") || "…";
+  const answer = `la réponse à « ${field.label} »`;
+  switch (condition.operator) {
+    case "PRESENT": return `${answer} est renseignée`;
+    case "EQUALS": return `${answer} est ${list}`;
+    case "NOT_EQUALS": return `${answer} n’est pas ${list}`;
+    case "GTE": return `${answer} est d’au moins ${list}`;
+    case "LTE": return `${answer} est d’au plus ${list}`;
+    case "BETWEEN": return `${answer} est comprise entre ${values[0] ?? "…"} et ${values[1] ?? "…"}`;
+    case "IN": return `${answer} est l’un de ces choix : ${list}`;
+    case "CONTAINS_ANY": return `${answer} inclut au moins un de ces choix : ${list}`;
+    case "CONTAINS_ALL": return `${answer} inclut tous ces choix : ${list}`;
+    case "CONTAINS_NONE": return `${answer} n’inclut aucun de ces choix : ${list}`;
+  }
+}
+
+export function describeRule(rule: Rule, fields: Field[]) {
+  return rule.conditions.map(c => describeCondition(c, fields)).join(rule.mode === "ALL" ? " et " : " ou ");
+}
+
+export function RuleSummary({ rule, fields }: { rule: Rule; fields: Field[] }) {
+  return <span className="break-words">
+    <strong className="font-semibold">Attendu :</strong> {describeRule(rule, fields)}. <strong className="font-semibold">Sinon :</strong> {actions[rule.action].toLowerCase()}.
+  </span>;
+}
+
 export function Select({ children, ...props }: SelectHTMLAttributes<HTMLSelectElement>) {
   return <select {...props} className="min-h-11 w-full min-w-0 rounded-xl border border-input bg-white px-3 text-base">{children}</select>;
 }

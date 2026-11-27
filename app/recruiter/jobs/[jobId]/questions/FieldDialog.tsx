@@ -46,7 +46,7 @@ export default function FieldDialog({ initial, existing, close, apply }: {
     submit={() => finish(false)} error={error} actions={<>
       {canUseInRule(field) && <Button type="button" variant="outline" onClick={e => {
         if (e.currentTarget.form?.reportValidity()) finish(true);
-      }}>Continuer vers un critère</Button>}
+      }}>Appliquer et définir la réponse attendue</Button>}
       <Button type="submit">Appliquer</Button>
     </>}>
     <label className="grid gap-2">Type de réponse
