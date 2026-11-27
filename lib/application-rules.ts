@@ -29,14 +29,20 @@ function matchesCondition(
   if (field.type === "SINGLE_SELECT" || field.type === "YES_NO") {
     if (condition.operator === "EQUALS") return raw === condition.value;
     if (condition.operator === "NOT_EQUALS") return raw !== condition.value;
+    if (field.type === "SINGLE_SELECT" && (condition.operator === "GTE" || condition.operator === "LTE")) {
+      const actual = numeric(raw.replace(",", "."));
+      if (actual === null || typeof condition.value !== "number") return false;
+      return condition.operator === "GTE" ? actual >= condition.value : actual <= condition.value;
+    }
     if (condition.operator === "IN") return Array.isArray(condition.value) && condition.value.includes(raw);
   }
   if (field.type === "MULTI_SELECT") {
     let selected: unknown;
     try { selected = JSON.parse(raw); } catch { return false; }
-    if (!Array.isArray(selected) || !selected.every((item) => typeof item === "string")) return false;
+    if (!Array.isArray(selected) || !selected.length || !selected.every((item) => typeof item === "string")) return false;
     if (!Array.isArray(condition.value)) return false;
     if (condition.operator === "CONTAINS_ANY") return condition.value.some((item) => selected.includes(item));
+    if (condition.operator === "CONTAINS_NONE") return condition.value.every((item) => !selected.includes(item));
     if (condition.operator === "CONTAINS_ALL") return condition.value.every((item) => selected.includes(item));
   }
   if (field.type === "NUMBER") {

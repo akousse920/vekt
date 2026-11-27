@@ -138,7 +138,7 @@ export default function JobDetailsForm({ job, aiEnabled }: { job?: InitialJob; a
         </label>
         {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
         <div className="flex justify-end border-t pt-5">
-          <Button type="submit" disabled={busy} className="brand-cta h-12 rounded-xl px-6 font-semibold">{busy ? "Enregistrement…" : job ? "Enregistrer et continuer" : "Créer et ajouter les questions"}</Button>
+          <Button type="submit" disabled={busy} className="brand-cta h-12 rounded-xl px-6 font-semibold">{busy ? "Enregistrement…" : job ? "Enregistrer et continuer" : "Créer et configurer le formulaire"}</Button>
         </div>
       </form>
       {job && (

@@ -1,0 +1,70 @@
+import type { ReactNode, SelectHTMLAttributes } from "react";
+import type { ApplicationFieldConfig, ApplicationRuleConfig } from "@/lib/application-fields";
+import { isSensitiveScreeningQuestion } from "@/lib/screening-policy";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogFooter, DialogTitle } from "@/components/ui/dialog";
+
+export type Field = ApplicationFieldConfig;
+export type Rule = ApplicationRuleConfig;
+export type Condition = Rule["conditions"][number];
+export const types: Record<Field["type"], string> = {
+  SHORT_TEXT: "Texte court", LONG_TEXT: "Texte long", NUMBER: "Nombre",
+  SINGLE_SELECT: "Liste déroulante", MULTI_SELECT: "Choix multiples", YES_NO: "Oui / Non",
+  BIRTH_DATE: "Date de naissance", BIRTH_YEAR: "Année de naissance", DECLARATION: "Déclaration à cocher",
+  FILE: "Document PDF", FILES: "Plusieurs documents PDF",
+};
+export const operators: Record<Condition["operator"], string> = {
+  PRESENT: "Réponse fournie", EQUALS: "Égal à", NOT_EQUALS: "Différent de", GTE: "Au moins", LTE: "Au plus",
+  BETWEEN: "Compris entre", IN: "Un des choix suivants", CONTAINS_ANY: "Au moins un des choix",
+  CONTAINS_ALL: "Tous les choix", CONTAINS_NONE: "Aucun des choix",
+};
+
+export function isBirth(type: Field["type"]) {
+  return type === "BIRTH_YEAR" || type === "BIRTH_DATE";
+}
+
+export function canUseInRule(field: Field) {
+  return !isBirth(field.type) && field.key !== "age" && !isSensitiveScreeningQuestion(field.label);
+}
+
+export function allowedOperators(field: Field): Condition["operator"][] {
+  switch (field.type) {
+    case "NUMBER": return ["GTE", "LTE", "BETWEEN", "EQUALS", "PRESENT"];
+    case "YES_NO": return ["EQUALS", "NOT_EQUALS", "IN", "PRESENT"];
+    case "SINGLE_SELECT":
+      return field.options.length && field.options.every(value => /^-?\d+(?:[.,]\d+)?$/.test(value))
+        ? ["EQUALS", "NOT_EQUALS", "IN", "GTE", "LTE", "PRESENT"] : ["EQUALS", "NOT_EQUALS", "IN", "PRESENT"];
+    case "MULTI_SELECT": return ["CONTAINS_ANY", "CONTAINS_ALL", "CONTAINS_NONE", "PRESENT"];
+    default: return ["PRESENT"];
+  }
+}
+
+export function newKey(prefix: string) {
+  return prefix + "_" + crypto.randomUUID().replaceAll("-", "");
+}
+
+export function displayValue(field: Field, value: string | number) {
+  if (field.type === "YES_NO") return value === "true" ? "Oui" : "Non";
+  return String(value);
+}
+
+export function Select({ children, ...props }: SelectHTMLAttributes<HTMLSelectElement>) {
+  return <select {...props} className="min-h-11 w-full min-w-0 rounded-xl border border-input bg-white px-3 text-base">{children}</select>;
+}
+
+export function EditorDialog({ title, close, children, actions, submit, error }: {
+  title: string; close: () => void; children: ReactNode; actions: ReactNode; submit: () => void; error?: string;
+}) {
+  return <Dialog open onOpenChange={open => { if (!open) close(); }}>
+    <DialogContent aria-describedby={undefined} className="max-h-[92dvh] overflow-y-auto sm:max-w-2xl">
+      <DialogTitle className="pr-7 text-xl">{title}</DialogTitle>
+      <form className="grid gap-5" onSubmit={event => { event.preventDefault(); submit(); }}>
+        {children}
+        {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
+        <DialogFooter className="flex-wrap">
+          <Button type="button" variant="outline" onClick={close}>Annuler</Button>{actions}
+        </DialogFooter>
+      </form>
+    </DialogContent>
+  </Dialog>;
+}

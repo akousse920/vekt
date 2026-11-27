@@ -12,7 +12,7 @@ type Job = {
   location: string | null;
   isActive: boolean;
   notifyOnApplication: boolean;
-  _count: { candidates: number; screeningQuestions: number };
+  _count: { candidates: number; screeningQuestions: number; applicationFields: number };
 };
 
 type Props = {
@@ -74,29 +74,32 @@ export default function JobListingsSection({ listings, total, page, totalPages, 
         </div>
       ) : (
         <div className="grid gap-4">
-          {listings.map((job) => (
-            <Card key={job.id} size="sm" className="border-[#d8e0e8] bg-white shadow-sm">
-              <CardContent className="flex flex-col gap-4 px-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-                <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h2 className="text-xl font-bold">{job.title}</h2>
-                    <Badge variant={job.isActive ? "default" : "secondary"}>{job.isActive ? "Publiée" : "En pause"}</Badge>
+          {listings.map((job) => {
+            const count = job._count.screeningQuestions + job._count.applicationFields;
+            return (
+              <Card key={job.id} size="sm" className="border-[#d8e0e8] bg-white shadow-sm">
+                <CardContent className="flex flex-col gap-4 px-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h2 className="text-xl font-bold">{job.title}</h2>
+                      <Badge variant={job.isActive ? "default" : "secondary"}>{job.isActive ? "Publiée" : "En pause"}</Badge>
+                    </div>
+                    <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground"><MapPinIcon className="size-4" /> {job.location || "Lieu non précisé"}</p>
+                    <p className="mt-3 text-sm text-muted-foreground">{job._count.candidates} {job._count.candidates === 1 ? "candidature" : "candidatures"} · {count ? `${count} question${count > 1 ? "s" : ""} spécifique${count > 1 ? "s" : ""}` : "Formulaire standard"}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      Alertes e-mail {job.notifyOnApplication ? "activées" : "désactivées"} ·{" "}
+                      <Link href={`/recruiter/jobs/${job.id}/edit`} className="font-medium text-primary underline underline-offset-2">Modifier</Link>
+                    </p>
                   </div>
-                  <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground"><MapPinIcon className="size-4" /> {job.location || "Lieu non précisé"}</p>
-                  <p className="mt-3 text-sm text-muted-foreground">{job._count.candidates} {job._count.candidates === 1 ? "candidature" : "candidatures"} · {job._count.screeningQuestions} {job._count.screeningQuestions === 1 ? "question" : "questions"}</p>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Alertes e-mail {job.notifyOnApplication ? "activées" : "désactivées"} ·{" "}
-                    <Link href={`/recruiter/jobs/${job.id}/edit`} className="font-medium text-primary underline underline-offset-2">Modifier</Link>
-                  </p>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <Button asChild className="rounded-xl"><Link href={`/recruiter/jobs/${job.id}`}>Candidatures</Link></Button>
-                  <Button asChild variant="outline" className="rounded-xl"><Link href={`/recruiter/jobs/${job.id}/questions`}>Configurer l’offre</Link></Button>
-                  <CopyPublicJobLink slug={job.slug} isActive={job.isActive} />
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                  <div className="flex flex-wrap gap-2">
+                    <Button asChild className="rounded-xl"><Link href={`/recruiter/jobs/${job.id}`}>Candidatures</Link></Button>
+                    <Button asChild variant="outline" className="rounded-xl"><Link href={`/recruiter/jobs/${job.id}/questions`}>Configurer l’offre</Link></Button>
+                    <CopyPublicJobLink slug={job.slug} isActive={job.isActive} />
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       )}
       {totalPages > 1 && (

@@ -79,10 +79,10 @@ export default async function CandidateDetailPage({ params }: { params: Promise<
             })}</dl>
           </section>
         )}
-        <section className="rounded-2xl border border-[#d8e0e8] bg-white p-5 sm:p-7">
+        {(grouped.size > 0 || candidate.textAnswers.length > 0 || !candidate.applicationAnswers.length) && <section className="rounded-2xl border border-[#d8e0e8] bg-white p-5 sm:p-7">
           <h2 className="text-lg font-bold">Réponses aux questions</h2>
           {grouped.size === 0 && candidate.textAnswers.length === 0 ? (
-            <p className="mt-4 text-sm text-muted-foreground">Cette offre ne comportait pas de questions.</p>
+            <p className="mt-4 text-sm text-muted-foreground">Aucune réponse complémentaire enregistrée.</p>
           ) : (
             <div className="mt-5 space-y-5">
               {[...grouped.entries()].map(([id, item]) => (
@@ -99,7 +99,7 @@ export default async function CandidateDetailPage({ params }: { params: Promise<
               ))}
             </div>
           )}
-        </section>
+        </section>}
 
         {candidate.evaluation && (
           <section className="rounded-2xl border border-[#d8e0e8] bg-white p-5 sm:p-7">

@@ -6,7 +6,7 @@ const keySchema = z.string().regex(/^[a-z][a-z0-9_]{0,39}$/);
 
 export const applicationFieldSchema = z.object({
   key: keySchema,
-  label: z.string().trim().min(1).max(120),
+  label: z.string().trim().min(1).max(500),
   type: z.enum(["SHORT_TEXT", "LONG_TEXT", "NUMBER", "BIRTH_YEAR", "BIRTH_DATE", "SINGLE_SELECT", "MULTI_SELECT", "FILE", "FILES", "YES_NO", "DECLARATION"]),
   required: z.boolean().default(false),
   options: z.array(z.string().trim().min(1).max(100)).max(20).default([]),
@@ -30,7 +30,7 @@ export const applicationFieldSchema = z.object({
 
 export const applicationRuleConditionSchema = z.object({
   fieldKey: keySchema,
-  operator: z.enum(["PRESENT", "EQUALS", "NOT_EQUALS", "IN", "CONTAINS_ANY", "CONTAINS_ALL", "GTE", "LTE", "BETWEEN"]),
+  operator: z.enum(["PRESENT", "EQUALS", "NOT_EQUALS", "IN", "CONTAINS_ANY", "CONTAINS_ALL", "CONTAINS_NONE", "GTE", "LTE", "BETWEEN"]),
   value: z.union([
     z.string().trim().min(1).max(100),
     z.number().finite(),
@@ -41,15 +41,15 @@ export const applicationRuleConditionSchema = z.object({
 
 export const applicationRuleSchema = z.object({
   key: keySchema,
-  label: z.string().trim().min(1).max(160),
+  label: z.string().trim().min(1).max(500),
   mode: z.enum(["ALL", "ANY"]),
   action: z.enum(["FLAG", "REVIEW"]),
   conditions: z.array(applicationRuleConditionSchema).min(1).max(10),
 });
 
 export const applicationFormSchema = z.object({
-  fields: z.array(applicationFieldSchema).max(25),
-  rules: z.array(applicationRuleSchema).max(20).default([]),
+  fields: z.array(applicationFieldSchema).max(45),
+  rules: z.array(applicationRuleSchema).max(40).default([]),
 }).superRefine((form, ctx) => {
   const keys = form.fields.map((field) => field.key);
   if (new Set(keys).size !== keys.length) ctx.addIssue({ code: "custom", message: "Field keys must be unique", path: ["fields"] });
@@ -74,9 +74,11 @@ export const applicationFormSchema = z.object({
           if (typeof value !== "string" || !choices.includes(value)) issue("Choose a configured option");
         } else if (operator === "IN") {
           if (!Array.isArray(value) || value.length === 0 || !value.every((item) => typeof item === "string" && choices.includes(item))) issue("Choose configured options");
+        } else if (field.type === "SINGLE_SELECT" && (operator === "GTE" || operator === "LTE")) {
+          if (typeof value !== "number" || !field.options.every(option => /^-?\d+(?:[.,]\d+)?$/.test(option))) issue("Numeric comparisons require numeric choices");
         } else issue("Operator is not valid for a single choice");
       } else if (field.type === "MULTI_SELECT") {
-        if (operator !== "CONTAINS_ANY" && operator !== "CONTAINS_ALL") issue("Operator is not valid for multiple choices");
+        if (operator !== "CONTAINS_ANY" && operator !== "CONTAINS_ALL" && operator !== "CONTAINS_NONE") issue("Operator is not valid for multiple choices");
         else if (!Array.isArray(value) || value.length === 0 || !value.every((item) => typeof item === "string" && field.options.includes(item))) issue("Choose configured options");
       } else if (field.type === "NUMBER") {
         if (operator === "BETWEEN") {
@@ -156,6 +158,8 @@ export function parseApplicationFields(formData: FormData, fields: PublicApplica
     }
     if (typeof raw !== "string") return { ok: false, error: `Valeur invalide pour « ${field.label} ».` };
     const value = raw.trim();
+    if (field.required && !value) return { ok: false, error: `Le champ « ${field.label} » est obligatoire.` };
+    if (!value) continue;
     if (field.type === "BIRTH_DATE") {
       const age = ageOnDate(value, applicationDay);
       if (age === null) return { ok: false, error: `Indiquez une date de naissance valide pour « ${field.label} ».` };

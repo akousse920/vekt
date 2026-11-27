@@ -59,6 +59,7 @@ export default async function RecruiterPage({
           select: {
             candidates: true,
             screeningQuestions: true,
+            applicationFields: true,
           },
         },
       },

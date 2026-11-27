@@ -2,7 +2,7 @@
 
 Le formulaire public d'une offre peut recevoir des champs supplémentaires : texte court, texte long, nombre, date de naissance, choix unique, choix multiples, oui/non, déclaration à cocher, un document PDF ou plusieurs PDF dans un même champ. Le CV reste obligatoire. Aucun champ supplémentaire n'est ajouté par défaut. Pour toute offre, le candidat confirme aussi avoir lu les critères ; cette déclaration est enregistrée avec la candidature.
 
-La configuration se fait pour l'instant via `PUT /api/job-listings/{id}/application-form`, avec une session du recruteur propriétaire de l'offre ou d'un administrateur. Le backoffice de configuration viendra ensuite. Une fois la première candidature reçue, la définition du formulaire est figée pour conserver le sens des réponses enregistrées.
+Le recruteur ouvre **Configurer l’offre → Formulaire de candidature**. Il peut charger un modèle, ordonner les questions et associer plusieurs réponses ou pièces à un critère. Les modifications sont appliquées ensemble avec **Enregistrer le formulaire**. La configuration est aussi accessible via `PUT /api/job-listings/{id}/application-form`, avec une session du recruteur propriétaire de l'offre ou d'un administrateur. Une fois la première candidature reçue, la définition du formulaire est figée pour conserver le sens des réponses enregistrées.
 
 Deux modèles peuvent être chargés avec `{ "template": "simple" }` ou `{ "template": "profil" }`. Le modèle `profil` contient téléphone, diplôme, expérience et justificatif de diplôme. Il ne demande pas la date de naissance par défaut.
 
@@ -56,7 +56,7 @@ Exemple :
 }
 ```
 
-Les choix uniques et les réponses `YES_NO` acceptent `EQUALS`, `NOT_EQUALS` et `IN` (avec les valeurs `"true"` et `"false"` pour oui/non). Les choix multiples acceptent `CONTAINS_ANY` et `CONTAINS_ALL`. Les nombres acceptent `EQUALS`, `GTE`, `LTE` et `BETWEEN` (intervalle inclusif, par exemple `[2, 5]`). `PRESENT` vérifie qu'un champ est renseigné, y compris `DECLARATION`, `FILE` ou `FILES`. Les règles de ce moteur ne s'appliquent pas à la date de naissance ni aux caractéristiques personnelles : elles restent des signaux informatifs distincts.
+Les choix uniques et les réponses `YES_NO` acceptent `EQUALS`, `NOT_EQUALS` et `IN` (avec les valeurs `"true"` et `"false"` pour oui/non). Les listes composées de valeurs numériques acceptent également `GTE` et `LTE`. Les choix multiples acceptent `CONTAINS_ANY`, `CONTAINS_ALL` et `CONTAINS_NONE`. Les nombres acceptent `EQUALS`, `GTE`, `LTE` et `BETWEEN` (intervalle inclusif, par exemple `[2, 5]`). `PRESENT` vérifie qu'un champ est renseigné, y compris `DECLARATION`, `FILE` ou `FILES`. Les règles de ce moteur ne s'appliquent pas à la date de naissance ni aux caractéristiques personnelles : elles restent des signaux informatifs distincts.
 
 Un champ `FILES` accepte jusqu'à 5 PDF par défaut, ou de 2 à 10 avec `maxFiles`. Chaque PDF est limité à 5 Mo et l'ensemble des pièces complémentaires à 20 Mo. Exemple de champs :
 
