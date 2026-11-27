@@ -4,6 +4,7 @@ import { sanitizeRichText } from "@/lib/sanitize-html";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import JobDetailsForm from "../../JobDetailsForm";
+import JobSetupSteps from "../../JobSetupSteps";
 
 export default async function EditJobPage({ params }: { params: Promise<{ jobId: string }> }) {
   const session = await auth();
@@ -17,10 +18,11 @@ export default async function EditJobPage({ params }: { params: Promise<{ jobId:
   if (!job) notFound();
   return (
     <main className="mx-auto min-h-[80vh] max-w-4xl px-5 py-8 sm:px-8 sm:py-12">
-      <Link href={`/recruiter/jobs/${jobId}/questions`} className="text-sm font-medium text-primary hover:underline">← Configuration de l’offre</Link>
+      <Link href="/recruiter" className="text-sm font-medium text-primary hover:underline">← Toutes les offres</Link>
       <p className="mt-8 text-xs font-bold uppercase tracking-[0.16em] text-primary">Modifier le poste</p>
       <h1 className="mt-2 text-3xl font-bold">{job.title}</h1>
-      <p className="mb-7 mt-2 text-sm text-muted-foreground">Mettez à jour la description ou la publication de l’offre.</p>
+      <p className="mt-2 text-sm text-muted-foreground">Mettez à jour la description ou la publication de l’offre.</p>
+      <JobSetupSteps current="edit" jobId={jobId} />
       <JobDetailsForm job={{ ...job, applicationDeadline: job.applicationDeadline?.toISOString() ?? null, description: sanitizeRichText(job.description) }} aiEnabled={["openai", "openrouter", "ollama"].includes((process.env.AI_PROVIDER ?? "none").toLowerCase())} />
     </main>
   );

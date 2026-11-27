@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import JobSetupSteps from "../../JobSetupSteps";
 import RubricEditor from "../RubricEditor";
 import FormEditor from "./FormEditor";
 import { formSelection, readRecruiterForm } from "@/lib/recruiter-form";
@@ -35,10 +36,7 @@ export default async function JobQuestionsPage({ params }: { params: Promise<{ j
         </div>
         <Button asChild variant="outline" className="rounded-xl"><Link href={`/recruiter/jobs/${jobId}`}>Voir les candidatures</Link></Button>
       </div>
-      <nav aria-label="Actions de l’offre" className="my-7 flex flex-wrap gap-2 border-b border-[#d9e5f2] pb-3 text-sm">
-        <Link href={`/recruiter/jobs/${jobId}/edit`} className="rounded-xl px-4 py-2 font-medium text-muted-foreground hover:bg-white">1. Poste</Link>
-        <span aria-current="page" className="rounded-xl bg-primary px-4 py-2 font-semibold text-white">2. Formulaire de candidature</span>
-      </nav>
+      <JobSetupSteps current="questions" jobId={jobId} />
       <div className="space-y-6">
         <FormEditor key={job.id} jobId={job.id} initial={readRecruiterForm(job)} locked={job._count.candidates > 0} publicSlug={job.isActive ? job.slug : null} />
         {isAdmin && aiEnabled && <RubricEditor jobId={jobId} initialCriteria={job.rubricCriteria} locked={job._count.candidates > 0} />}
