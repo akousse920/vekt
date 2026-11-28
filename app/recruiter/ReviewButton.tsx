@@ -22,8 +22,8 @@ type CandidateStatus = "APPLIED" | "ANALYZING" | "SHORTLISTED" | "NEEDS_REVIEW" 
 const STATUS_META: Record<CandidateStatus, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
   APPLIED: { label: "Reçue", variant: "outline" },
   ANALYZING: { label: "En cours", variant: "secondary" },
-  SHORTLISTED: { label: "Transmise", variant: "default" },
-  NEEDS_REVIEW: { label: "À examiner", variant: "secondary" },
+  SHORTLISTED: { label: "Présélectionnée", variant: "default" },
+  NEEDS_REVIEW: { label: "À vérifier", variant: "secondary" },
   ACCEPTED: { label: "Acceptée", variant: "default" },
   REJECTED: { label: "Refusée", variant: "destructive" },
 };
@@ -51,7 +51,7 @@ export default function ReviewButton({
       if (!response.ok) throw new Error(`Review request failed: ${response.status}`);
       setOpen(false);
       router.refresh();
-      toast.success(decision === "ACCEPT" ? "Candidature acceptée." : decision === "REJECT" ? "Candidature refusée." : "Profil transmis au recruteur.");
+      toast.success(decision === "ACCEPT" ? "Candidature acceptée." : decision === "REJECT" ? "Candidature refusée." : "Candidature présélectionnée.");
     } catch(err)  {
       logger.error({ candidateId, decision, err }, "Failed to update candidate status");
       toast.error("Décision impossible à enregistrer. Réessayez.");
@@ -103,7 +103,7 @@ export default function ReviewButton({
               onClick={() => decide("SHORTLIST")}
               className="bg-blue-500/10 text-blue-700 hover:bg-blue-500/20"
             >
-              Transmettre
+              Présélectionner
             </Button>
           )}
           {currentStatus !== "ACCEPTED" && (

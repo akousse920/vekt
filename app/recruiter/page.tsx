@@ -10,7 +10,7 @@ const PAGE_SIZE = 10;
 export default async function RecruiterPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; status?: string; page?: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const session = await auth();
 
@@ -26,9 +26,9 @@ export default async function RecruiterPage({
   }
 
   const sp = await searchParams;
-  const q = (sp.q ?? "").trim();
-  const listingStatus = (sp.status ?? "all") as "all" | "active" | "inactive";
-  const listingPage = Math.max(1, parseInt(sp.page ?? "1") || 1);
+  const q = typeof sp.q === "string" ? sp.q.trim() : "";
+  const listingStatus = sp.status === "active" || sp.status === "inactive" ? sp.status : "all";
+  const requestedPage = typeof sp.page === "string" && /^\d+$/.test(sp.page) ? Number(sp.page) : 1;
 
   const listingWhere = {
     ...(q
@@ -42,32 +42,33 @@ export default async function RecruiterPage({
       ...(!isAdmin && currentUserId ? { createdById: currentUserId } : {}),
   };
 
-  const [jobs, listingTotal, reviewCount] = await Promise.all([
-    prisma.job.findMany({
-      where: listingWhere,
-      orderBy: { createdAt: "desc" },
-      skip: (listingPage - 1) * PAGE_SIZE,
-      take: PAGE_SIZE,
-      select: {
-        id: true,
-        slug: true,
-        title: true,
-        location: true,
-        isActive: true,
-        notifyOnApplication: true,
-        _count: {
-          select: {
-            candidates: true,
-            screeningQuestions: true,
-            applicationFields: true,
-          },
-        },
-      },
-    }),
+  const [listingTotal, reviewCount] = await Promise.all([
     prisma.job.count({ where: listingWhere }),
     isAdmin ? prisma.candidate.count({ where: { status: CandidateStatus.NEEDS_REVIEW } }) : Promise.resolve(0),
   ]);
   const listingTotalPages = Math.max(1, Math.ceil(listingTotal / PAGE_SIZE));
+  const listingPage = Math.min(Math.max(requestedPage, 1), listingTotalPages);
+  const jobs = listingTotal === 0 ? [] : await prisma.job.findMany({
+    where: listingWhere,
+    orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+    skip: (listingPage - 1) * PAGE_SIZE,
+    take: PAGE_SIZE,
+    select: {
+      id: true,
+      slug: true,
+      title: true,
+      location: true,
+      isActive: true,
+      notifyOnApplication: true,
+      _count: {
+        select: {
+          candidates: true,
+          screeningQuestions: true,
+          applicationFields: true,
+        },
+      },
+    },
+  });
 
   return (
     <div className="min-h-[89vh] bg-background">
@@ -75,7 +76,7 @@ export default async function RecruiterPage({
         {isAdmin && reviewCount > 0 && (
           <Link href="/recruiter/all?status=review" className="mb-7 flex items-center justify-between gap-4 rounded-2xl border border-[#f6d3a6] bg-[#fff2e2] p-4 transition-colors hover:bg-[#ffe8ca]">
             <div>
-              <p className="text-sm font-bold text-[#874d15]">Dossiers à examiner</p>
+              <p className="text-sm font-bold text-[#874d15]">Dossiers à vérifier</p>
               <p className="mt-1 text-sm text-[#734c26]">{reviewCount} {reviewCount === 1 ? "candidature attend" : "candidatures attendent"} une décision humaine.</p>
             </div>
             <span className="shrink-0 rounded-full bg-[#f39a35] px-4 py-2 text-sm font-semibold text-[#17375f]">Ouvrir →</span>
@@ -85,6 +86,7 @@ export default async function RecruiterPage({
           listings={jobs}
           total={listingTotal}
           page={listingPage}
+          pageSize={PAGE_SIZE}
           totalPages={listingTotalPages}
           q={q}
           status={listingStatus}

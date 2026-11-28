@@ -68,8 +68,8 @@ const STATUS_VARIANT: Record<string, StatusVariant> = {
   REJECTED: "destructive",
 };
 const STATUS_LABEL: Record<string, string> = {
-  APPLIED: "Reçue", ANALYZING: "En cours", SHORTLISTED: "Transmise",
-  NEEDS_REVIEW: "À examiner", ACCEPTED: "Acceptée", REJECTED: "Refusée",
+  APPLIED: "Reçue", ANALYZING: "En cours", SHORTLISTED: "Présélectionnée",
+  NEEDS_REVIEW: "À vérifier", ACCEPTED: "Acceptée", REJECTED: "Refusée",
 };
 
 function parseJson(raw: string | undefined | null): string[] {
@@ -230,19 +230,19 @@ function ActionButtons({ candidate }: { candidate: Candidate }) {
                       className="w-full justify-start gap-2 text-xs h-8 text-blue-700 hover:text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-950/30"
                     >
                       <ChartBarIcon className="size-3.5" />
-                      Transmettre
+                      Présélectionner
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>Transmettre le profil de {candidate.name} ?</AlertDialogTitle>
+                      <AlertDialogTitle>Présélectionner la candidature de {candidate.name} ?</AlertDialogTitle>
                       <AlertDialogDescription>
-                        Le recruteur de cette offre pourra consulter le dossier.
+                        Le dossier apparaîtra dans les candidatures présélectionnées de l’offre.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel>Annuler</AlertDialogCancel>
-                      <AlertDialogAction onClick={() => decide("SHORTLIST")}>Transmettre</AlertDialogAction>
+                      <AlertDialogAction onClick={() => decide("SHORTLIST")}>Présélectionner</AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>

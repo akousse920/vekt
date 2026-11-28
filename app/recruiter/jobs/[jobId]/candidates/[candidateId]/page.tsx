@@ -11,8 +11,8 @@ import ReviewButton from "../../../../ReviewButton";
 const statusLabels: Record<string, string> = {
   APPLIED: "Reçue",
   ANALYZING: "En cours",
-  NEEDS_REVIEW: "À examiner",
-  SHORTLISTED: "Transmise",
+  NEEDS_REVIEW: "À vérifier",
+  SHORTLISTED: "Présélectionnée",
   ACCEPTED: "Acceptée",
   REJECTED: "Refusée",
 };
@@ -64,7 +64,7 @@ export default async function CandidateDetailPage({ params }: { params: Promise<
       <div className="mt-6 grid gap-6">
         {candidate.flags.length > 0 && (
           <section className="rounded-2xl border border-amber-300 bg-amber-50 p-5 sm:p-7">
-            <h2 className="text-lg font-bold text-amber-950">Points à examiner</h2>
+            <h2 className="text-lg font-bold text-amber-950">Points à vérifier</h2>
             <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-amber-950">{candidate.flags.map((flag) => <li key={flag.id}>{flag.detail}</li>)}</ul>
           </section>
         )}

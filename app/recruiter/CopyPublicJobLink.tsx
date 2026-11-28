@@ -5,8 +5,9 @@ import { CheckIcon, CopyIcon } from "@phosphor-icons/react";
 import { useState } from "react";
 import { toast } from "sonner";
 
-export default function CopyPublicJobLink({ slug, isActive }: { slug: string; isActive: boolean }) {
+export default function CopyPublicJobLink({ slug, title, isActive }: { slug: string; title: string; isActive: boolean }) {
   const [copied, setCopied] = useState(false);
+  const label = copied ? "Lien copié" : "Copier le lien";
 
   async function copyLink() {
     try {
@@ -23,13 +24,13 @@ export default function CopyPublicJobLink({ slug, isActive }: { slug: string; is
     <Button
       type="button"
       variant="outline"
-      className="rounded-xl"
+      className="min-h-10 lg:min-h-9"
       disabled={!isActive}
       onClick={copyLink}
-      aria-label={isActive ? `Copier le lien public de l’offre ${slug}` : "Publiez l’offre pour partager son lien"}
+      aria-label={isActive ? `${label} · ${title}` : `Lien indisponible · ${title}`}
     >
       {copied ? <CheckIcon className="size-4" /> : <CopyIcon className="size-4" />}
-      {isActive ? (copied ? "Lien copié" : "Copier le lien public") : "Publier pour partager"}
+      {isActive ? label : "Lien indisponible"}
     </Button>
   );
 }

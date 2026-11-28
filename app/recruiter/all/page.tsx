@@ -42,7 +42,7 @@ export default async function AllCandidatesPage({ searchParams }: { searchParams
         <p className="mt-1 text-sm text-muted-foreground">{isAdmin ? "Examinez les dossiers et transmettez les profils pertinents aux recruteurs." : "Retrouvez toutes les candidatures de vos offres."}</p>
         {isAdmin && (
           <nav className="my-6 flex flex-wrap gap-2" aria-label="Filtrer les candidatures">
-            <Link href="/recruiter/all?status=review" className={`rounded-full px-4 py-2 text-sm font-semibold ${reviewOnly ? "bg-primary text-white" : "border bg-white text-foreground"}`}>À revoir</Link>
+            <Link href="/recruiter/all?status=review" className={`rounded-full px-4 py-2 text-sm font-semibold ${reviewOnly ? "bg-primary text-white" : "border bg-white text-foreground"}`}>À vérifier</Link>
             <Link href="/recruiter/all" className={`rounded-full px-4 py-2 text-sm font-semibold ${!reviewOnly ? "bg-primary text-white" : "border bg-white text-foreground"}`}>Toutes</Link>
           </nav>
         )}

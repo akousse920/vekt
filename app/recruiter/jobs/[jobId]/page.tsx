@@ -9,8 +9,8 @@ import { notFound, redirect } from "next/navigation";
 
 const filters = [
   { key: "all", label: "Toutes", statuses: null },
-  { key: "review", label: "À examiner", statuses: [CandidateStatus.NEEDS_REVIEW] },
-  { key: "shortlisted", label: "Transmises", statuses: [CandidateStatus.SHORTLISTED] },
+  { key: "review", label: "À vérifier", statuses: [CandidateStatus.NEEDS_REVIEW] },
+  { key: "shortlisted", label: "Présélectionnées", statuses: [CandidateStatus.SHORTLISTED] },
   { key: "accepted", label: "Acceptées", statuses: [CandidateStatus.ACCEPTED] },
   { key: "pending", label: "En cours", statuses: [CandidateStatus.APPLIED, CandidateStatus.ANALYZING] },
   { key: "rejected", label: "Refusées", statuses: [CandidateStatus.REJECTED] },
@@ -19,8 +19,8 @@ const filters = [
 const statusLabels: Record<CandidateStatus, string> = {
   APPLIED: "Reçue",
   ANALYZING: "En cours",
-  NEEDS_REVIEW: "À examiner",
-  SHORTLISTED: "Transmise",
+  NEEDS_REVIEW: "À vérifier",
+  SHORTLISTED: "Présélectionnée",
   ACCEPTED: "Acceptée",
   REJECTED: "Refusée",
 };
